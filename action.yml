@@ -7,20 +7,22 @@ runs:
   steps:
     - run: |
         git clone https://github.com/arturo-lang/arturo.git
+      shell: bash
     
     - run: |
         wget -qO - https://nim-lang.org/choosenim/init.sh | bash -s -- -y
         echo "$HOME/.nimble/bin" >> $GITHUB_PATH
+        nim --version
+      shell: bash
 
     - run: |
         sudo apt-get update
         sudo apt-get install libwebkit2gtk-4.0-dev
-        
-    - run: |
-        nim --version
+      shell: bash
         
     - run: |
         cd arturo
         ./install ${{ matrix.version }} log
         echo "$HOME/.arturo/bin" >> $GITHUB_PATH
         cd ..
+      shell: bash
