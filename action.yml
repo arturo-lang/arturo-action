@@ -1,5 +1,7 @@
 name: 'Arturo action'
 description: 'Setup Arturo environment'
+icon: at-sign
+color: purple
 runs:
   using: "composite"
   steps:
