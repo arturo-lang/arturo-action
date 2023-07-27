@@ -23,7 +23,7 @@ runs:
         
     - run: |
         cd arturo
-        ./install ${{ matrix.version }} log
+        ./build.nims install ${{ matrix.version }}
         echo "$HOME/.arturo/bin" >> $GITHUB_PATH
         cd ..
       shell: bash
