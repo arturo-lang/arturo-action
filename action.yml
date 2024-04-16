@@ -10,6 +10,7 @@ runs:
       shell: bash
     
     - run: |
+        export CHOOSENIM_CHOOSE_VERSION=2.0.2
         wget -qO - https://nim-lang.org/choosenim/init.sh | bash -s -- -y
         echo "$HOME/.nimble/bin" >> $GITHUB_PATH
         export PATH=/home/runner/.nimble/bin:$PATH
