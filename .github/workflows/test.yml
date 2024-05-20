@@ -30,7 +30,6 @@ jobs:
                 mode:
                     - full
                     - mini
-                arch: default
         steps:
             - uses: actions/checkout@v4
             - name: Install Arturo
