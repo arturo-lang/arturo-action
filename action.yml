@@ -47,9 +47,9 @@ runs:
             repo-token: ${{ inputs.token }}
 
         - name: Install Nim (Windows)
-            if: runner.os == 'Windows'
-            run: |
-              echo "done"
+          if: runner.os == 'Windows'
+          run: |
+            echo "done"
 
         - name: Install dependencies (Linux / mini / x86)
           if: runner.os == 'Linux' && inputs.mode == 'mini' && runner.arch != 'ARM' && runner.arch != 'ARM64'
