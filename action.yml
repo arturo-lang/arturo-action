@@ -82,7 +82,7 @@ runs:
             7z x dist/nim.zip -onim
             
             export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
-
+            ls 
             echo ${{ github.workspace }}/nim/nim-2.0.4/bin >> $GITHUB_PATH
           shell: msys2 {0}
 
@@ -100,6 +100,7 @@ runs:
             7z x dist/nim.zip -onim
   
             cp arturo/src/extras/webview/deps/dlls/x64/*.dll bin
+            ls
             
             export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
 
