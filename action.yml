@@ -70,14 +70,14 @@ runs:
           shell: bash
 
         - name: Install dependencies (Linux / mini / x86)
-          if: runner.os == 'Linux' && inputs.mode == 'mini' && runner.arch == 'X86'
+          if: runner.os == 'Linux' && inputs.mode == 'mini' && inputs.arch == 'x86'
           run: |
             sudo apt-get update
             sudo apt-get install gcc-multilib g++-multilib
           shell: bash
 
         - name: Install dependencies (Linux / mini / arm)
-          if: runner.os == 'Linux' && inputs.mode == 'mini' && (runner.arch == 'ARM' || runner.arch == 'ARM64')
+          if: runner.os == 'Linux' && inputs.mode == 'mini' && (inputs.arch == 'arm' || runner.arch == 'arm64')
           run: |
             sudo apt-get update
             sudo apt-get install gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu
