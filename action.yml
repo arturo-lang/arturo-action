@@ -73,7 +73,7 @@ runs:
           shell: bash
 
         - name: Install dependencies (macOS / arm)
-          if: runner.os == 'macOS' && runners.arch == 'ARM64'
+          if: runner.os == 'macOS' && runner.arch == 'ARM64'
           run: |
             brew install nim
             brew install gmp
