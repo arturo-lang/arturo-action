@@ -59,6 +59,9 @@ jobs:
               name: Run tests (Windows)
               run: |
                 echo "${{ github.workspace }}/arturo/bin" >> $GITHUB_PATH
+                ls C:\Users\runneradmin\.arturo
+                ls C:\Users\runneradmin\.arturo\bin
+                echo "$HOME/.arturo/bin" >> $GITHUB_PATH
                 arturo -v
                 arturo tests/test.art
               shell: msys2 {0}
