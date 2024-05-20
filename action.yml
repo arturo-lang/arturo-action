@@ -84,9 +84,11 @@ runs:
             export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
             echo ${{ github.workspace }}/nim/nim-2.0.4/bin >> $GITHUB_PATH
 
+            echo ${{ github.workspace }}/arturo/bin >> $GITHUB_PATH
+
             cd arturo
             ./build.nims build --install --mode ${{ inputs.mode }} --log
-            ls "$HOME/.arturo/bin"
+            ls "${{ github.workspace }}/arturo/bin"
             cd ..
           shell: msys2 {0}
 
@@ -108,10 +110,12 @@ runs:
             export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
             echo ${{ github.workspace }}/nim/nim-2.0.4/bin >> $GITHUB_PATH
 
+            echo ${{ github.workspace }}/arturo/bin >> $GITHUB_PATH
+
             cd arturo
             ./build.nims build --install --mode ${{ inputs.mode }} --log
             echo "$HOME/.arturo/bin" >> $GITHUB_PATH
-            ls "$HOME/.arturo/bin"
+            ls "${{ github.workspace }}/arturo/bin"
             cd ..
           shell: msys2 {0}
 
