@@ -61,6 +61,7 @@ jobs:
                 echo "${{ github.workspace }}/arturo/bin" >> $GITHUB_PATH
                 arturo -v
                 arturo tests/test.art
+              shell: msys2 {0}
 
             - if: matrix.os != 'ubuntu-latest' || matrix.arch != 'arm64'
               name: Run tests (*nix)
