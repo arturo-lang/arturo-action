@@ -25,21 +25,21 @@ runs:
             repo-token: ${{ inputs.token }}
 
         - name: Install dependencies (mini / x86)
-          if: runner.os == "Linux" && inputs.mode == 'mini' && runner.arch != 'ARM' && runner.arch != 'ARM64'
+          if: runner.os == 'Linux' && inputs.mode == 'mini' && runner.arch != 'ARM' && runner.arch != 'ARM64'
           run: |
             sudo apt-get update
             sudo apt-get install gcc-multilib g++-multilib
           shell: bash
 
         - name: Install dependencies (mini / arm)
-          if: runner.os == "Linux" && inputs.mode == 'mini' && (runner.arch == 'ARM' || runner.arch == 'ARM64')
+          if: runner.os == 'Linux' && inputs.mode == 'mini' && (runner.arch == 'ARM' || runner.arch == 'ARM64')
           run: |
             sudo apt-get update
             sudo apt-get install gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu
           shell: bash
 
         - name: Install dependencies (full)
-          if: runner.os == "Linux" && inputs.mode != 'mini'
+          if: runner.os == 'Linux' && inputs.mode != 'mini'
           run: |
             sudo apt-get update
             sudo apt-get install libgtk-3-dev libwebkit2gtk-4.0-dev libmpfr-dev
