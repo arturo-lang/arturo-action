@@ -1,0 +1,4 @@
+print "This is a test in Arturo"
+loop 1..10 'x [
+    print x
+]

@@ -1,0 +1,43 @@
+name: build
+
+on:
+    push:
+        paths-ignore:
+            - 'LICENSE'
+            - '*.md'
+        branches:
+            - main
+    pull_request:
+        paths-ignore:
+            - 'LICENSE'
+            - '*.md'
+    workflow_dispatch:
+
+concurrency: 
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    crossplatform-tester:
+        runs-on: ${{ matrix.os }}
+        strategy:
+            matrix:
+                os:
+                    - ubuntu-latest
+                    #- windows-latest
+                    - macOS-12
+                    - macOS-14
+                mode:
+                    - full
+                    - mini
+        steps:
+            - uses: actions/checkout@v4
+            - name: Install Arturo
+              uses: ./
+              with: 
+                token: ${{ secrets.GITHUB_TOKEN }}
+                mode: ${{ matrix.mode }}
+            - name: Run tests
+              run: |
+                arturo tests/test.art
+              shell: bash
