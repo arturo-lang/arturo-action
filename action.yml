@@ -149,7 +149,7 @@ runs:
           shell: bash
         
         - name: Compile Arturo (Linux/macOS - native)
-          if: runner.os != "Windows" && (inputs.arch == 'native' || inputs.arch == 'amd64') && runner.arch != 'ARM64'
+          if: runner.os != 'Windows' && (inputs.arch == 'native' || inputs.arch == 'amd64') && runner.arch != 'ARM64'
           run: |
             cd arturo
             ./build.nims --install --mode ${{inputs.mode}} --arch amd64 --log
