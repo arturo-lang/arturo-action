@@ -55,8 +55,15 @@ jobs:
                 mode: ${{ matrix.mode }}
                 arch: ${{ matrix.arch }}
 
+            - if: matrix.os == 'windows-latest'
+              name: Run tests (Windows)
+              run: |
+                echo "${{ github.workspace }}/arturo/bin" >> $GITHUB_PATH
+                arturo -v
+                arturo tests/test.art
+
             - if: matrix.os != 'ubuntu-latest' || matrix.arch != 'arm64'
-              name: Run tests
+              name: Run tests (*nix)
               run: |
                 arturo -v
                 arturo tests/test.art

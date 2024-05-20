@@ -35,7 +35,7 @@ runs:
           shell: bash
 
         - name: Cache ChooseNim
-          #if: runner.os == 'Linux' || runner.os == 'macOS' || runner.os
+          if: runner.os == 'Linux' || runner.os == 'macOS'
           id: cache-choosenim
           uses: actions/cache@v3
           with:
@@ -43,7 +43,7 @@ runs:
             key: ${{ runner.os }}-choosenim-${{ steps.get-date.outputs.date }}
   
         - name: Cache Nimble
-          #if: runner.os == 'Linux' || runner.os == 'macOS'
+          if: runner.os == 'Linux' || runner.os == 'macOS'
           id: cache-nimble
           uses: actions/cache@v3
           with:
@@ -58,7 +58,7 @@ runs:
             install: 'git base-devel'
 
         - name: Install Nim (Linux)
-          if: runner.os == 'Linux' || runner.os == 'Windows'
+          if: runner.os == 'Linux'
           uses: jiro4989/setup-nim-action@v1
           with:
             nim-version: '2.0.4'
@@ -70,43 +70,50 @@ runs:
             brew install nim
           shell: bash
 
-        # - name: Install Nim (Windows / mini)
-        #   if: runner.os == 'Windows' && inputs.mode == 'mini'
-        #   run: |
-        #     pacman --noconfirm -S p7zip mingw-w64-x86_64-toolchain
-        #     mkdir dist
-        #     mkdir nim
-        #     curl -L https://nim-lang.org/download/dlls.zip -o dist/dlls.zip
-        #     curl -L https://nim-lang.org/download/nim-2.0.4_x64.zip -o dist/nim.zip
-        #     7z x dist/dlls.zip -obin
-        #     7z x dist/nim.zip -onim
-        #     echo ${{ github.workspace }}
-        #     export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
-        #     ls 
-        #     echo ${{ github.workspace }}/nim/nim-2.0.4/bin >> $GITHUB_PATH
-        #   shell: msys2 {0}
+        - name: Install Nim (Windows / mini)
+          if: runner.os == 'Windows' && inputs.mode == 'mini'
+          run: |
+            pacman --noconfirm -S p7zip mingw-w64-x86_64-toolchain
+            mkdir dist
+            mkdir nim
+            curl -L https://nim-lang.org/download/dlls.zip -o dist/dlls.zip
+            curl -L https://nim-lang.org/download/nim-2.0.4_x64.zip -o dist/nim.zip
+            7z x dist/dlls.zip -obin
+            7z x dist/nim.zip -onim
+            echo ${{ github.workspace }}
+            export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
+            echo ${{ github.workspace }}/nim/nim-2.0.4/bin >> $GITHUB_PATH
 
-        # - name: Install Nim (Windows / full)
-        #   if: runner.os == 'Windows' && inputs.mode == 'full'
-        #   run: |
-        #     pacman --noconfirm -S p7zip mingw-w64-x86_64-toolchain mingw-w64-x86_64-mpfr
-        #     mkdir dist
-        #     mkdir nim
-        #     curl -L https://nim-lang.org/download/dlls.zip -o dist/dlls.zip
-        #     curl -L https://arturo-lang.s3.amazonaws.com/extra-dlls.zip -o dist/extradlls.zip
-        #     curl -L https://nim-lang.org/download/nim-2.0.4_x64.zip -o dist/nim.zip
-        #     7z x dist/dlls.zip -obin
-        #     7z x dist/extradlls.zip -obin
-        #     7z x dist/nim.zip -onim
+            cd arturo
+            ./build.nims build --install --mode ${{ inputs.mode }} --log
+            ls "$HOME/.arturo/bin"
+            cd ..
+          shell: msys2 {0}
+
+        - name: Install Nim (Windows / full)
+          if: runner.os == 'Windows' && inputs.mode == 'full'
+          run: |
+            pacman --noconfirm -S p7zip mingw-w64-x86_64-toolchain mingw-w64-x86_64-mpfr
+            mkdir dist
+            mkdir nim
+            curl -L https://nim-lang.org/download/dlls.zip -o dist/dlls.zip
+            curl -L https://arturo-lang.s3.amazonaws.com/extra-dlls.zip -o dist/extradlls.zip
+            curl -L https://nim-lang.org/download/nim-2.0.4_x64.zip -o dist/nim.zip
+            7z x dist/dlls.zip -obin
+            7z x dist/extradlls.zip -obin
+            7z x dist/nim.zip -onim
   
-        #     cp arturo/src/extras/webview/deps/dlls/x64/*.dll bin
-        #     echo ${{ github.workspace }}
-        #     ls
+            cp arturo/src/extras/webview/deps/dlls/x64/*.dll bin
+            echo ${{ github.workspace }}
+            export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
+            echo ${{ github.workspace }}/nim/nim-2.0.4/bin >> $GITHUB_PATH
 
-        #     export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
-
-        #     echo ${{ github.workspace }}/nim/nim-2.0.4/bin >> $GITHUB_PATH
-        #   shell: msys2 {0}
+            cd arturo
+            ./build.nims build --install --mode ${{ inputs.mode }} --log
+            echo "$HOME/.arturo/bin" >> $GITHUB_PATH
+            ls "$HOME/.arturo/bin"
+            cd ..
+          shell: msys2 {0}
 
         - name: Install dependencies (Linux / mini / x86)
           if: runner.os == 'Linux' && inputs.mode == 'mini' && inputs.arch == 'x86'
