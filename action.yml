@@ -18,31 +18,67 @@ runs:
             git clone https://github.com/arturo-lang/arturo.git
           shell: bash
 
-        - name: Install Nim
+        - name: Get Date
+          id: get-date
+          run: echo "::set-output name=date::$(date "+%Y-%m-%d")"
+          shell: bash
+
+        - name: Cache ChooseNim
+          if: runner.os == 'Linux' || runner.os == 'macOS'
+          id: cache-choosenim
+          uses: actions/cache@v3
+          with:
+            path: ~/.choosenim
+            key: ${{ runner.os }}-choosenim-${{ steps.get-date.outputs.date }}
+  
+        - name: Cache Nimble
+          if: runner.os == 'Linux' || runner.os == 'macOS'
+          id: cache-nimble
+          uses: actions/cache@v3
+          with:
+            path: ~/.nimble
+            key: ${{ runner.os }}-nimble-${{ hashFiles('*.nimble') }}
+
+        - name: Install Nim (*nix)
+          if: runner.os == 'Linux' || (runner.os == 'macOS' && runner.arch != 'ARM64')
           uses: jiro4989/setup-nim-action@v1
           with:
             nim-version: '2.0.4'
             repo-token: ${{ inputs.token }}
 
-        - name: Install dependencies (mini / x86)
+        - name: Install Nim (Windows)
+            if: runner.os == 'Windows'
+            run: |
+              echo "done"
+
+        - name: Install dependencies (Linux / mini / x86)
           if: runner.os == 'Linux' && inputs.mode == 'mini' && runner.arch != 'ARM' && runner.arch != 'ARM64'
           run: |
             sudo apt-get update
             sudo apt-get install gcc-multilib g++-multilib
           shell: bash
 
-        - name: Install dependencies (mini / arm)
+        - name: Install dependencies (Linux / mini / arm)
           if: runner.os == 'Linux' && inputs.mode == 'mini' && (runner.arch == 'ARM' || runner.arch == 'ARM64')
           run: |
             sudo apt-get update
             sudo apt-get install gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu
           shell: bash
 
-        - name: Install dependencies (full)
+        - name: Install dependencies (Linux / full)
           if: runner.os == 'Linux' && inputs.mode != 'mini'
           run: |
             sudo apt-get update
             sudo apt-get install libgtk-3-dev libwebkit2gtk-4.0-dev libmpfr-dev
+          shell: bash
+
+        - name: Install dependencies (macOS / arm)
+          if: runner.os == 'macOS' && runners.arch == 'ARM64'
+          run: |
+            brew install nim
+            brew install gmp
+            brew install pcre
+            brew install mpfr
           shell: bash
         
         - name: Compile Arturo
