@@ -39,12 +39,18 @@ runs:
             path: ~/.nimble
             key: ${{ runner.os }}-nimble-${{ hashFiles('*.nimble') }}
 
-        - name: Install Nim (*nix)
-          if: runner.os == 'Linux' || (runner.os == 'macOS' && runner.arch != 'ARM64')
+        - name: Install Nim (Linux)
+          if: runner.os == 'Linux'
           uses: jiro4989/setup-nim-action@v1
           with:
             nim-version: '2.0.4'
             repo-token: ${{ inputs.token }}
+
+        - name: Install Nim (macOS)
+          if: runner.os == 'macOS'
+          run: |
+            brew install nim
+          shell: bash
 
         - name: Install Nim (Windows)
           if: runner.os == 'Windows'
@@ -74,9 +80,8 @@ runs:
           shell: bash
 
         - name: Install dependencies (macOS / arm)
-          if: runner.os == 'macOS' && runner.arch == 'ARM64'
+          if: runner.os == 'macOS' && runner.arch == 'ARM64' && inputs.mode != 'mini'
           run: |
-            brew install nim
             brew install gmp
             brew install pcre
             brew install mpfr
