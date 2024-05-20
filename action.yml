@@ -9,15 +9,15 @@ runs:
         git clone https://github.com/arturo-lang/arturo.git
       shell: bash
     
-    - if: runner.os == 'Linux':
+    - if: runner.os == 'Linux'
       run: |
         echo "we are on Linux"
 
-    - if: runner.os == 'Windows':
+    - if: runner.os == 'Windows'
       run: |
         echo "we are on Windows"
 
-    - if: runner.os == 'macOS':
+    - if: runner.os == 'macOS'
       run: |
         echo "we are on macOS"
 
