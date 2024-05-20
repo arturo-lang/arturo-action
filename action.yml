@@ -13,8 +13,8 @@ inputs:
     arch:
         description: >-
             The architecture to build for.
-            (one of: 'x86', 'arm', 'arm64', 'amd64', 'default')
-        default: 'default'
+            (one of: 'x86', 'arm', 'arm64', 'amd64', 'native')
+        default: 'native'
 runs:
     using: "composite"
     steps:
@@ -98,8 +98,8 @@ runs:
             brew install mpfr
           shell: bash
         
-        - name: Compile Arturo (Windows/Linux/macOS - default)
-          if: (inputs.arch == 'default' || inputs.arch == 'amd64') && runner.arch != 'ARM64'
+        - name: Compile Arturo (Windows/Linux/macOS - native)
+          if: (inputs.arch == 'native' || inputs.arch == 'amd64') && runner.arch != 'ARM64'
           run: |
             cd arturo
             ./build.nims --install --mode ${{inputs.mode}} --arch amd64 --log
@@ -108,7 +108,7 @@ runs:
           shell: bash
 
         - name: Compile Arturo (macOS - M1)
-          if: (inputs.arch == 'default' || inputs.arch == 'arm64') &&  (runner.os == 'macOS' && runner.arch == 'ARM64')
+          if: (inputs.arch == 'native' || inputs.arch == 'arm64') &&  (runner.os == 'macOS' && runner.arch == 'ARM64')
           run: |
             cd arturo
             ./build.nims --install --mode ${{inputs.mode}} --arch arm64 --log
@@ -117,7 +117,7 @@ runs:
           shell: bash
 
         - name: Compile Arturo (macOS - M1)
-          if: inputs.arch != 'default' && runner.os == 'Linux'
+          if: inputs.arch != 'native' && runner.os == 'Linux'
           run: |
             cd arturo
             ./build.nims --install --mode ${{inputs.mode}} --arch ${{inputs.arch}} --log

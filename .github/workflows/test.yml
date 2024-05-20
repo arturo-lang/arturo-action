@@ -31,7 +31,7 @@ jobs:
                     - full
                     - mini
                 arch:
-                    - default
+                    - native
                     - amd64
                     - arm64
                 exclude:
