@@ -39,5 +39,6 @@ jobs:
                 mode: ${{ matrix.mode }}
             - name: Run tests
               run: |
+                arturo -v
                 arturo tests/test.art
               shell: bash
