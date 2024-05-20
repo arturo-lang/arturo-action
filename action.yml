@@ -117,7 +117,7 @@ runs:
             ./build.nims build --install --mode ${{ inputs.mode }} --log
             echo "$HOME/.arturo/bin" >> $GITHUB_PATH
             ls "${{ github.workspace }}/arturo/bin"
-            ls C:\Users\runneradmin\.arturo
+            ls $HOME/.arturo
             cd ..
           shell: msys2 {0}
 
