@@ -31,6 +31,7 @@ jobs:
                     - full
                     - mini
                 arch:
+                    - default
                     - amd64
                     - arm64
                 exclude:
@@ -46,12 +47,13 @@ jobs:
 
         steps:
             - uses: actions/checkout@v4
-            
+
             - name: Install Arturo
               uses: ./
               with: 
                 token: ${{ secrets.GITHUB_TOKEN }}
                 mode: ${{ matrix.mode }}
+                arch: ${{ matrix.arch }}
 
             - if: matrix.os != 'ubuntu-latest' || matrix.arch != 'arm64'
               name: Run tests
