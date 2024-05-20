@@ -58,9 +58,9 @@ jobs:
             - if: matrix.os == 'windows-latest'
               name: Run tests (Windows)
               run: |
-                echo "$HOME/.arturo/bin" >> $GITHUB_PATH
-                ls $HOME/.arturo
-                ls $HOME/.arturo/bin
+                #echo "$HOME/.arturo/bin" >> $GITHUB_PATH
+                #ls $HOME/.arturo
+                #ls $HOME/.arturo/bin
                 arturo -v
                 arturo tests/test.art
               shell: msys2 {0}
