@@ -82,6 +82,8 @@ runs:
             7z x dist/nim.zip -onim
             
             export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
+
+            echo ${{ github.workspace }}/nim/nim-2.0.4/bin >> $GITHUB_PATH
           shell: msys2 {0}
 
         - name: Install Nim (Windows / full)
@@ -100,6 +102,8 @@ runs:
             cp arturo/src/extras/webview/deps/dlls/x64/*.dll bin
             
             export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
+
+            echo ${{ github.workspace }}/nim/nim-2.0.4/bin >> $GITHUB_PATH
           shell: msys2 {0}
 
         - name: Install dependencies (Linux / mini / x86)
