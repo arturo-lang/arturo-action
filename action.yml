@@ -97,7 +97,7 @@ runs:
             7z x dist/extradlls.zip -obin
             7z x dist/nim.zip -onim
   
-            cp src/extras/webview/deps/dlls/x64/*.dll bin
+            cp arturo/src/extras/webview/deps/dlls/x64/*.dll bin
             
             export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
           shell: msys2 {0}
