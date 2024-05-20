@@ -9,6 +9,18 @@ runs:
         git clone https://github.com/arturo-lang/arturo.git
       shell: bash
     
+    - if: runner.os == 'Linux':
+      run: |
+        echo "we are on Linux"
+
+    - if: runner.os == 'Windows':
+      run: |
+        echo "we are on Windows"
+
+    - if: runner.os == 'macOS':
+      run: |
+        echo "we are on macOS"
+
     - run: |
         export CHOOSENIM_CHOOSE_VERSION=2.0.4
         wget -qO - https://nim-lang.org/choosenim/init.sh | bash -s -- -y
