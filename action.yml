@@ -23,6 +23,12 @@ runs:
           run: echo "::set-output name=date::$(date "+%Y-%m-%d")"
           shell: bash
 
+        - name: Debugging
+          run: |
+            echo ${{ runner.os }}
+            echo ${{ runner.arch }}
+          shell: bash
+
         - name: Cache ChooseNim
           if: runner.os == 'Linux' || runner.os == 'macOS'
           id: cache-choosenim
