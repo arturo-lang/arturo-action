@@ -89,7 +89,7 @@ runs:
             cd arturo
             ./build.nims build --install --mode ${{ inputs.mode }} --log
             ls "${{ github.workspace }}/arturo/bin"
-            ls C:\Users\runneradmin\.arturo
+            ls $HOME/.arturo
             cd ..
           shell: msys2 {0}
 
