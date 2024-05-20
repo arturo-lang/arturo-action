@@ -30,14 +30,31 @@ jobs:
                 mode:
                     - full
                     - mini
+                arch:
+                    - amd64
+                    - arm64
+                exclude:
+                    - arch: arm64
+                      os: macOS-12
+                    - arch: amd64
+                      os: macOS-14
+                    - arch: arm64
+                      os: windows-latest
+                    - arch: arm64
+                      os: ubuntu-latest
+                      mode: full
+
         steps:
             - uses: actions/checkout@v4
+            
             - name: Install Arturo
               uses: ./
               with: 
                 token: ${{ secrets.GITHUB_TOKEN }}
                 mode: ${{ matrix.mode }}
-            - name: Run tests
+
+            - if: matrix.os != 'ubuntu-latest' || matrix.arch != 'arm64'
+              name: Run tests
               run: |
                 arturo -v
                 arturo tests/test.art
