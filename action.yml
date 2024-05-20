@@ -12,14 +12,17 @@ runs:
     - if: runner.os == 'Linux'
       run: |
         echo "we are on Linux"
+      shell: bash
 
     - if: runner.os == 'Windows'
       run: |
         echo "we are on Windows"
+      shell: bash
 
     - if: runner.os == 'macOS'
       run: |
         echo "we are on macOS"
+      shell: bash
 
     - run: |
         export CHOOSENIM_CHOOSE_VERSION=2.0.4
