@@ -50,6 +50,13 @@ runs:
             path: ~/.nimble
             key: ${{ runner.os }}-nimble-${{ hashFiles('*.nimble') }}
 
+        - name: Setup Msys
+          if: runner.os == 'Windows'
+          uses: msys2/setup-msys2@v2
+          with:
+            update: true
+            install: 'git base-devel'
+
         - name: Install Nim (Linux)
           if: runner.os == 'Linux'
           uses: jiro4989/setup-nim-action@v1
@@ -63,11 +70,37 @@ runs:
             brew install nim
           shell: bash
 
-        - name: Install Nim (Windows)
-          if: runner.os == 'Windows'
+        - name: Install Nim (Windows / mini)
+          if: runner.os == 'Windows' && inputs.mode == 'mini'
           run: |
-            echo "done"
-          shell: bash
+            pacman --noconfirm -S p7zip mingw-w64-x86_64-toolchain
+            mkdir dist
+            mkdir nim
+            curl -L https://nim-lang.org/download/dlls.zip -o dist/dlls.zip
+            curl -L https://nim-lang.org/download/nim-2.0.4_x64.zip -o dist/nim.zip
+            7z x dist/dlls.zip -obin
+            7z x dist/nim.zip -onim
+            
+            export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
+          shell: msys2 {0}
+
+        - name: Install Nim (Windows / full)
+          if: runner.os == 'Windows' && inputs.mode == 'full'
+          run: |
+            pacman --noconfirm -S p7zip mingw-w64-x86_64-toolchain mingw-w64-x86_64-mpfr
+            mkdir dist
+            mkdir nim
+            curl -L https://nim-lang.org/download/dlls.zip -o dist/dlls.zip
+            curl -L https://arturo-lang.s3.amazonaws.com/extra-dlls.zip -o dist/extradlls.zip
+            curl -L https://nim-lang.org/download/nim-2.0.4_x64.zip -o dist/nim.zip
+            7z x dist/dlls.zip -obin
+            7z x dist/extradlls.zip -obin
+            7z x dist/nim.zip -onim
+  
+            cp src/extras/webview/deps/dlls/x64/*.dll bin
+            
+            export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
+          shell: msys2 {0}
 
         - name: Install dependencies (Linux / mini / x86)
           if: runner.os == 'Linux' && inputs.mode == 'mini' && inputs.arch == 'x86'
