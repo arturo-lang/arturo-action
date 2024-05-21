@@ -22,29 +22,18 @@ jobs:
         runs-on: ${{ matrix.os }}
         strategy:
             matrix:
-                os:
-                    - ubuntu-latest
-                    - windows-latest
-                    - macOS-12
-                    - macOS-14
-                mode:
-                    - full
-                    - mini
-                arch:
-                    - native
-                    - amd64
-                    - arm64
-                exclude:
-                    - arch: arm64
-                      os: macOS-12
-                    - arch: amd64
-                      os: macOS-14
-                    - arch: arm64
-                      os: windows-latest
-                    - arch: arm64
-                      os: ubuntu-latest
-                      mode: full
-
+                include: 
+                    - {os: ubuntu-latest,   arch: amd64, mode: full, shell: bash}
+                    - {os: ubuntu-latest,   arch: amd64, mode: mini, shell: bash}
+                    - {os: windows-latest,  arch: amd64, mode: full, shell: "msys2 {0}"}
+                    - {os: windows-latest,  arch: amd64, mode: mini, shell: "msys2 {0}"}
+                    - {os: macOS-12,        arch: amd64, mode: full, shell: bash}
+                    - {os: macOS-12,        arch: amd64, mode: mini, shell: bash}
+                    - {os: macos-latest,    arch: arm64, mode: full, shell: bash}
+                    - {os: macos-latest,    arch: arm64, mode: mini, shell: bash}
+        defaults:
+            run:
+                shell: ${{ matrix.shell }}
         steps:
             - uses: actions/checkout@v4
 
@@ -55,16 +44,8 @@ jobs:
                 mode: ${{ matrix.mode }}
                 arch: ${{ matrix.arch }}
 
-            - if: matrix.os == 'windows-latest'
-              name: Run tests (Windows)
+            - if: matrix.os != 'ubuntu-latest' || matrix.arch != 'arm64'
+              name: Run tests
               run: |
                 arturo -v
                 arturo tests/test.art
-              shell: msys2 {0}
-
-            - if: matrix.os != 'windows-latest' && (matrix.os != 'ubuntu-latest' || matrix.arch != 'arm64')
-              name: Run tests (*nix)
-              run: |
-                arturo -v
-                arturo tests/test.art
-              shell: bash
