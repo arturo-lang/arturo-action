@@ -83,7 +83,7 @@ runs:
             ls -la
             ls nim
             ls nim/nim-2.0.4
-            ./nim/nim-2.0.4/bin/finish.exe
+            ./nim/nim-2.0.4/finish.exe
             #cp nim/nim-2.0.4/bin/* /usr/bin
 
             export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
@@ -112,7 +112,7 @@ runs:
             ls nim
             ls nim/nim-2.0.4
             ls nim/nim-2.0.4/bin
-            ./nim/nim-2.0.4/bin/finish.exe
+            ./nim/nim-2.0.4/finish.exe
             #cp nim/nim-2.0.4/bin/* /usr/bin
             
 
