@@ -92,6 +92,7 @@ runs:
             ./build.nims build --install --mode ${{ inputs.mode }} --log
             ls "${{ github.workspace }}/arturo/bin"
             echo 'export PATH="${{ github.workspace }}/arturo/bin":$PATH' >> ~/.bashrc
+            export PATH="${{ github.workspace }}/arturo/bin":$PATH
 
             echo "Current directory:"
             pwd
@@ -129,7 +130,7 @@ runs:
             echo "$HOME/.arturo/bin" >> $GITHUB_PATH
             ls "${{ github.workspace }}/arturo/bin"
             echo 'export PATH="${{ github.workspace }}/arturo/bin":$PATH' >> ~/.bashrc
-
+            export PATH="${{ github.workspace }}/arturo/bin":$PATH
             echo "Current directory:"
             pwd
 
