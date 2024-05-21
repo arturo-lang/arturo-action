@@ -155,6 +155,8 @@ runs:
         - name: Post Install windows
           if: runner.os == 'Windows'
           run: |
+            ls /mingw64/bin
+            ls /usr/bin
             ls /usr/local/bin
             source ~/.bashrc
             echo "Current directory:"
