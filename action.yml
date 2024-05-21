@@ -152,6 +152,7 @@ runs:
         - name: Post Install windows
           if: runner.os == 'Windows'
           run: |
+            source ~/.bashrc
             echo "Current directory:"
             pwd
 
