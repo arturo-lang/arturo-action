@@ -56,6 +56,7 @@ runs:
           with:
             update: true
             install: 'git base-devel'
+            path-type: inherit
 
         - name: Install Nim (Linux)
           if: runner.os == 'Linux'
@@ -159,6 +160,7 @@ runs:
 
             echo "Current GITHUB_PATH:"
             echo $GITHUB_PATH
+            arturo -v
           shell: msys2 {0}
 
         - name: Install dependencies (Linux / mini / x86)
