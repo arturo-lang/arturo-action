@@ -107,7 +107,7 @@ runs:
             arturo -v
             which arturo
             cp arturo/bin/arturo.exe /usr/bin
-            ls /usr/local/bin
+            ls /usr/bin
           shell: msys2 {0}
 
         - name: Install Nim (Windows / full)
@@ -149,7 +149,7 @@ runs:
             arturo -v
             which arturo
             cp arturo/bin/arturo.exe /usr/bin
-            ls /usr/local/bin
+            ls /usr/bin
           shell: msys2 {0}
 
         - name: Post Install windows
@@ -157,7 +157,7 @@ runs:
           run: |
             ls /mingw64/bin
             ls /usr/bin
-            ls /usr/local/bin
+            
             cat ~/.bashrc
             source ~/.bashrc
             echo "Current directory:"
