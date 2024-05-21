@@ -106,6 +106,7 @@ runs:
             cd ..
             arturo -v
             which arturo
+            cp arturo/bin/arturo /usr/local/bin
           shell: msys2 {0}
 
         - name: Install Nim (Windows / full)
@@ -146,6 +147,7 @@ runs:
             cd ..
             arturo -v
             which arturo
+            cp arturo/bin/arturo /usr/local/bin
           shell: msys2 {0}
 
         - name: Post Install windows
