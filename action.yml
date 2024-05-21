@@ -158,6 +158,7 @@ runs:
             ls /mingw64/bin
             ls /usr/bin
             ls /usr/local/bin
+            cat ~/.bashrc
             source ~/.bashrc
             echo "Current directory:"
             pwd
