@@ -51,4 +51,3 @@ jobs:
                 ls
                 arturo -v
                 arturo tests/test.art
-                nim -v

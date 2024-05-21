@@ -80,11 +80,6 @@ runs:
             curl -L https://nim-lang.org/download/nim-2.0.4_x64.zip -o dist/nim.zip
             7z x dist/dlls.zip -obin
             7z x dist/nim.zip -onim
-            ls -la
-            ls nim
-            ls nim/nim-2.0.4
-            yes | ./nim/nim-2.0.4/finish.exe
-            #cp nim/nim-2.0.4/bin/* /usr/bin
 
             export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
 
@@ -108,13 +103,6 @@ runs:
             7z x dist/extradlls.zip -obin
             7z x dist/nim.zip -onim
             cp arturo/src/extras/webview/deps/dlls/x64/*.dll bin
-            ls -la
-            ls nim
-            ls nim/nim-2.0.4
-            ls nim/nim-2.0.4/bin
-            yes | ./nim/nim-2.0.4/finish.exe
-            #cp nim/nim-2.0.4/bin/* /usr/bin
-            
 
             export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
 
