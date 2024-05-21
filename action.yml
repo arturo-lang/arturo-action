@@ -102,7 +102,9 @@ runs:
 
             echo "Current GITHUB_PATH:"
             echo $GITHUB_PATH
+            arturo -v
             cd ..
+            arturo -v
           shell: msys2 {0}
 
         - name: Install Nim (Windows / full)
@@ -139,7 +141,9 @@ runs:
 
             echo "Current GITHUB_PATH:"
             echo $GITHUB_PATH
+            arturo -v
             cd ..
+            arturo -v
           shell: msys2 {0}
 
         - name: Post Install windows
