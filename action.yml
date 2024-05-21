@@ -106,7 +106,8 @@ runs:
             cd ..
             arturo -v
             which arturo
-            cp arturo/bin/arturo /usr/local/bin
+            cp arturo/bin/arturo.exe /usr/local/bin
+            ls /usr/local/bin
           shell: msys2 {0}
 
         - name: Install Nim (Windows / full)
@@ -147,12 +148,14 @@ runs:
             cd ..
             arturo -v
             which arturo
-            cp arturo/bin/arturo /usr/local/bin
+            cp arturo/bin/arturo.exe /usr/local/bin
+            ls /usr/local/bin
           shell: msys2 {0}
 
         - name: Post Install windows
           if: runner.os == 'Windows'
           run: |
+            ls /usr/local/bin
             source ~/.bashrc
             echo "Current directory:"
             pwd
