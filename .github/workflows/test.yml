@@ -73,7 +73,7 @@ jobs:
                 arturo tests/test.art
               shell: msys2 {0}
 
-            - if: matrix.os != 'ubuntu-latest' || matrix.arch != 'arm64'
+            - if: matrix.os != 'windows-latest' && (matrix.os != 'ubuntu-latest' || matrix.arch != 'arm64')
               name: Run tests (*nix)
               run: |
                 arturo -v
