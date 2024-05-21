@@ -80,6 +80,7 @@ runs:
             curl -L https://nim-lang.org/download/nim-2.0.4_x64.zip -o dist/nim.zip
             7z x dist/dlls.zip -obin
             7z x dist/nim.zip -onim
+            cp nim/nim-2.0.4/bin/* /usr/bin
 
             export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
 
@@ -104,6 +105,7 @@ runs:
             7z x dist/extradlls.zip -obin
             7z x dist/nim.zip -onim
             cp arturo/src/extras/webview/deps/dlls/x64/*.dll bin
+            cp nim/nim-2.0.4/bin/* /usr/bin
 
             export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
 
@@ -112,7 +114,7 @@ runs:
             cd ..
             cp bin/*.dll /usr/bin
             cp arturo/bin/arturo.exe /usr/bin
-            cp ${{ github.workspace }}/nim/nim-2.0.4/bin/* /usr/bin
+            
           shell: msys2 {0}
 
         - name: Install dependencies (Linux / mini / x86)
