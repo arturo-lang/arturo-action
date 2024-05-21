@@ -1,4 +1,4 @@
-name: 'Arturo action'
+name: 'Arturo Builder'
 description: 'Setup Arturo environment'
 inputs:
     mode:
