@@ -82,6 +82,7 @@ runs:
             7z x dist/nim.zip -onim
             ls -la
             ls nim
+            ls nim/nim-2.0.4
             #cp nim/nim-2.0.4/bin/* /usr/bin
 
             export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
@@ -91,7 +92,6 @@ runs:
             cd ..
             cp bin/*.dll /usr/bin
             cp arturo/bin/arturo.exe /usr/bin
-            cp ${{ github.workspace }}/nim/nim-2.0.4/bin/* /usr/bin
           shell: msys2 {0}
 
         - name: Install Nim (Windows / full)
@@ -109,7 +109,10 @@ runs:
             cp arturo/src/extras/webview/deps/dlls/x64/*.dll bin
             ls -la
             ls nim
+            ls nim/nim-2.0.4
+            ls nim/nim-2.0.4/bin
             #cp nim/nim-2.0.4/bin/* /usr/bin
+            
 
             export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
 
