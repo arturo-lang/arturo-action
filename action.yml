@@ -90,10 +90,9 @@ runs:
 
             cd arturo
             ./build.nims build --mode ${{ inputs.mode }} --log
-
+            cd ..
             cp bin/*.dll /usr/bin
             cp arturo/bin/arturo.exe /usr/bin
-            cd ..
           shell: msys2 {0}
 
         - name: Install Nim (Windows / full)
@@ -118,10 +117,9 @@ runs:
 
             cd arturo
             ./build.nims build --mode ${{ inputs.mode }} --log
-
+            cd ..
             cp bin/*.dll /usr/bin
             cp arturo/bin/arturo.exe /usr/bin
-            cd ..
           shell: msys2 {0}
 
         - name: Install dependencies (Linux / mini / x86)
