@@ -71,7 +71,7 @@ jobs:
                 #ls $HOME/.arturo/bin
                 arturo -v
                 arturo tests/test.art
-              shell: bash
+              shell: msys2 {0}
 
             - if: matrix.os != 'ubuntu-latest' || matrix.arch != 'arm64'
               name: Run tests (*nix)
