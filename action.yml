@@ -56,7 +56,7 @@ runs:
           with:
             update: true
             cache: true
-            install: 'git base-devel p7zip mingw-w64-x86_64-toolchain mingw-w64-x86_64-nim'
+            install: 'git base-devel p7zip mingw-w64-x86_64-toolchain'
 
         - name: Install Nim (Linux)
           if: runner.os == 'Linux'
@@ -75,13 +75,13 @@ runs:
           if: runner.os == 'Windows' && inputs.mode == 'mini'
           run: |
             mkdir dist
-            #mkdir nim
+            mkdir nim
             curl -L https://nim-lang.org/download/dlls.zip -o dist/dlls.zip
-            #curl -L https://nim-lang.org/download/nim-2.0.4_x64.zip -o dist/nim.zip
+            curl -L https://nim-lang.org/download/nim-2.0.4_x64.zip -o dist/nim.zip
             7z x dist/dlls.zip -obin
-            #7z x dist/nim.zip -onim
+            7z x dist/nim.zip -onim
 
-            #export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
+            export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
 
             cd arturo
             ./build.nims build --mode ${{ inputs.mode }} --log
@@ -95,16 +95,16 @@ runs:
           run: |
             pacman --noconfirm -S mingw-w64-x86_64-mpfr
             mkdir dist
-            #mkdir nim
+            mkdir nim
             curl -L https://nim-lang.org/download/dlls.zip -o dist/dlls.zip
             curl -L https://arturo-lang.s3.amazonaws.com/extra-dlls.zip -o dist/extradlls.zip
-            #curl -L https://nim-lang.org/download/nim-2.0.4_x64.zip -o dist/nim.zip
+            curl -L https://nim-lang.org/download/nim-2.0.4_x64.zip -o dist/nim.zip
             7z x dist/dlls.zip -obin
             7z x dist/extradlls.zip -obin
-            #7z x dist/nim.zip -onim
+            7z x dist/nim.zip -onim
             cp arturo/src/extras/webview/deps/dlls/x64/*.dll bin
 
-            #export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
+            export PATH="${{ github.workspace }}/nim/nim-2.0.4/bin":$PATH
 
             cd arturo
             ./build.nims build --mode ${{ inputs.mode }} --log
