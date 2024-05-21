@@ -48,6 +48,5 @@ jobs:
             - if: matrix.os != 'ubuntu-latest' || matrix.arch != 'arm64'
               name: Run tests
               run: |
-                ls
                 arturo -v
                 arturo tests/test.art
