@@ -106,6 +106,7 @@ runs:
             cd ..
             arturo -v
             which arturo
+            cp bin/*.dll /usr/bin
             cp arturo/bin/arturo.exe /usr/bin
             ls /usr/bin
           shell: msys2 {0}
@@ -148,6 +149,7 @@ runs:
             cd ..
             arturo -v
             which arturo
+            cp bin/*.dll /usr/bin
             cp arturo/bin/arturo.exe /usr/bin
             ls /usr/bin
           shell: msys2 {0}
