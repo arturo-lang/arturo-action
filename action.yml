@@ -55,7 +55,8 @@ runs:
           uses: msys2/setup-msys2@v2
           with:
             update: true
-            install: 'git base-devel'
+            cache: true
+            install: 'git base-devel p7zip mingw-w64-x86_64-toolchain'
 
         - name: Install Nim (Linux)
           if: runner.os == 'Linux'
@@ -73,7 +74,7 @@ runs:
         - name: Install Nim (Windows / mini)
           if: runner.os == 'Windows' && inputs.mode == 'mini'
           run: |
-            pacman --noconfirm -S p7zip mingw-w64-x86_64-toolchain
+            #pacman --noconfirm -S p7zip mingw-w64-x86_64-toolchain
             mkdir dist
             mkdir nim
             curl -L https://nim-lang.org/download/dlls.zip -o dist/dlls.zip
@@ -87,34 +88,18 @@ runs:
 
             echo ${{ github.workspace }}/arturo/bin >> $GITHUB_PATH
 
-
             cd arturo
-            ./build.nims build --install --mode ${{ inputs.mode }} --log
-            ls "${{ github.workspace }}/arturo/bin"
-            echo 'export PATH="${{ github.workspace }}\arturo\bin":$PATH' >> ~/.bashrc
-            export PATH="${{ github.workspace }}/arturo/bin":$PATH
+            ./build.nims build --mode ${{ inputs.mode }} --log
 
-            echo "Current directory:"
-            pwd
-
-            echo "Current path:"
-            echo $PATH
-
-            echo "Current GITHUB_PATH:"
-            echo $GITHUB_PATH
-            arturo -v
-            cd ..
-            arturo -v
-            which arturo
             cp bin/*.dll /usr/bin
             cp arturo/bin/arturo.exe /usr/bin
-            ls /usr/bin
+            cd ..
           shell: msys2 {0}
 
         - name: Install Nim (Windows / full)
           if: runner.os == 'Windows' && inputs.mode == 'full'
           run: |
-            pacman --noconfirm -S p7zip mingw-w64-x86_64-toolchain mingw-w64-x86_64-mpfr
+            pacman --noconfirm -S mingw-w64-x86_64-mpfr
             mkdir dist
             mkdir nim
             curl -L https://nim-lang.org/download/dlls.zip -o dist/dlls.zip
@@ -132,46 +117,11 @@ runs:
             echo ${{ github.workspace }}/arturo/bin >> $GITHUB_PATH
 
             cd arturo
-            ./build.nims build --install --mode ${{ inputs.mode }} --log
-            echo "$HOME/.arturo/bin" >> $GITHUB_PATH
-            ls "${{ github.workspace }}/arturo/bin"
-            echo 'export PATH="${{ github.workspace }}\arturo\bin":$PATH' >> ~/.bashrc
-            export PATH="${{ github.workspace }}/arturo/bin":$PATH
-            echo "Current directory:"
-            pwd
+            ./build.nims build --mode ${{ inputs.mode }} --log
 
-            echo "Current path:"
-            echo $PATH
-
-            echo "Current GITHUB_PATH:"
-            echo $GITHUB_PATH
-            arturo -v
-            cd ..
-            arturo -v
-            which arturo
             cp bin/*.dll /usr/bin
             cp arturo/bin/arturo.exe /usr/bin
-            ls /usr/bin
-          shell: msys2 {0}
-
-        - name: Post Install windows
-          if: runner.os == 'Windows'
-          run: |
-            ls /mingw64/bin
-            ls /usr/bin
-            
-            cat ~/.bashrc
-            source ~/.bashrc
-            echo "Current directory:"
-            pwd
-
-            echo "Current path:"
-            echo $PATH
-
-            echo "Current GITHUB_PATH:"
-            echo $GITHUB_PATH
-            ./arturo/bin/arturo -v
-            arturo -v
+            cd ..
           shell: msys2 {0}
 
         - name: Install dependencies (Linux / mini / x86)
