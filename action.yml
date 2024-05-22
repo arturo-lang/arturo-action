@@ -138,9 +138,7 @@ runs:
         - name: Install dependencies (macOS / arm)
           if: runner.os == 'macOS' && runner.arch == 'ARM64' && inputs.mode != 'mini'
           run: |
-            brew install gmp
             brew install pcre
-            brew install mpfr
           shell: bash
         
         - name: Compile Arturo (Linux/macOS - native)
