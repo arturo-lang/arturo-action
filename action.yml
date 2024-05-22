@@ -1,5 +1,8 @@
 name: 'Arturo Builder'
 description: 'Setup Arturo environment'
+branding:
+    icon: terminal
+    color: purple
 inputs:
     mode:
         description: >-
@@ -162,7 +165,3 @@ runs:
             echo "$HOME/.arturo/bin" >> $GITHUB_PATH
             cd ..
           shell: bash
-
-branding:
-    icon: terminal
-    color: purple
