@@ -18,10 +18,16 @@ inputs:
             The architecture to build for.
             (one of: 'x86', 'arm', 'arm64', 'amd64', 'native')
         default: 'native'
+    source:
+        description: >-
+            Which Arturo version to use.
+            (one of: 'master', 'local')
+        default: 'master'
 runs:
     using: "composite"
     steps:
         - name: Clone Arturo repository
+          if: inputs.source != 'master'
           run: |
             git clone https://github.com/arturo-lang/arturo.git
           shell: bash
