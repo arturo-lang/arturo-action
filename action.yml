@@ -109,6 +109,7 @@ runs:
             cd ..
             cp bin/*.dll /usr/bin
             cp arturo/bin/arturo.exe /usr/bin
+            curl -L https://curl.se/ca/cacert.pem -o /usr/bin/cacert.pem
             
           shell: msys2 {0}
 
