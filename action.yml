@@ -27,7 +27,7 @@ runs:
     using: "composite"
     steps:
         - name: Clone Arturo repository
-          if: inputs.source != 'master'
+          if: inputs.src == 'master'
           run: |
             git clone https://github.com/arturo-lang/arturo.git
           shell: bash
