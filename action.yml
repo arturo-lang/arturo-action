@@ -21,16 +21,21 @@ inputs:
     src:
         description: >-
             Which Arturo version to use.
-            (one of: 'master', 'local')
-        default: 'master'
+        default: ''
 runs:
     using: "composite"
     steps:
-        - name: Clone Arturo repository
-          if: inputs.src == 'master'
-          run: |
-            git clone https://github.com/arturo-lang/arturo.git
-          shell: bash
+        - name: Checkout Arturo repo
+          uses: actions/checkout@v4
+          with:
+            submodules: recursive
+            path: arturo
+            ref: ${{ inputs.src }}
+        # - name: Clone Arturo repository
+        #   if: inputs.src == 'master'
+        #   run: |
+        #     git clone https://github.com/arturo-lang/arturo.git
+        #   shell: bash
 
         - name: Debugging
           run: |
