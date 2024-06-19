@@ -18,7 +18,7 @@ inputs:
             The architecture to build for.
             (one of: 'x86', 'arm', 'arm64', 'amd64', 'native')
         default: 'native'
-    source:
+    src:
         description: >-
             Which Arturo version to use.
             (one of: 'master', 'local')
