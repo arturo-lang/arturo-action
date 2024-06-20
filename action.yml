@@ -51,7 +51,7 @@ runs:
         - name: Set build metadata
           if: inputs.metadata != ''
           run: |
-            echo ${{ input.metadata }} arturo/version/metadata
+            echo ${{ inputs.metadata }} arturo/version/metadata
           shell: bash
 
         - name: Cache ChooseNim
