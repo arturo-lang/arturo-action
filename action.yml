@@ -181,7 +181,7 @@ runs:
           shell: bash
 
         - name: Compile Arturo (Linux)
-          if: inputs.arch != 'native' && runner.os == 'Linux'
+          if: inputs.arch != 'native' && inputs.arch != 'amd64' && runner.os == 'Linux'
           run: |
             cd arturo
             ./build.nims --install --mode ${{inputs.mode}} --arch ${{inputs.arch}} --log
