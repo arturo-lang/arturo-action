@@ -22,6 +22,11 @@ inputs:
         description: >-
             Which Arturo version to use.
         default: ''
+
+    metadata:
+        description: >-
+            Embeddable build metadata
+        default: ''
 runs:
     using: "composite"
     steps:
@@ -41,6 +46,12 @@ runs:
           run: |
             echo ${{ runner.os }}
             echo ${{ runner.arch }}
+          shell: bash
+
+        - name: Set build metadata
+          if: inputs.metadata != ''
+          run: |
+            echo ${{ input.metadata }} arturo/version/metadata
           shell: bash
 
         - name: Cache ChooseNim
