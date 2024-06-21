@@ -36,11 +36,6 @@ runs:
             submodules: recursive
             path: arturo
             ref: ${{ inputs.src }}
-        # - name: Clone Arturo repository
-        #   if: inputs.src == 'master'
-        #   run: |
-        #     git clone https://github.com/arturo-lang/arturo.git
-        #   shell: bash
 
         - name: Debugging
           run: |
