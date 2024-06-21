@@ -7,7 +7,7 @@ inputs:
     mode:
         description: >-
             The Arturo version to install
-            (one of: 'mini', 'full', 'web')
+            (one of: 'mini', 'full', 'safe', 'web')
         default: 'full'
     token:
         description: >-
