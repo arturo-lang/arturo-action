@@ -184,3 +184,13 @@ runs:
             echo "$HOME/.arturo/bin" >> $GITHUB_PATH
             cd ..
           shell: bash
+
+        - name: Compile Arturo (Web)
+          if: inputs.mode == 'web'
+          run: |
+            cd arturo
+            ./build.nims --mode ${{ inputs.mode }} --log
+            ./build.nims --install --mode full --arch ${{ inputs.arch }} --log
+            echo "$HOME/.arturo/bin" >> $GITHUB_PATH
+            cd ..
+          shell: bash
