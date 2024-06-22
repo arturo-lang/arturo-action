@@ -168,7 +168,7 @@ runs:
           shell: bash
         
         - name: Compile Arturo (Linux/macOS - native)
-          if: runner.os != 'Windows' && (inputs.arch == 'native' || inputs.arch == 'amd64') && runner.arch != 'ARM64'
+          if: inputs.mode != 'web' &&  runner.os != 'Windows' && (inputs.arch == 'native' || inputs.arch == 'amd64') && runner.arch != 'ARM64'
           run: |
             cd arturo
             ./build.nims --install --mode ${{inputs.mode}} --arch amd64 --log
@@ -177,7 +177,7 @@ runs:
           shell: bash
 
         - name: Compile Arturo (macOS - M1)
-          if: (inputs.arch == 'native' || inputs.arch == 'arm64') &&  (runner.os == 'macOS' && runner.arch == 'ARM64')
+          if: inputs.mode != 'web' && (inputs.arch == 'native' || inputs.arch == 'arm64') &&  (runner.os == 'macOS' && runner.arch == 'ARM64')
           run: |
             cd arturo
             ./build.nims --install --mode ${{inputs.mode}} --arch arm64 --log
@@ -186,7 +186,7 @@ runs:
           shell: bash
 
         - name: Compile Arturo (Linux)
-          if: inputs.arch != 'native' && inputs.arch != 'amd64' && runner.os == 'Linux'
+          if: inputs.mode != 'web' && inputs.arch != 'native' && inputs.arch != 'amd64' && runner.os == 'Linux'
           run: |
             cd arturo
             ./build.nims --install --mode ${{inputs.mode}} --arch ${{inputs.arch}} --log
