@@ -43,9 +43,9 @@ runs:
 
         - name: Debugging
           run: |
-            echo "-${{ inputs.simulating }}-""
+            echo "-${{ inputs.simulating }}-"
           shell: bash
-          
+
         - name: Debugging
           run: |
             echo ${{ runner.os }}
