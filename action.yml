@@ -27,6 +27,10 @@ inputs:
         description: >-
             Embeddable build metadata
         default: ''
+    simulating:
+        description: >-
+            Run on OS simulator
+        default: ''
 runs:
     using: "composite"
     steps:
@@ -37,6 +41,11 @@ runs:
             path: arturo
             ref: ${{ inputs.src }}
 
+        - name: Debugging
+          run: |
+            echo "-${{ inputs.simulating }}-""
+          shell: bash
+          
         - name: Debugging
           run: |
             echo ${{ runner.os }}
