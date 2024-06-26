@@ -215,5 +215,7 @@ runs:
               pkg info --list-file nim
             run: |
               export PATH="/usr/local/nim/bin/:$PATH"
+              cd arturo
               ./build.nims --install --mode ${{ matrix.version }} --log
               export PATH="$HOME/.arturo/bin:$PATH"
+              cd ..
