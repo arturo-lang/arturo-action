@@ -22,14 +22,9 @@ inputs:
         description: >-
             Which Arturo version to use.
         default: ''
-
     metadata:
         description: >-
             Embeddable build metadata
-        default: ''
-    simulating:
-        description: >-
-            Run on OS simulator
         default: ''
 runs:
     using: "composite"
@@ -40,11 +35,6 @@ runs:
             submodules: recursive
             path: arturo
             ref: ${{ inputs.src }}
-
-        - name: Debugging
-          run: |
-            echo "-${{ inputs.simulating }}-"
-          shell: bash
 
         - name: Debugging
           run: |
@@ -59,7 +49,7 @@ runs:
           shell: bash
 
         - name: Cache ChooseNim
-          if: inputs.simulating == '' && (runner.os == 'Linux' || runner.os == 'macOS')
+          if: runner.os == 'Linux' || runner.os == 'macOS'
           id: cache-choosenim
           uses: actions/cache@v4
           with:
@@ -67,7 +57,7 @@ runs:
             key: ${{ runner.os }}-choosenim-${{ steps.get-date.outputs.date }}
   
         - name: Cache Nimble
-          if: inputs.simulating == '' && (runner.os == 'Linux' || runner.os == 'macOS')
+          if: runner.os == 'Linux' || runner.os == 'macOS'
           id: cache-nimble
           uses: actions/cache@v4
           with:
@@ -83,7 +73,7 @@ runs:
             install: 'git base-devel p7zip mingw-w64-x86_64-toolchain'
 
         - name: Install Nim (Linux)
-          if: inputs.simulating == '' && runner.os == 'Linux'
+          if: runner.os == 'Linux'
           uses: jiro4989/setup-nim-action@v1
           with:
             nim-version: '2.0.4'
@@ -140,21 +130,21 @@ runs:
           shell: msys2 {0}
 
         - name: Install dependencies (Linux / mini / x86)
-          if: inputs.simulating == '' && runner.os == 'Linux' && inputs.mode == 'mini' && inputs.arch == 'x86'
+          if: runner.os == 'Linux' && inputs.mode == 'mini' && inputs.arch == 'x86'
           run: |
             sudo apt-get update
             sudo apt-get install gcc-multilib g++-multilib
           shell: bash
 
         - name: Install dependencies (Linux / mini / arm)
-          if: inputs.simulating == '' && runner.os == 'Linux' && inputs.mode == 'mini' && (inputs.arch == 'arm' || inputs.arch == 'arm64')
+          if: runner.os == 'Linux' && inputs.mode == 'mini' && (inputs.arch == 'arm' || inputs.arch == 'arm64')
           run: |
             sudo apt-get update
             sudo apt-get install gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu
           shell: bash
 
         - name: Install dependencies (Linux / full)
-          if: inputs.simulating == '' && runner.os == 'Linux' && inputs.mode != 'mini'
+          if: runner.os == 'Linux' && inputs.mode != 'mini'
           run: |
             npm install -g uglify-js
             sudo apt-get update
@@ -168,7 +158,7 @@ runs:
           shell: bash
         
         - name: Compile Arturo (Linux/macOS - native)
-          if: inputs.simulating == '' && inputs.mode != 'web' &&  runner.os != 'Windows' && (inputs.arch == 'native' || inputs.arch == 'amd64') && runner.arch != 'ARM64'
+          if: inputs.mode != 'web' &&  runner.os != 'Windows' && (inputs.arch == 'native' || inputs.arch == 'amd64') && runner.arch != 'ARM64'
           run: |
             cd arturo
             ./build.nims --install --mode ${{inputs.mode}} --arch amd64 --log
@@ -186,7 +176,7 @@ runs:
           shell: bash
 
         - name: Compile Arturo (Linux)
-          if: inputs.simulating == '' && inputs.mode != 'web' && inputs.arch != 'native' && inputs.arch != 'amd64' && runner.os == 'Linux'
+          if: inputs.mode != 'web' && inputs.arch != 'native' && inputs.arch != 'amd64' && runner.os == 'Linux'
           run: |
             cd arturo
             ./build.nims --install --mode ${{inputs.mode}} --arch ${{inputs.arch}} --log
@@ -203,19 +193,3 @@ runs:
             echo "$HOME/.arturo/bin" >> $GITHUB_PATH
             cd ..
           shell: bash
-
-        - name: Compile Arturo (FreeBSD)
-          if: inputs.simulating == 'freebsd'
-          uses: vmactions/freebsd-vm@v1
-          with:
-            usesh: true
-            prepare: |
-              pkg update
-              pkg install -y wget nim bash 
-              pkg info --list-file nim
-            run: |
-              export PATH="/usr/local/nim/bin/:$PATH"
-              cd arturo
-              ./build.nims --install --mode ${{ matrix.version }} --log
-              export PATH="$HOME/.arturo/bin:$PATH"
-              cd ..
