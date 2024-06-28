@@ -40,6 +40,8 @@ runs:
           run: |
             echo ${{ runner.os }}
             echo ${{ runner.arch }}
+            ls -la
+            ls -la arturo
           shell: bash
 
         - name: Set build metadata
