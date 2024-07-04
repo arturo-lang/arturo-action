@@ -21,7 +21,7 @@ inputs:
     src:
         description: >-
             Which Arturo version to use.
-        default: ''
+        default: 'master'
     metadata:
         description: >-
             Embeddable build metadata
