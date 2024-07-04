@@ -85,6 +85,7 @@ runs:
         - name: Install Nim (macOS)
           if: runner.os == 'macOS'
           run: |
+            brew update
             brew install nim
           shell: bash
 
