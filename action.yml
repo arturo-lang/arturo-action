@@ -32,6 +32,7 @@ runs:
         - name: Checkout Arturo repo
           uses: actions/checkout@v4
           with:
+            repository: arturo-lang/arturo
             submodules: recursive
             path: arturo
             ref: ${{ inputs.src }}
