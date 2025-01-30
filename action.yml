@@ -138,6 +138,7 @@ runs:
           run: |
             sudo apt-get update
             sudo apt-get install libpcre3
+          shell: bash
 
         - name: Install dependencies (Linux / mini / x86)
           if: runner.os == 'Linux' && inputs.mode == 'mini' && inputs.arch == 'x86'
