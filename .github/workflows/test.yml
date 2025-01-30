@@ -24,6 +24,7 @@ jobs:
             matrix:
                 include: 
                     - {os: ubuntu-latest,   arch: amd64, mode: full, shell: bash}
+                    - {os: ubuntu-22.04,    arch: amd64, mode: full, shell: bash}
                     - {os: ubuntu-latest,   arch: amd64, mode: mini, shell: bash}
                     - {os: ubuntu-latest,   arch: arm64, mode: mini, shell: bash}
                     - {os: windows-latest,  arch: amd64, mode: full, shell: "msys2 {0}"}
@@ -45,7 +46,7 @@ jobs:
                 mode: ${{ matrix.mode }}
                 arch: ${{ matrix.arch }}
 
-            - if: matrix.os != 'ubuntu-latest' || matrix.arch != 'arm64'
+            - if: runner.os != 'Linux' || matrix.arch != 'arm64'
               name: Run tests
               run: |
                 arturo -v
