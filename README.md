@@ -39,7 +39,7 @@ Based on the runner, the action will compile and setup the appropriate, native *
 
 | option | description |
 |--------|-------------|
-| mode   | this can be either `full` or `mini` for now (default: `full`) |
+| mode   | this can be either `full, `mini`, `safe`, `docgen`, `web` (default: `full`) |
 | arch   | the target architecture (default: `native`) - the main use is to compile for `arm64` on Linux |
 
 ------
