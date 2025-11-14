@@ -9,7 +9,8 @@
  
 <!--ts-->
    * [How do I use it?](#how-do-i-use-it)
-      * [More options](#more-options)
+      * [Supported platforms](#supported-platforms)
+      * [Option reference](#option-reference)
    * [License](#license)
 <!--te-->
 
@@ -26,21 +27,54 @@ The most barebones configuration would be:
       token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-Based on the runner, the action will compile and setup the appropriate, native *full* version of Arturo:
+This will compile and setup the *full* version of Arturo for your target platform.
 
-| runner | binary |
-|--------|--------|
-| ubuntu-latest | amd64 / Linux |
-| macos-12 | amd64 / macOS |
-| macos-latest | arm64 (M1) / macOS |
-| windows-latest | amd64 / Windows |
+For more control, specify the OS, architecture, and mode:
 
-#### More options
+```yaml
+- name: Install Arturo
+  uses: arturo-lang/arturo-action@main
+  with: 
+      token: ${{ secrets.GITHUB_TOKEN }}
+      os: linux
+      arch: amd64
+      mode: full
+```
 
-| option | description |
-|--------|-------------|
-| mode   | this can be either `full`, `mini`, `safe`, `docgen`, `web` (default: `full`) |
-| arch   | the target architecture (default: `native`) - the main use is to compile for `arm64` on Linux |
+#### Supported platforms
+
+The action supports the following operating systems and architectures:
+
+| OS | Architecture | Mode | Notes |
+|----|--------------|------|-------|
+| linux | amd64, arm64, arm, x86 | mini, full, safe, docgen | WebKit 4.0 (ubuntu-22.04) or 4.1 (ubuntu-latest) for full mode |
+| windows | amd64 | mini, full | |
+| macos | amd64, arm64 | mini, full | |
+| freebsd | amd64 | mini, full | WebKit 4.0 or 4.1 for full mode |
+| web | web | mini | Compiles to JavaScript |
+
+To use the action, specify the appropriate `runs-on` in your workflow:
+
+```yaml
+runs-on: ${{ 
+    (matrix.os == 'linux' && matrix.webkit == '40')     && 'ubuntu-22.04'   || 
+    (matrix.os == 'windows')                            && 'windows-latest' || 
+    (matrix.os == 'macos' && matrix.arch == 'arm64')    && 'macos-latest'   || 
+    (matrix.os == 'macos')                              && 'macOS-15-intel' || 
+                                                           'ubuntu-latest'  }}
+```
+
+#### Option reference
+
+| option | description | default |
+|--------|-------------|---------|
+| os | Target operating system: `linux`, `windows`, `macos`, `freebsd`, `web` | `linux` |
+| arch | Target architecture: `amd64`, `arm64`, `arm`, `x86` | `amd64` |
+| mode | Build mode: `full`, `mini`, `safe`, `docgen`, `web` | `full` |
+| webkit | WebKit version for Linux/FreeBSD full builds: `40`, `41` | `40` |
+| src | Specific Arturo version/branch/commit to build | (latest) |
+| metadata | Embeddable build metadata | (empty) |
+| token | GitHub token (required) | - |
 
 ------
 
@@ -48,7 +82,7 @@ Based on the runner, the action will compile and setup the appropriate, native *
 
 MIT License
 
-Copyright (c) 2019-2024 Yanis Zafirópulos (aka Dr.Kameleon)
+Copyright (c) 2019-2025 Yanis Zafirópulos (aka Dr.Kameleon)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
