@@ -38,51 +38,6 @@ inputs:
 runs:
     using: "composite"
     steps:
-        - name: Resolve OS and Runner
-          id: resolve
-          run: |
-            os="${{ inputs.os }}"
-            arch="${{ inputs.arch }}"
-            mode="${{ inputs.mode }}"
-            webkit="${{ inputs.webkit }}"
-            
-            # Determine actual runner and shell based on simplified OS
-            case "$os" in
-              linux)
-                if [ "$mode" = "full" ] && [ "$webkit" = "41" ]; then
-                  runner="ubuntu-latest"
-                else
-                  runner="ubuntu-22.04"
-                fi
-                shell="bash"
-                ;;
-              windows)
-                runner="windows-latest"
-                shell="msys2 {0}"
-                ;;
-              macos)
-                if [ "$arch" = "arm64" ]; then
-                  runner="macos-latest"
-                else
-                  runner="macOS-15-intel"
-                fi
-                shell="bash"
-                ;;
-              freebsd|web)
-                runner="ubuntu-latest"
-                shell="bash"
-                ;;
-              *)
-                echo "Unknown OS: $os"
-                exit 1
-                ;;
-            esac
-            
-            echo "runner=$runner" >> $GITHUB_OUTPUT
-            echo "shell=$shell" >> $GITHUB_OUTPUT
-            echo "target_os=$os" >> $GITHUB_OUTPUT
-          shell: bash
-
         - name: Checkout Arturo repo
           if: inputs.os != 'freebsd'
           uses: actions/checkout@v4
@@ -288,7 +243,7 @@ runs:
             prepare: |
               pkg update
               pkg install -y wget nim bash git pkgconf
-              pkg install -y gtk3 mpfr openssl webkit2-gtk_${{ inputs.webkit }}
+              pkg install -y gtk3 mpfr openssl webkit2-gtk${{ inputs.webkit }}
             run: |
               git clone --recursive https://github.com/arturo-lang/arturo.git arturo
               cd arturo
