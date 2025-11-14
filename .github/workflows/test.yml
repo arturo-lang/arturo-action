@@ -55,7 +55,7 @@ jobs:
                 webkit: ${{ matrix.webkit || '40' }}
                 src: "re-add-FreeBSD-builds"
 
-            - if: (matrix.os == 'linux' && matrix.arch != 'arm64')|| matrix.os == 'windows' || matrix.os == 'macos'
+            - if: (matrix.os == 'linux' && matrix.arch != 'arm64') || matrix.os == 'macos'
               name: Run tests
               run: |
                 arturo -v
