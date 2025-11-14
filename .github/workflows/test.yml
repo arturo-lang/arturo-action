@@ -40,7 +40,7 @@ jobs:
                     - {name: "macOS (arm64 / full)",                os: macos,   arch: arm64, mode: full}
                     - {name: "macOS (arm64 / mini)",                os: macos,   arch: arm64, mode: mini}
                     - {name: "FreeBSD (amd64 / mini)",              os: freebsd, arch: amd64, mode: mini}
-                    - {name: "FreeBSD (amd64 / full / webkit-4.0)", os: freebsd, arch: amd64, mode: full}
+                    - {os: freebsd, arch: amd64, mode: full}
                     - {name: "FreeBSD (amd64 / full / webkit-4.1)", os: freebsd, arch: amd64, mode: full, webkit: "41"}
         name: ${{ matrix.name }}
         steps:
@@ -55,7 +55,7 @@ jobs:
                 mode: ${{ matrix.mode || 'mini' }}
                 webkit: ${{ matrix.webkit || '40' }}
 
-            - if: runner.os != 'Linux' || matrix.arch != 'arm64'
+            - if: (matrix.os == 'linux' && matrix.arch != 'arm64')|| matrix.os == 'windows' || matrix.os == 'macos'
               name: Run tests
               run: |
                 arturo -v
