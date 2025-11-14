@@ -259,7 +259,6 @@ runs:
           run: |
             cd arturo
             ./build.nims --mode web --log
-            ./build.nims --install --mode full --arch amd64 --log
             echo "$HOME/.arturo/bin" >> $GITHUB_PATH
             cd ..
           shell: bash
