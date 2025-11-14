@@ -288,7 +288,7 @@ runs:
             prepare: |
               pkg update
               pkg install -y wget nim bash git pkgconf
-              pkg install -y gtk3 mpfr openssl webkit2-gtk${{ inputs.webkit }}
+              pkg install -y gtk3 mpfr openssl webkit2-gtk_${{ inputs.webkit }}
             run: |
               git clone --recursive https://github.com/arturo-lang/arturo.git arturo
               cd arturo
