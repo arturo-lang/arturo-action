@@ -270,8 +270,12 @@ runs:
             usesh: true
             prepare: |
               pkg update
-              pkg install -y wget nim bash
+              pkg install -y wget nim bash git
             run: |
+              git clone --recursive https://github.com/arturo-lang/arturo.git arturo
+              cd arturo
+              ${{ inputs.src != '' && format('git checkout {0}', inputs.src) || '' }}
+              ${{ inputs.metadata != '' && format('echo "{0}" > version/metadata', inputs.metadata) || '' }}
               export PATH="/usr/local/nim/bin/:$PATH"
               ./build.nims --install --mode ${{ inputs.mode }} --log
               export PATH="$HOME/.arturo/bin:$PATH"
@@ -283,9 +287,13 @@ runs:
             usesh: true
             prepare: |
               pkg update
-              pkg install -y wget nim bash pkgconf
-              pkg install -y gtk3 mpfr openssl webkit2-gtk_${{ inputs.webkit }}
+              pkg install -y wget nim bash git pkgconf
+              pkg install -y gtk3 mpfr openssl webkit2-gtk${{ inputs.webkit }}
             run: |
+              git clone --recursive https://github.com/arturo-lang/arturo.git arturo
+              cd arturo
+              ${{ inputs.src != '' && format('git checkout {0}', inputs.src) || '' }}
+              ${{ inputs.metadata != '' && format('echo "{0}" > version/metadata', inputs.metadata) || '' }}
               export PATH="/usr/local/nim/bin/:$PATH"
               ./build.nims --install --mode ${{ inputs.mode }} --log
               export PATH="$HOME/.arturo/bin:$PATH"
