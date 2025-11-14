@@ -19,23 +19,21 @@ concurrency:
 
 jobs:
     test:
-        runs-on: ${{ matrix.os }}
+        runs-on: ${{ (matrix.os == 'linux' && matrix.webkit == '41' && 'ubuntu-latest') || (matrix.os == 'linux' && 'ubuntu-22.04') || (matrix.os == 'windows' && 'windows-latest') || (matrix.os == 'macos' && matrix.arch == 'arm64' && 'macos-latest') || (matrix.os == 'macos' && 'macOS-15-intel') }}
         strategy:
             matrix:
                 include: 
-                    - {os: ubuntu-latest,   arch: amd64, mode: full, shell: bash}
-                    - {os: ubuntu-22.04,    arch: amd64, mode: full, shell: bash}
-                    - {os: ubuntu-latest,   arch: amd64, mode: mini, shell: bash}
-                    - {os: ubuntu-latest,   arch: arm64, mode: mini, shell: bash}
-                    - {os: windows-latest,  arch: amd64, mode: full, shell: "msys2 {0}"}
-                    - {os: windows-latest,  arch: amd64, mode: mini, shell: "msys2 {0}"}
-                    - {os: macOS-15-intel,  arch: amd64, mode: full, shell: bash}
-                    - {os: macOS-15-intel,  arch: amd64, mode: mini, shell: bash}
-                    - {os: macos-latest,    arch: arm64, mode: full, shell: bash}
-                    - {os: macos-latest,    arch: arm64, mode: mini, shell: bash}
-        defaults:
-            run:
-                shell: ${{ matrix.shell }}
+                    - {name: "Linux (amd64 / full / webkit-4.1)", os: linux,   arch: amd64, mode: full, webkit: "41"}
+                    - {name: "Linux (amd64 / full)",              os: linux,   arch: amd64, mode: full}
+                    - {name: "Linux (amd64 / mini)",              os: linux,   arch: amd64, mode: mini}
+                    - {name: "Linux (arm64 / mini)",              os: linux,   arch: arm64, mode: mini}
+                    - {name: "Windows (amd64 / full)",            os: windows, arch: amd64, mode: full}
+                    - {name: "Windows (amd64 / mini)",            os: windows, arch: amd64, mode: mini}
+                    - {name: "macOS (amd64 / full)",              os: macos,   arch: amd64, mode: full}
+                    - {name: "macOS (amd64 / mini)",              os: macos,   arch: amd64, mode: mini}
+                    - {name: "macOS (arm64 / full)",              os: macos,   arch: arm64, mode: full}
+                    - {name: "macOS (arm64 / mini)",              os: macos,   arch: arm64, mode: mini}
+        name: ${{ matrix.name }}
         steps:
             - uses: actions/checkout@v4
 
@@ -43,8 +41,10 @@ jobs:
               uses: ./
               with: 
                 token: ${{ secrets.GITHUB_TOKEN }}
-                mode: ${{ matrix.mode }}
+                os: ${{ matrix.os }}
                 arch: ${{ matrix.arch }}
+                mode: ${{ matrix.mode }}
+                webkit: ${{ matrix.webkit || '40' }}
 
             - if: runner.os != 'Linux' || matrix.arch != 'arm64'
               name: Run tests
