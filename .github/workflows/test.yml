@@ -24,8 +24,7 @@ jobs:
             (matrix.os == 'windows')                            && 'windows-latest' || 
             (matrix.os == 'macos' && matrix.arch == 'arm64')    && 'macos-latest'   || 
             (matrix.os == 'macos')                              && 'macOS-15-intel' || 
-                                                                   'ubuntu-latest' 
-            }}
+                                                                   'ubuntu-latest'  }}
         strategy:
             matrix:
                 include: 
