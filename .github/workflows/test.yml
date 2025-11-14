@@ -19,7 +19,14 @@ concurrency:
 
 jobs:
     test:
-        runs-on: ${{ (matrix.os == 'linux' && matrix.webkit == '41' && 'ubuntu-latest') || (matrix.os == 'linux' && 'ubuntu-22.04') || (matrix.os == 'windows' && 'windows-latest') || (matrix.os == 'macos' && matrix.arch == 'arm64' && 'macos-latest') || (matrix.os == 'macos' && 'macOS-15-intel') || 'ubuntu-latest' }}
+        runs-on: ${{ 
+            (matrix.os == 'linux' && matrix.webkit == '41')     && 'ubuntu-latest'  || 
+            (matrix.os == 'linux')                              && 'ubuntu-22.04'   || 
+            (matrix.os == 'windows')                            && 'windows-latest' || 
+            (matrix.os == 'macos' && matrix.arch == 'arm64')    && 'macos-latest'   || 
+            (matrix.os == 'macos')                              && 'macOS-15-intel' || 
+                                                                   'ubuntu-latest' 
+            }}
         strategy:
             matrix:
                 include: 
