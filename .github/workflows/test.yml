@@ -42,6 +42,11 @@ jobs:
                     - {os: freebsd, arch: amd64, mode: mini}
                     - {os: freebsd, arch: amd64, mode: full}
                     - {os: freebsd, arch: amd64, mode: full, webkit: "41"}
+        defaults:
+            run:
+                shell: ${{ 
+                    (matrix.os == 'windows') && 'msys2 {0}' || 
+                                                'bash'      }}
         steps:
             - uses: actions/checkout@v4
 
@@ -55,7 +60,7 @@ jobs:
                 webkit: ${{ matrix.webkit || '40' }}
                 src: "re-add-FreeBSD-builds"
 
-            - if: (matrix.os == 'linux' && matrix.arch != 'arm64') || matrix.os == 'macos'
+            - if: (matrix.os == 'linux' && matrix.arch != 'arm64') || matrix.os == 'macos' || matrix.os == 'windows'
               name: Run tests
               run: |
                 arturo -v
