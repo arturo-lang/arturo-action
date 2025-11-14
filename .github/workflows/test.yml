@@ -18,7 +18,7 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-    test:
+    Test:
         runs-on: ${{ 
             (matrix.os == 'linux' && matrix.webkit == '40')     && 'ubuntu-22.04'   || 
             (matrix.os == 'windows')                            && 'windows-latest' || 
