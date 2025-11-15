@@ -171,6 +171,10 @@ runs:
         - name: Install Nim (Windows)
           if: runner.os == 'Windows'
           run: |
+            if [ "${{ env.mode }}" = "full" ]; then
+              pacman --noconfirm -S mingw-w64-x86_64-mpfr
+            fi
+
             mkdir dist
             mkdir nim
             curl -L https://nim-lang.org/download/dlls.zip -o dist/dlls.zip
@@ -185,17 +189,14 @@ runs:
             cd ..
             cp bin/*.dll /usr/bin
             cp arturo/bin/arturo.exe /usr/bin
-          shell: msys2 {0}
 
-        - name: Install full dependencies (Windows)
-          if: runner.os == 'Windows' && env.mode == 'full'
-          run: |
-            pacman --noconfirm -S mingw-w64-x86_64-mpfr
-            curl -L https://arturo-lang.s3.amazonaws.com/extra-dlls.zip -o dist/extradlls.zip
-            7z x dist/extradlls.zip -obin
-            cp arturo/src/extras/webview/deps/dlls/x64/*.dll bin
-            cp bin/*.dll /usr/bin
-            curl -L https://curl.se/ca/cacert.pem -o /usr/bin/cacert.pem
+            if [ "${{ env.mode }}" = "full" ]; then
+              curl -L https://arturo-lang.s3.amazonaws.com/extra-dlls.zip -o dist/extradlls.zip
+              7z x dist/extradlls.zip -obin
+              cp arturo/src/extras/webview/deps/dlls/x64/*.dll bin
+              cp bin/*.dll /usr/bin
+              curl -L https://curl.se/ca/cacert.pem -o /usr/bin/cacert.pem
+            fi
           shell: msys2 {0}
 
         - name: Install dependencies (Linux)
