@@ -11,7 +11,7 @@
 
 ## Quick Start
 
-Minimal setup - auto-detects your runner:
+Minimal setup:
 
 ```yaml
 - name: Install Arturo
@@ -33,7 +33,10 @@ With specific options:
 
 ## Examples
 
-### Native build example
+### "Native" build
+
+> [!TIP]
+> The action auto-detects your runner and builds the appropriate (full) version. > No configuration needed for basic usage! :wink
 
 ```yaml
 jobs:
@@ -68,7 +71,8 @@ jobs:
           - {os: linux,   arch: amd64, mode: full}
           - {os: linux,   arch: arm64, mode: mini}
           - {os: windows, arch: amd64, mode: full}
-          - {os: macos,   arch: arm64, mode: mini}
+          - {os: macos,   arch: amd64, mode: full}
+          - {os: macos,   arch: arm64, mode: full}
           - {os: freebsd, arch: amd64, mode: full}
           - {os: web}
     
@@ -107,7 +111,7 @@ jobs:
 | Windows | amd64 | mini, full | windows-latest |
 | macOS | amd64, arm64 | mini, full | macOS-15-intel, macos-latest |
 | FreeBSD | amd64 | mini, full | ubuntu-latest (VM) |
-| Web | - | web | ubuntu-latest |
+| Web | - | - | ubuntu-latest |
 
 ---
 
