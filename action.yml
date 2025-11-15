@@ -88,22 +88,12 @@ runs:
                 detected_mode="${{ inputs.mode != '' && inputs.mode || 'full' }}"
             fi
 
-            echo "os=$detected_os" >> $GITHUB_OUTPUT
-            echo "arch=$detected_arch" >> $GITHUB_OUTPUT
-            echo "mode=$detected_mode" >> $GITHUB_OUTPUT
-            echo "webkit=$detected_webkit" >> $GITHUB_OUTPUT
-            echo "src=${{ inputs.src }}" >> $GITHUB_OUTPUT
-            echo "metadata=${{ inputs.metadata }}" >> $GITHUB_OUTPUT
-          shell: bash
-
-        - name: Set environment variables
-          run: |
-            echo "os=${{ steps.v.outputs.os }}" >> $GITHUB_ENV
-            echo "arch=${{ steps.v.outputs.arch }}" >> $GITHUB_ENV
-            echo "mode=${{ steps.v.outputs.mode }}" >> $GITHUB_ENV
-            echo "webkit=${{ steps.v.outputs.webkit }}" >> $GITHUB_ENV
-            echo "src=${{ steps.v.outputs.src }}" >> $GITHUB_ENV
-            echo "metadata=${{ steps.v.outputs.metadata }}" >> $GITHUB_ENV
+            echo "os=$detected_os" >> $GITHUB_ENV
+            echo "arch=$detected_arch" >> $GITHUB_ENV
+            echo "mode=$detected_mode" >> $GITHUB_ENV
+            echo "webkit=$detected_webkit" >> $GITHUB_ENV
+            echo "src=${{ inputs.src }}" >> $GITHUB_ENV
+            echo "metadata=${{ inputs.metadata }}" >> $GITHUB_ENV
           shell: bash
 
         - name: Debug build configuration
