@@ -1,76 +1,94 @@
-name: Builder
+# name: Builder
+
+# on:
+#     push:
+#         paths-ignore:
+#             - 'LICENSE'
+#             - '*.md'
+#         branches:
+#             - main
+#     pull_request:
+#         paths-ignore:
+#             - 'LICENSE'
+#             - '*.md'
+#     workflow_dispatch:
+
+# concurrency: 
+#     group: ${{ github.workflow }}-${{ github.ref }}
+#     cancel-in-progress: true
+
+# jobs:
+#     Test:
+#         runs-on: ${{ 
+#             (matrix.os == 'linux' && matrix.webkit == '40')     && 'ubuntu-22.04'   || 
+#             (matrix.os == 'windows')                            && 'windows-latest' || 
+#             (matrix.os == 'macos' && matrix.arch == 'arm64')    && 'macos-latest'   || 
+#             (matrix.os == 'macos')                              && 'macOS-15-intel' || 
+#                                                                    'ubuntu-latest'  }}
+#         strategy:
+#             matrix:
+#                 include: 
+#                     - {os: linux,   arch: amd64, mode: full}
+#                     - {os: linux,   arch: amd64, mode: full, webkit: "41"}
+#                     - {os: linux,   arch: amd64, mode: mini}
+#                     - {os: linux,   arch: arm64, mode: mini}
+#                     - {os: web}
+#                     - {os: windows, arch: amd64, mode: full}
+#                     - {os: windows, arch: amd64, mode: mini}
+#                     - {os: macos,   arch: amd64, mode: full}
+#                     - {os: macos,   arch: amd64, mode: mini}
+#                     - {os: macos,   arch: arm64, mode: full}
+#                     - {os: macos,   arch: arm64, mode: mini}
+#                     - {os: freebsd, arch: amd64, mode: mini}
+#                     - {os: freebsd, arch: amd64, mode: full}
+#                     - {os: freebsd, arch: amd64, mode: full, webkit: "41"}
+#         defaults:
+#             run:
+#                 shell: ${{ 
+#                     (matrix.os == 'windows') && 'msys2 {0}' || 
+#                                                 'bash'      }}
+#         steps:
+#             - uses: actions/checkout@v4
+
+#             - name: Install Arturo
+#               uses: ./
+#               with: 
+#                 token: ${{ secrets.GITHUB_TOKEN }}
+#                 os: ${{ matrix.os }}
+#                 arch: ${{ matrix.arch }}
+#                 mode: ${{ matrix.mode }}
+#                 webkit: ${{ matrix.webkit }}
+#                 src: "re-add-FreeBSD-builds"
+
+#             - if: (matrix.os == 'linux' && matrix.arch != 'arm64') || matrix.os == 'macos' || matrix.os == 'windows'
+#               name: Run tests
+#               run: |
+#                 arturo -v
+#                 arturo tests/test.art
+
+#             - if: matrix.os == 'freebsd'
+#               name: Run tests (FreeBSD)
+#               shell: freebsd {0}
+#               run: |
+#                 cd $GITHUB_WORKSPACE
+#                 export PATH="$HOME/.arturo/bin:$PATH"
+#                 arturo -v
+#                 arturo tests/test.art
+name: Minimal Test
 
 on:
-    push:
-        paths-ignore:
-            - 'LICENSE'
-            - '*.md'
-        branches:
-            - main
-    pull_request:
-        paths-ignore:
-            - 'LICENSE'
-            - '*.md'
     workflow_dispatch:
 
-concurrency: 
-    group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true
-
 jobs:
-    Test:
-        runs-on: ${{ 
-            (matrix.os == 'linux' && matrix.webkit == '40')     && 'ubuntu-22.04'   || 
-            (matrix.os == 'windows')                            && 'windows-latest' || 
-            (matrix.os == 'macos' && matrix.arch == 'arm64')    && 'macos-latest'   || 
-            (matrix.os == 'macos')                              && 'macOS-15-intel' || 
-                                                                   'ubuntu-latest'  }}
-        strategy:
-            matrix:
-                include: 
-                    - {os: linux,   arch: amd64, mode: full}
-                    - {os: linux,   arch: amd64, mode: full, webkit: "41"}
-                    - {os: linux,   arch: amd64, mode: mini}
-                    - {os: linux,   arch: arm64, mode: mini}
-                    - {os: web}
-                    - {os: windows, arch: amd64, mode: full}
-                    - {os: windows, arch: amd64, mode: mini}
-                    - {os: macos,   arch: amd64, mode: full}
-                    - {os: macos,   arch: amd64, mode: mini}
-                    - {os: macos,   arch: arm64, mode: full}
-                    - {os: macos,   arch: arm64, mode: mini}
-                    - {os: freebsd, arch: amd64, mode: mini}
-                    - {os: freebsd, arch: amd64, mode: full}
-                    - {os: freebsd, arch: amd64, mode: full, webkit: "41"}
-        defaults:
-            run:
-                shell: ${{ 
-                    (matrix.os == 'windows') && 'msys2 {0}' || 
-                                                'bash'      }}
+    test-macos:
+        runs-on: macos-latest
         steps:
-            - uses: actions/checkout@v4
-
             - name: Install Arturo
-              uses: ./
+              uses: arturo-lang/arturo-action@main
               with: 
                 token: ${{ secrets.GITHUB_TOKEN }}
-                os: ${{ matrix.os }}
-                arch: ${{ matrix.arch }}
-                mode: ${{ matrix.mode }}
-                webkit: ${{ matrix.webkit }}
-                src: "re-add-FreeBSD-builds"
 
-            - if: (matrix.os == 'linux' && matrix.arch != 'arm64') || matrix.os == 'macos' || matrix.os == 'windows'
-              name: Run tests
+            - name: Test Arturo
               run: |
                 arturo -v
-                arturo tests/test.art
-
-            - if: matrix.os == 'freebsd'
-              name: Run tests (FreeBSD)
-              shell: freebsd {0}
-              run: |
-                cd $GITHUB_WORKSPACE
-                export PATH="$HOME/.arturo/bin:$PATH"
-                arturo -v
-                arturo tests/test.art
+                arturo -e "print 'Hello from Arturo!'"
