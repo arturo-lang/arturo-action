@@ -71,7 +71,7 @@ runs-on: ${{
 | os | Target operating system: `linux`, `windows`, `macos`, `freebsd`, `web` | `linux` |
 | arch | Target architecture: `amd64`, `arm64`, `arm`, `x86` | `amd64` |
 | mode | Build mode: `full`, `mini`, `safe`, `docgen`, `web` | `full` |
-| webkit | WebKit version for Linux/FreeBSD full builds: `40`, `41` | `40` |
+| webkit | WebKit version for Linux/FreeBSD full builds: `40`, `41` | `41` |
 | src | Specific Arturo version/branch/commit to build | (latest) |
 | metadata | Embeddable build metadata | (empty) |
 | token | GitHub token (required) | - |

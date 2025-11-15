@@ -34,7 +34,7 @@ inputs:
     webkit:
         description: >-
             WebKit version for Linux/FreeBSD full builds (one of: '40', '41')
-        default: '40'
+        default: '41'
 runs:
     using: "composite"
     steps:
