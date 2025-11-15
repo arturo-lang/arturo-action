@@ -101,6 +101,4 @@ jobs:
             - name: Test Arturo
               run: |
                 arturo -v
-                arturo -e "print sys\os"
-                arturo -e "print sys\cpu\arch"
-                arturo -e "print sys\release"
+                arturo -e "print [{Current release:} sys\release]"
