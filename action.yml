@@ -242,7 +242,10 @@ runs:
               git clone --recursive https://github.com/arturo-lang/arturo.git arturo
               cd arturo
               git config --global --add safe.directory '*'
-              ${{ env.src != '' && format('git checkout {0}', env.src) || '' }}
+              if [ -n "${{ env.src }}" ]; then
+                  git fetch origin ${{ env.src }}
+                  git checkout FETCH_HEAD
+              fi
               ${{ env.metadata != '' && format('echo "{0}" > version/metadata', env.metadata) || '' }}
               export PATH="/usr/local/nim/bin/:$PATH"
               ./build.nims --install --mode ${{ env.mode }} --log
