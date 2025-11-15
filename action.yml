@@ -223,6 +223,7 @@ runs:
           uses: vmactions/freebsd-vm@v1
           with:
             usesh: true
+            sync: sshfs
             prepare: |
               pkg update
               pkg install -y wget nim bash git
@@ -240,6 +241,7 @@ runs:
           uses: vmactions/freebsd-vm@v1
           with:
             usesh: true
+            sync: sshfs
             prepare: |
               pkg update
               pkg install -y wget nim bash git pkgconf
