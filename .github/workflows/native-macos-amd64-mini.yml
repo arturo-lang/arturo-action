@@ -28,4 +28,24 @@ jobs:
             - name: Test Arturo
               run: |
                 arturo -v
-                arturo -e "print [{Current release:} sys\release]"
+                arturo -e "print [{os:} sys\os]"
+                arturo -e "print [{release:} sys\release]"
+                arturo -e "print [{arch:} sys\cpu\arch]"
+                
+                DETECTED_OS=$(arturo -e "print sys\os")
+                if [ "$DETECTED_OS" != "macos" ]; then
+                    echo "UNEXPECTED OS: Got $DETECTED_OS"
+                    exit 1
+                fi
+
+                DETECTED_ARCH=$(arturo -e "print sys\cpu\arch")
+                if [ "$DETECTED_ARCH" != "amd64" ]; then
+                    echo "UNEXPECTED ARCH: Got $DETECTED_ARCH"
+                    exit 1
+                fi
+
+                DETECTED_RELEASE=$(arturo -e "print sys\release")
+                if [ "$DETECTED_RELEASE" != "mini" ]; then
+                    echo "UNEXPECTED RELEASE: Got $DETECTED_RELEASE"
+                    exit 1
+                fi

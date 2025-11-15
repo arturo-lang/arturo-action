@@ -33,7 +33,7 @@ jobs:
                 arturo -e "print [{arch:} sys\cpu\arch]"
                 
                 DETECTED_OS=$(arturo -e "print sys\os")
-                if [ "$DETECTED_OS" != "macos" ]; then
+                if [ "$DETECTED_OS" != "linux" ]; then
                     echo "UNEXPECTED OS: Got $DETECTED_OS"
                     exit 1
                 fi
