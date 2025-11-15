@@ -38,8 +38,12 @@ inputs:
 runs:
     using: "composite"
     steps:
+
+        ##====================================
+        ## General setup
+        ##====================================
+
         - name: Sanitize inputs & auto-detect platform
-          id: v
           run: |
             if [ "${{ inputs.os }}" = "" ] || [ "${{ inputs.os }}" = "linux" ]; then
                 case "${{ runner.os }}" in
@@ -134,6 +138,10 @@ runs:
             echo "${{ env.metadata }}" > arturo/version/metadata
           shell: bash
 
+        ##====================================
+        ## OS-specific preparations
+        ##====================================
+
         - name: Cache ChooseNim
           if: runner.os == 'Linux' || runner.os == 'macOS'
           id: cache-choosenim
@@ -157,6 +165,10 @@ runs:
             update: true
             cache: true
             install: 'git base-devel p7zip mingw-w64-x86_64-toolchain'
+
+        ##====================================
+        ## Setup Nim & dependencies
+        ##====================================
 
         - name: Install Nim (Linux)
           if: runner.os == 'Linux' && env.os != 'freebsd'
@@ -206,6 +218,10 @@ runs:
 
             export PATH="${{ github.workspace }}/nim/nim-2.2.6/bin":$PATH
           shell: msys2 {0}
+
+        ##====================================
+        ## Compilation
+        ##====================================
         
         - name: Build Arturo
           if: env.os != 'freebsd' && runner.os != 'Windows'
