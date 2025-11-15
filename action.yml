@@ -38,11 +38,34 @@ inputs:
 runs:
     using: "composite"
     steps:
-        - name: Sanitize inputs
+        - name: Sanitize inputs and auto-detect platform
           id: v
           run: |
-            echo "os=${{ inputs.os != '' && inputs.os || 'linux' }}" >> $GITHUB_OUTPUT
-            echo "arch=${{ inputs.arch != '' && inputs.arch || 'amd64' }}" >> $GITHUB_OUTPUT
+            # Auto-detect OS if not specified or is default 'linux'
+            if [ "${{ inputs.os }}" = "" ] || [ "${{ inputs.os }}" = "linux" ]; then
+              case "${{ runner.os }}" in
+                Linux)   detected_os="linux" ;;
+                macOS)   detected_os="macos" ;;
+                Windows) detected_os="windows" ;;
+                *)       detected_os="linux" ;;
+              esac
+            else
+              detected_os="${{ inputs.os }}"
+            fi
+            
+            # Auto-detect arch if not specified or is default 'amd64'
+            if [ "${{ inputs.arch }}" = "" ] || [ "${{ inputs.arch }}" = "amd64" ]; then
+              case "${{ runner.arch }}" in
+                ARM64) detected_arch="arm64" ;;
+                X64)   detected_arch="amd64" ;;
+                *)     detected_arch="amd64" ;;
+              esac
+            else
+              detected_arch="${{ inputs.arch }}"
+            fi
+            
+            echo "os=$detected_os" >> $GITHUB_OUTPUT
+            echo "arch=$detected_arch" >> $GITHUB_OUTPUT
             echo "mode=${{ inputs.mode != '' && inputs.mode || 'full' }}" >> $GITHUB_OUTPUT
             echo "webkit=${{ inputs.webkit != '' && inputs.webkit || '40' }}" >> $GITHUB_OUTPUT
             echo "src=${{ inputs.src }}" >> $GITHUB_OUTPUT
