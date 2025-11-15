@@ -72,6 +72,22 @@ runs:
             echo "metadata=${{ inputs.metadata }}" >> $GITHUB_OUTPUT
           shell: bash
 
+        - name: Debug build configuration
+          run: |
+            echo "======================================"
+            echo "Arturo Builder Configuration"
+            echo "======================================"
+            echo "Runner OS:        ${{ runner.os }}"
+            echo "Runner Arch:      ${{ runner.arch }}"
+            echo "Target OS:        ${{ steps.v.outputs.os }}"
+            echo "Target Arch:      ${{ steps.v.outputs.arch }}"
+            echo "Build Mode:       ${{ steps.v.outputs.mode }}"
+            echo "WebKit Version:   ${{ steps.v.outputs.webkit }}"
+            echo "Source Ref:       ${{ steps.v.outputs.src != '' && steps.v.outputs.src || '(latest)' }}"
+            echo "Metadata:         ${{ steps.v.outputs.metadata != '' && steps.v.outputs.metadata || '(none)' }}"
+            echo "======================================"
+          shell: bash
+
         - name: Checkout Arturo repo
           if: steps.v.outputs.os != 'freebsd'
           uses: actions/checkout@v4

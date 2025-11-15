@@ -101,4 +101,6 @@ jobs:
             - name: Test Arturo
               run: |
                 arturo -v
-                arturo -e "print 'Hello from Arturo!'"
+                arturo -e "print sys\os"
+                arturo -e "print sys\cpu\arch"
+                arturo -e "print sys\release"
