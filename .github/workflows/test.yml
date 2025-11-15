@@ -65,3 +65,12 @@ jobs:
               run: |
                 arturo -v
                 arturo tests/test.art
+
+            - if: matrix.os == 'freebsd'
+              name: Run tests (FreeBSD)
+              shell: freebsd {0}
+              run: |
+                cd $GITHUB_WORKSPACE
+                export PATH="$HOME/.arturo/bin:$PATH"
+                arturo -v
+                arturo tests/test.art
