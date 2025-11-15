@@ -134,7 +134,7 @@ runs:
           uses: actions/cache@v4
           with:
             path: ~/.nimble
-            key: ${{ runner.os }}-nimble-${{ hashFiles('*.nimble') }}
+            key: ${{ runner.os }}-nimble-v2-${{ hashFiles('*.nimble') }}
 
         - name: Setup Msys
           if: runner.os == 'Windows'
