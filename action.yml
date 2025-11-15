@@ -165,7 +165,7 @@ runs:
           if: runner.os == 'macOS'
           run: |
             brew update
-            brew install nim
+            brew install pcre nim
           shell: bash
 
         - name: Install Nim (Windows)
