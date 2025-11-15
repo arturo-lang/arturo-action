@@ -185,14 +185,14 @@ runs:
             fi
           shell: bash
 
-        - name: Install Nim (macOS)
+        - name: Install Nim & dependencies (macOS)
           if: runner.os == 'macOS'
           run: |
             brew update
             brew install pcre nim
           shell: bash
 
-        - name: Install Nim (Windows)
+        - name: Install Nim & dependencies (Windows)
           if: runner.os == 'Windows'
           run: |
             if [ "${{ env.mode }}" = "full" ]; then
@@ -213,7 +213,7 @@ runs:
         ## Compilation
         ##====================================
         
-        - name: Build Arturo
+        - name: Build Arturo (*)
           if: env.os != 'freebsd' && runner.os != 'Windows'
           run: |
             cd arturo
