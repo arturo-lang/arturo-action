@@ -38,7 +38,7 @@ inputs:
 runs:
     using: "composite"
     steps:
-        - name: Sanitize inputs and auto-detect platform
+        - name: Sanitize inputs & auto-detect platform
           id: v
           run: |
             # Auto-detect OS if not specified or is default 'linux'
@@ -224,38 +224,11 @@ runs:
             fi
           shell: bash
         
-        - name: Compile Arturo (Linux/macOS - amd64)
-          if: env.os != 'freebsd' && env.os != 'web' &&  runner.os != 'Windows' && env.arch == 'amd64' && runner.arch != 'ARM64'
-          run: |
-            cd arturo
-            ./build.nims --install --mode ${{ env.mode }} --arch amd64 --log
-            echo "$HOME/.arturo/bin" >> $GITHUB_PATH
-            cd ..
-          shell: bash
-
-        - name: Compile Arturo (macOS - M1)
-          if: env.os != 'freebsd' && env.os != 'web' && env.arch == 'arm64' &&  (runner.os == 'macOS' && runner.arch == 'ARM64')
-          run: |
-            cd arturo
-            ./build.nims --install --mode ${{ env.mode }} --arch arm64 --log
-            echo "$HOME/.arturo/bin" >> $GITHUB_PATH
-            cd ..
-          shell: bash
-
-        - name: Compile Arturo (Linux)
-          if: env.os != 'freebsd' && env.os != 'web' && env.arch != 'amd64' && runner.os == 'Linux'
+        - name: Compile Arturo
+          if: env.os != 'freebsd' && runner.os != 'Windows'
           run: |
             cd arturo
             ./build.nims --install --mode ${{ env.mode }} --arch ${{ env.arch }} --log
-            echo "$HOME/.arturo/bin" >> $GITHUB_PATH
-            cd ..
-          shell: bash
-
-        - name: Compile Arturo (Web)
-          if: env.os == 'web'
-          run: |
-            cd arturo
-            ./build.nims --mode web --log
             echo "$HOME/.arturo/bin" >> $GITHUB_PATH
             cd ..
           shell: bash
