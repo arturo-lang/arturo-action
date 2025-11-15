@@ -230,11 +230,11 @@ runs:
             run: |
               git clone --recursive https://github.com/arturo-lang/arturo.git arturo
               cd arturo
+              git config --global --add safe.directory '*'
               ${{ inputs.src != '' && format('git checkout {0}', inputs.src) || '' }}
               ${{ inputs.metadata != '' && format('echo "{0}" > version/metadata', inputs.metadata) || '' }}
               export PATH="/usr/local/nim/bin/:$PATH"
               ./build.nims --install --mode ${{ inputs.mode }} --log
-              export PATH="$HOME/.arturo/bin:$PATH"
 
         - name: Build Arturo (FreeBSD / full)
           if: inputs.os == 'freebsd' && inputs.mode == 'full'
@@ -249,8 +249,8 @@ runs:
             run: |
               git clone --recursive https://github.com/arturo-lang/arturo.git arturo
               cd arturo
+              git config --global --add safe.directory '*'
               ${{ inputs.src != '' && format('git checkout {0}', inputs.src) || '' }}
               ${{ inputs.metadata != '' && format('echo "{0}" > version/metadata', inputs.metadata) || '' }}
               export PATH="/usr/local/nim/bin/:$PATH"
               ./build.nims --install --mode ${{ inputs.mode }} --log
-              export PATH="$HOME/.arturo/bin:$PATH"
