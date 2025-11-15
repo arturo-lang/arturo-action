@@ -146,7 +146,7 @@ runs:
 
         - name: Install Nim (Linux)
           if: runner.os == 'Linux' && steps.v.outputs.os != 'freebsd'
-          uses: jiro4989/setup-nim-action@v1
+          uses: jiro4989/setup-nim-action@v2
           with:
             nim-version: '2.2.6'
             repo-token: ${{ inputs.token }}
