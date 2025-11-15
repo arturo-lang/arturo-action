@@ -77,6 +77,16 @@
 name: Minimal Test
 
 on:
+    push:
+        paths-ignore:
+            - 'LICENSE'
+            - '*.md'
+        branches:
+            - main
+    pull_request:
+        paths-ignore:
+            - 'LICENSE'
+            - '*.md'
     workflow_dispatch:
 
 jobs:
