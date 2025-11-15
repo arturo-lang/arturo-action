@@ -80,9 +80,16 @@ runs:
                 detected_webkit="${{ inputs.webkit }}"
             fi
 
+            # Set mode to 'web' if os is 'web', otherwise use input
+            if [ "$detected_os" = "web" ]; then
+                detected_mode="web"
+            else
+                detected_mode="${{ inputs.mode != '' && inputs.mode || 'full' }}"
+            fi
+
             echo "os=$detected_os" >> $GITHUB_OUTPUT
             echo "arch=$detected_arch" >> $GITHUB_OUTPUT
-            echo "mode=${{ inputs.mode != '' && inputs.mode || 'full' }}" >> $GITHUB_OUTPUT
+            echo "mode=$detected_mode" >> $GITHUB_OUTPUT
             echo "webkit=$detected_webkit" >> $GITHUB_OUTPUT
             echo "src=${{ inputs.src }}" >> $GITHUB_OUTPUT
             echo "metadata=${{ inputs.metadata }}" >> $GITHUB_OUTPUT
