@@ -97,15 +97,6 @@ runs:
             path: arturo
             ref: ${{ steps.v.outputs.src }}
 
-        - name: Debugging
-          if: steps.v.outputs.os != 'freebsd'
-          run: |
-            echo ${{ runner.os }}
-            echo ${{ runner.arch }}
-            ls -la
-            ls -la arturo
-          shell: bash
-
         - name: Set build metadata
           if: steps.v.outputs.os != 'freebsd' && steps.v.outputs.metadata != ''
           run: |
