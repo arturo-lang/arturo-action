@@ -75,7 +75,12 @@ jobs:
           - {os: macos,   arch: arm64, mode: full}
           - {os: freebsd, arch: amd64, mode: full}
           - {os: web}
-    
+
+    defaults:
+      run:
+      shell: ${{ (matrix.os == 'windows') && 'msys2 {0}' || 
+                                             'bash'      }}
+
     steps:
       - uses: actions/checkout@v4
       
