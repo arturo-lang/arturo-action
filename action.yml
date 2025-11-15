@@ -172,6 +172,10 @@ runs:
           run: |
             sudo apt-get update
             sudo apt-get install libpcre3
+
+            if [ "${{ env.arch }}" = "arm64" ]; then
+                sudo apt-get install gcc-aarch64-linux-gnu
+            fi
             
             if [ "${{ env.mode }}" != "mini" ]; then
                 npm install -g uglify-js
