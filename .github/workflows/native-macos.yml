@@ -14,8 +14,8 @@ on:
     workflow_dispatch:
 
 jobs:
-    windows-amd64:
-        runs-on: windows-latest
+    macos:
+        runs-on: macos-latest
         steps:
             - uses: actions/checkout@v4
             
@@ -28,4 +28,3 @@ jobs:
               run: |
                 arturo -v
                 arturo -e "print [{Current release:} sys\release]"
-              shell: "msys2 {0}"
