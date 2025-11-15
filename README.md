@@ -49,7 +49,6 @@ jobs:
       - name: Install Arturo
         uses: arturo-lang/arturo-action@main
         with: 
-          mode: mini
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run script
