@@ -94,7 +94,7 @@ jobs:
         runs-on: macos-latest
         steps:
             - name: Install Arturo
-              uses: arturo-lang/arturo-action@main
+              uses: ./
               with: 
                 token: ${{ secrets.GITHUB_TOKEN }}
 
