@@ -36,7 +36,8 @@ With specific options:
 ### "Native" build
 
 > [!TIP]
-> The action auto-detects your runner and builds the appropriate (full) version. > No configuration needed for basic usage! 😉
+> The action auto-detects your runner and builds the appropriate (full) version.
+> > No configuration needed for basic usage! 😉
 
 ```yaml
 jobs:
