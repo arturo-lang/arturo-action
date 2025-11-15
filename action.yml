@@ -221,7 +221,7 @@ runs:
           if: env.os != 'freebsd' && runner.os != 'Windows'
           run: |
             cd arturo
-            ./build.nims --install --mode ${{ env.mode }} --arch ${{ env.arch }} --log
+            ./build.nims --mode ${{ env.mode }} --arch ${{ env.arch }} --log ${{ env.mode != 'web' && '--install' || '' }}
             echo "$HOME/.arturo/bin" >> $GITHUB_PATH
             cd ..
           shell: bash
