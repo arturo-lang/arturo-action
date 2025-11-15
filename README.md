@@ -37,7 +37,7 @@ With specific options:
 
 > [!TIP]
 > The action auto-detects your runner and builds the appropriate (full) version.
-> > No configuration needed for basic usage! 😉
+> No configuration needed for basic usage! 😉
 
 ```yaml
 jobs:
