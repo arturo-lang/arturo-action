@@ -55,9 +55,9 @@ jobs:
               with: 
                 token: ${{ secrets.GITHUB_TOKEN }}
                 os: ${{ matrix.os }}
-                arch: ${{ matrix.arch || 'amd64' }}
-                mode: ${{ matrix.mode || 'mini' }}
-                webkit: ${{ matrix.webkit || '40' }}
+                arch: ${{ matrix.arch }}
+                mode: ${{ matrix.mode }}
+                webkit: ${{ matrix.webkit }}
                 src: "re-add-FreeBSD-builds"
 
             - if: (matrix.os == 'linux' && matrix.arch != 'arm64') || matrix.os == 'macos' || matrix.os == 'windows'
