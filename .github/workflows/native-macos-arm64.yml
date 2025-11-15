@@ -1,4 +1,4 @@
-name: Minimal Test
+name: Native
 
 on:
     push:
@@ -14,8 +14,8 @@ on:
     workflow_dispatch:
 
 jobs:
-    test-linux:
-        runs-on: ubuntu-latest
+    macos-arm64:
+        runs-on: macos-latest
         steps:
             - uses: actions/checkout@v4
             

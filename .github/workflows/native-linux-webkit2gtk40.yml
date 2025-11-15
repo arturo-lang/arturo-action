@@ -1,4 +1,4 @@
-name: Minimal Test
+name: Native
 
 on:
     push:
@@ -14,7 +14,7 @@ on:
     workflow_dispatch:
 
 jobs:
-    test-linux-webview2gtk40:
+    linux-webkit2gtk40:
         runs-on: ubuntu-22.04
         steps:
             - uses: actions/checkout@v4

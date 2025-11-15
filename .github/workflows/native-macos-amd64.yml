@@ -1,4 +1,4 @@
-name: Minimal Test
+name: Native
 
 on:
     push:
@@ -14,8 +14,8 @@ on:
     workflow_dispatch:
 
 jobs:
-    test-windows:
-        runs-on: windows-latest
+    macos-amd64:
+        runs-on: macOS-15-intel
         steps:
             - uses: actions/checkout@v4
             
@@ -28,4 +28,3 @@ jobs:
               run: |
                 arturo -v
                 arturo -e "print [{Current release:} sys\release]"
-              shell: "msys2 {0}"
