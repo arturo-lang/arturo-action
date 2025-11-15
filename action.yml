@@ -88,6 +88,16 @@ runs:
             echo "metadata=${{ inputs.metadata }}" >> $GITHUB_OUTPUT
           shell: bash
 
+        - name: Set environment variables
+          run: |
+            echo "os=${{ steps.v.outputs.os }}" >> $GITHUB_ENV
+            echo "arch=${{ steps.v.outputs.arch }}" >> $GITHUB_ENV
+            echo "mode=${{ steps.v.outputs.mode }}" >> $GITHUB_ENV
+            echo "webkit=${{ steps.v.outputs.webkit }}" >> $GITHUB_ENV
+            echo "src=${{ steps.v.outputs.src }}" >> $GITHUB_ENV
+            echo "metadata=${{ steps.v.outputs.metadata }}" >> $GITHUB_ENV
+          shell: bash
+
         - name: Debug build configuration
           run: |
             echo "======================================"
@@ -96,28 +106,28 @@ runs:
             echo "Runner OS:        ${{ runner.os }}"
             echo "Runner Arch:      ${{ runner.arch }}"
             echo "======================================"
-            echo "Target OS:        ${{ steps.v.outputs.os }}"
-            echo "Target Arch:      ${{ steps.v.outputs.arch }}"
-            echo "Build Mode:       ${{ steps.v.outputs.mode }}"
-            echo "WebKit Version:   ${{ steps.v.outputs.webkit }}"
-            echo "Source Ref:       ${{ steps.v.outputs.src != '' && steps.v.outputs.src || '(latest)' }}"
-            echo "Metadata:         ${{ steps.v.outputs.metadata != '' && steps.v.outputs.metadata || '(none)' }}"
+            echo "Target OS:        ${{ env.os }}"
+            echo "Target Arch:      ${{ env.arch }}"
+            echo "Build Mode:       ${{ env.mode }}"
+            echo "WebKit Version:   ${{ env.webkit }}"
+            echo "Source Ref:       ${{ env.src != '' && env.src || '(latest)' }}"
+            echo "Metadata:         ${{ env.metadata != '' && env.metadata || '(none)' }}"
             echo "======================================"
           shell: bash
 
         - name: Checkout Arturo repo
-          if: steps.v.outputs.os != 'freebsd'
+          if: env.os != 'freebsd'
           uses: actions/checkout@v4
           with:
             repository: arturo-lang/arturo
             submodules: recursive
             path: arturo
-            ref: ${{ steps.v.outputs.src }}
+            ref: ${{ env.src }}
 
         - name: Set build metadata
-          if: steps.v.outputs.os != 'freebsd' && steps.v.outputs.metadata != ''
+          if: env.os != 'freebsd' && env.metadata != ''
           run: |
-            echo "${{ steps.v.outputs.metadata }}" > arturo/version/metadata
+            echo "${{ env.metadata }}" > arturo/version/metadata
           shell: bash
 
         - name: Cache ChooseNim
@@ -145,7 +155,7 @@ runs:
             install: 'git base-devel p7zip mingw-w64-x86_64-toolchain'
 
         - name: Install Nim (Linux)
-          if: runner.os == 'Linux' && steps.v.outputs.os != 'freebsd'
+          if: runner.os == 'Linux' && env.os != 'freebsd'
           uses: jiro4989/setup-nim-action@v2
           with:
             nim-version: '2.2.6'
@@ -159,7 +169,7 @@ runs:
           shell: bash
 
         - name: Install Nim (Windows / mini)
-          if: runner.os == 'Windows' && steps.v.outputs.mode == 'mini'
+          if: runner.os == 'Windows' && env.mode == 'mini'
           run: |
             mkdir dist
             mkdir nim
@@ -171,14 +181,14 @@ runs:
             export PATH="${{ github.workspace }}/nim/nim-2.2.6/bin":$PATH
 
             cd arturo
-            ./build.nims build --mode ${{ steps.v.outputs.mode }} --log
+            ./build.nims build --mode ${{ env.mode }} --log
             cd ..
             cp bin/*.dll /usr/bin
             cp arturo/bin/arturo.exe /usr/bin
           shell: msys2 {0}
 
         - name: Install Nim (Windows / full)
-          if: runner.os == 'Windows' && steps.v.outputs.mode == 'full'
+          if: runner.os == 'Windows' && env.mode == 'full'
           run: |
             pacman --noconfirm -S mingw-w64-x86_64-mpfr
             mkdir dist
@@ -194,7 +204,7 @@ runs:
             export PATH="${{ github.workspace }}/nim/nim-2.2.6/bin":$PATH
 
             cd arturo
-            ./build.nims build --mode ${{ steps.v.outputs.mode }} --log
+            ./build.nims build --mode ${{ env.mode }} --log
             cd ..
             cp bin/*.dll /usr/bin
             cp arturo/bin/arturo.exe /usr/bin
@@ -203,26 +213,26 @@ runs:
           shell: msys2 {0}
 
         - name: Install dependencies (Linux)
-          if: runner.os == 'Linux' && steps.v.outputs.os != 'freebsd'
+          if: runner.os == 'Linux' && env.os != 'freebsd'
           run: |
             sudo apt-get update
             sudo apt-get install libpcre3
           shell: bash
 
         - name: Install dependencies (Linux / mini / x86)
-          if: runner.os == 'Linux' && steps.v.outputs.os != 'freebsd' && steps.v.outputs.mode == 'mini' && steps.v.outputs.arch == 'x86'
+          if: runner.os == 'Linux' && env.os != 'freebsd' && env.mode == 'mini' && env.arch == 'x86'
           run: |
             sudo apt-get install gcc-multilib g++-multilib
           shell: bash
 
         - name: Install dependencies (Linux / mini / arm)
-          if: runner.os == 'Linux' && steps.v.outputs.os != 'freebsd' && steps.v.outputs.mode == 'mini' && (steps.v.outputs.arch == 'arm' || steps.v.outputs.arch == 'arm64')
+          if: runner.os == 'Linux' && env.os != 'freebsd' && env.mode == 'mini' && (env.arch == 'arm' || env.arch == 'arm64')
           run: |
             sudo apt-get install gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu
           shell: bash
 
         - name: Install dependencies (Linux / full)
-          if: runner.os == 'Linux' && steps.v.outputs.os != 'freebsd' && steps.v.outputs.mode != 'mini'
+          if: runner.os == 'Linux' && env.os != 'freebsd' && env.mode != 'mini'
           run: |
             npm install -g uglify-js
             sudo apt-get install libgtk-3-dev libmpfr-dev
@@ -235,40 +245,40 @@ runs:
           shell: bash
 
         - name: Install dependencies (macOS / arm)
-          if: runner.os == 'macOS' && runner.arch == 'ARM64' && steps.v.outputs.mode != 'mini'
+          if: runner.os == 'macOS' && runner.arch == 'ARM64' && env.mode != 'mini'
           run: |
             brew install pcre
           shell: bash
         
         - name: Compile Arturo (Linux/macOS - amd64)
-          if: steps.v.outputs.os != 'freebsd' && steps.v.outputs.os != 'web' &&  runner.os != 'Windows' && steps.v.outputs.arch == 'amd64' && runner.arch != 'ARM64'
+          if: env.os != 'freebsd' && env.os != 'web' &&  runner.os != 'Windows' && env.arch == 'amd64' && runner.arch != 'ARM64'
           run: |
             cd arturo
-            ./build.nims --install --mode ${{ steps.v.outputs.mode }} --arch amd64 --log
+            ./build.nims --install --mode ${{ env.mode }} --arch amd64 --log
             echo "$HOME/.arturo/bin" >> $GITHUB_PATH
             cd ..
           shell: bash
 
         - name: Compile Arturo (macOS - M1)
-          if: steps.v.outputs.os != 'freebsd' && steps.v.outputs.os != 'web' && steps.v.outputs.arch == 'arm64' &&  (runner.os == 'macOS' && runner.arch == 'ARM64')
+          if: env.os != 'freebsd' && env.os != 'web' && env.arch == 'arm64' &&  (runner.os == 'macOS' && runner.arch == 'ARM64')
           run: |
             cd arturo
-            ./build.nims --install --mode ${{ steps.v.outputs.mode }} --arch arm64 --log
+            ./build.nims --install --mode ${{ env.mode }} --arch arm64 --log
             echo "$HOME/.arturo/bin" >> $GITHUB_PATH
             cd ..
           shell: bash
 
         - name: Compile Arturo (Linux)
-          if: steps.v.outputs.os != 'freebsd' && steps.v.outputs.os != 'web' && steps.v.outputs.arch != 'amd64' && runner.os == 'Linux'
+          if: env.os != 'freebsd' && env.os != 'web' && env.arch != 'amd64' && runner.os == 'Linux'
           run: |
             cd arturo
-            ./build.nims --install --mode ${{ steps.v.outputs.mode }} --arch ${{ steps.v.outputs.arch }} --log
+            ./build.nims --install --mode ${{ env.mode }} --arch ${{ env.arch }} --log
             echo "$HOME/.arturo/bin" >> $GITHUB_PATH
             cd ..
           shell: bash
 
         - name: Compile Arturo (Web)
-          if: steps.v.outputs.os == 'web'
+          if: env.os == 'web'
           run: |
             cd arturo
             ./build.nims --mode web --log
@@ -277,7 +287,7 @@ runs:
           shell: bash
 
         - name: Build Arturo (FreeBSD / mini)
-          if: steps.v.outputs.os == 'freebsd' && steps.v.outputs.mode == 'mini'
+          if: env.os == 'freebsd' && env.mode == 'mini'
           uses: vmactions/freebsd-vm@v1
           with:
             usesh: true
@@ -289,13 +299,13 @@ runs:
               git clone --recursive https://github.com/arturo-lang/arturo.git arturo
               cd arturo
               git config --global --add safe.directory '*'
-              ${{ steps.v.outputs.src != '' && format('git checkout {0}', steps.v.outputs.src) || '' }}
-              ${{ steps.v.outputs.metadata != '' && format('echo "{0}" > version/metadata', steps.v.outputs.metadata) || '' }}
+              ${{ env.src != '' && format('git checkout {0}', env.src) || '' }}
+              ${{ env.metadata != '' && format('echo "{0}" > version/metadata', env.metadata) || '' }}
               export PATH="/usr/local/nim/bin/:$PATH"
-              ./build.nims --install --mode ${{ steps.v.outputs.mode }} --log
+              ./build.nims --install --mode ${{ env.mode }} --log
 
         - name: Build Arturo (FreeBSD / full)
-          if: steps.v.outputs.os == 'freebsd' && steps.v.outputs.mode == 'full'
+          if: env.os == 'freebsd' && env.mode == 'full'
           uses: vmactions/freebsd-vm@v1
           with:
             usesh: true
@@ -303,12 +313,12 @@ runs:
             prepare: |
               pkg update
               pkg install -y wget nim bash git pkgconf
-              pkg install -y gtk3 mpfr openssl webkit2-gtk_${{ steps.v.outputs.webkit }}
+              pkg install -y gtk3 mpfr openssl webkit2-gtk_${{ env.webkit }}
             run: |
               git clone --recursive https://github.com/arturo-lang/arturo.git arturo
               cd arturo
               git config --global --add safe.directory '*'
-              ${{ steps.v.outputs.src != '' && format('git checkout {0}', steps.v.outputs.src) || '' }}
-              ${{ steps.v.outputs.metadata != '' && format('echo "{0}" > version/metadata', steps.v.outputs.metadata) || '' }}
+              ${{ env.src != '' && format('git checkout {0}', env.src) || '' }}
+              ${{ env.metadata != '' && format('echo "{0}" > version/metadata', env.metadata) || '' }}
               export PATH="/usr/local/nim/bin/:$PATH"
-              ./build.nims --install --mode ${{ steps.v.outputs.mode }} --log
+              ./build.nims --install --mode ${{ env.mode }} --log
