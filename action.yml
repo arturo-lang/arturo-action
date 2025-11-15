@@ -41,7 +41,6 @@ runs:
         - name: Sanitize inputs & auto-detect platform
           id: v
           run: |
-            # Auto-detect OS if not specified or is default 'linux'
             if [ "${{ inputs.os }}" = "" ] || [ "${{ inputs.os }}" = "linux" ]; then
                 case "${{ runner.os }}" in
                     Linux)   detected_os="linux" ;;
@@ -53,7 +52,6 @@ runs:
                 detected_os="${{ inputs.os }}"
             fi
 
-            # Auto-detect arch if not specified or is default 'amd64'
             if [ "${{ inputs.arch }}" = "" ] || [ "${{ inputs.arch }}" = "amd64" ]; then
                 case "${{ runner.arch }}" in
                     ARM64) detected_arch="arm64" ;;
@@ -64,7 +62,6 @@ runs:
                 detected_arch="${{ inputs.arch }}"
             fi
 
-            # Auto-detect webkit version based on Ubuntu version if not specified
             if [ "${{ inputs.webkit }}" = "" ] || [ "${{ inputs.webkit }}" = "41" ]; then
                 if [ "${{ runner.os }}" = "Linux" ]; then
                     UBUNTU_VERSION=$(lsb_release -rs 2>/dev/null || echo "24.04")
@@ -168,6 +165,24 @@ runs:
             nim-version: '2.2.6'
             repo-token: ${{ inputs.token }}
 
+        - name: Install dependencies (Linux)
+          if: runner.os == 'Linux' && env.os != 'freebsd'
+          run: |
+            sudo apt-get update
+            sudo apt-get install libpcre3
+            
+            if [ "${{ env.mode }}" != "mini" ]; then
+                npm install -g uglify-js
+                sudo apt-get install libgtk-3-dev libmpfr-dev
+                UBUNTU_VERSION=$(lsb_release -rs)
+                if [[ "$UBUNTU_VERSION" < "24.04" ]]; then
+                    sudo apt-get install -y libwebkit2gtk-4.0-dev
+                else
+                    sudo apt-get install -y libwebkit2gtk-4.1-dev
+                fi
+            fi
+          shell: bash
+
         - name: Install Nim (macOS)
           if: runner.os == 'macOS'
           run: |
@@ -179,7 +194,7 @@ runs:
           if: runner.os == 'Windows'
           run: |
             if [ "${{ env.mode }}" = "full" ]; then
-              pacman --noconfirm -S mingw-w64-x86_64-mpfr
+                pacman --noconfirm -S mingw-w64-x86_64-mpfr
             fi
 
             mkdir dist
@@ -190,41 +205,9 @@ runs:
             7z x dist/nim.zip -onim
 
             export PATH="${{ github.workspace }}/nim/nim-2.2.6/bin":$PATH
-
-            cd arturo
-            ./build.nims build --mode ${{ env.mode }} --log
-            cd ..
-            cp bin/*.dll /usr/bin
-            cp arturo/bin/arturo.exe /usr/bin
-
-            if [ "${{ env.mode }}" = "full" ]; then
-              curl -L https://arturo-lang.s3.amazonaws.com/extra-dlls.zip -o dist/extradlls.zip
-              7z x dist/extradlls.zip -obin
-              cp arturo/src/extras/webview/deps/dlls/x64/*.dll bin
-              cp bin/*.dll /usr/bin
-              curl -L https://curl.se/ca/cacert.pem -o /usr/bin/cacert.pem
-            fi
           shell: msys2 {0}
-
-        - name: Install dependencies (Linux)
-          if: runner.os == 'Linux' && env.os != 'freebsd'
-          run: |
-            sudo apt-get update
-            sudo apt-get install libpcre3
-            
-            if [ "${{ env.mode }}" != "mini" ]; then
-              npm install -g uglify-js
-              sudo apt-get install libgtk-3-dev libmpfr-dev
-              UBUNTU_VERSION=$(lsb_release -rs)
-              if [[ "$UBUNTU_VERSION" < "24.04" ]]; then
-                  sudo apt-get install -y libwebkit2gtk-4.0-dev
-              else
-                  sudo apt-get install -y libwebkit2gtk-4.1-dev
-              fi
-            fi
-          shell: bash
         
-        - name: Compile Arturo
+        - name: Build Arturo
           if: env.os != 'freebsd' && runner.os != 'Windows'
           run: |
             cd arturo
@@ -253,3 +236,23 @@ runs:
               ${{ env.metadata != '' && format('echo "{0}" > version/metadata', env.metadata) || '' }}
               export PATH="/usr/local/nim/bin/:$PATH"
               ./build.nims --install --mode ${{ env.mode }} --log
+
+        - name: Build Arturo (Windows)
+          if: runner.os == 'Windows'
+          run: |
+            export PATH="${{ github.workspace }}/nim/nim-2.2.6/bin":$PATH
+
+            cd arturo
+            ./build.nims build --mode ${{ env.mode }} --log
+            cd ..
+            cp bin/*.dll /usr/bin
+            cp arturo/bin/arturo.exe /usr/bin
+
+            if [ "${{ env.mode }}" = "full" ]; then
+                curl -L https://arturo-lang.s3.amazonaws.com/extra-dlls.zip -o dist/extradlls.zip
+                7z x dist/extradlls.zip -obin
+                cp arturo/src/extras/webview/deps/dlls/x64/*.dll bin
+                cp bin/*.dll /usr/bin
+                curl -L https://curl.se/ca/cacert.pem -o /usr/bin/cacert.pem
+            fi
+          shell: msys2 {0}
