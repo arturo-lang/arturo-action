@@ -231,11 +231,11 @@ runs:
             fi
           shell: bash
 
-        - name: Install dependencies (macOS / arm)
-          if: runner.os == 'macOS' && runner.arch == 'ARM64' && env.mode != 'mini'
-          run: |
-            brew install pcre
-          shell: bash
+        # - name: Install dependencies (macOS / arm)
+        #   if: runner.os == 'macOS' && runner.arch == 'ARM64' && env.mode != 'mini'
+        #   run: |
+        #     brew install pcre
+        #   shell: bash
         
         - name: Compile Arturo (Linux/macOS - amd64)
           if: env.os != 'freebsd' && env.os != 'web' &&  runner.os != 'Windows' && env.arch == 'amd64' && runner.arch != 'ARM64'
