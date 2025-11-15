@@ -206,18 +206,6 @@ runs:
             sudo apt-get install libpcre3
           shell: bash
 
-        # - name: Install dependencies (Linux / mini / x86)
-        #   if: runner.os == 'Linux' && env.os != 'freebsd' && env.mode == 'mini' && env.arch == 'x86'
-        #   run: |
-        #     sudo apt-get install gcc-multilib g++-multilib
-        #   shell: bash
-
-        # - name: Install dependencies (Linux / mini / arm)
-        #   if: runner.os == 'Linux' && env.os != 'freebsd' && env.mode == 'mini' && (env.arch == 'arm' || env.arch == 'arm64')
-        #   run: |
-        #     sudo apt-get install gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu
-        #   shell: bash
-
         - name: Install dependencies (Linux / full)
           if: runner.os == 'Linux' && env.os != 'freebsd' && env.mode != 'mini'
           run: |
