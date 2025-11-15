@@ -79,6 +79,7 @@ runs:
             echo "======================================"
             echo "Runner OS:        ${{ runner.os }}"
             echo "Runner Arch:      ${{ runner.arch }}"
+            echo "======================================"
             echo "Target OS:        ${{ steps.v.outputs.os }}"
             echo "Target Arch:      ${{ steps.v.outputs.arch }}"
             echo "Build Mode:       ${{ steps.v.outputs.mode }}"
