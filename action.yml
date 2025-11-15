@@ -273,8 +273,8 @@ runs:
             cd ..
           shell: bash
 
-        - name: Build Arturo (FreeBSD / mini)
-          if: env.os == 'freebsd' && env.mode == 'mini'
+        - name: Build Arturo (FreeBSD)
+          if: env.os == 'freebsd'
           uses: vmactions/freebsd-vm@v1
           with:
             usesh: true
@@ -282,25 +282,9 @@ runs:
             prepare: |
               pkg update
               pkg install -y wget nim bash git
-            run: |
-              git clone --recursive https://github.com/arturo-lang/arturo.git arturo
-              cd arturo
-              git config --global --add safe.directory '*'
-              ${{ env.src != '' && format('git checkout {0}', env.src) || '' }}
-              ${{ env.metadata != '' && format('echo "{0}" > version/metadata', env.metadata) || '' }}
-              export PATH="/usr/local/nim/bin/:$PATH"
-              ./build.nims --install --mode ${{ env.mode }} --log
-
-        - name: Build Arturo (FreeBSD / full)
-          if: env.os == 'freebsd' && env.mode == 'full'
-          uses: vmactions/freebsd-vm@v1
-          with:
-            usesh: true
-            sync: sshfs
-            prepare: |
-              pkg update
-              pkg install -y wget nim bash git pkgconf
-              pkg install -y gtk3 mpfr openssl webkit2-gtk_${{ env.webkit }}
+              if [ "${{ env.mode }}" = "full" ]; then
+                  pkg install -y pkgconf gtk3 mpfr openssl webkit2-gtk_${{ env.webkit }}
+              fi
             run: |
               git clone --recursive https://github.com/arturo-lang/arturo.git arturo
               cd arturo
