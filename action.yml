@@ -168,8 +168,8 @@ runs:
             brew install nim
           shell: bash
 
-        - name: Install Nim (Windows / mini)
-          if: runner.os == 'Windows' && env.mode == 'mini'
+        - name: Install Nim (Windows)
+          if: runner.os == 'Windows'
           run: |
             mkdir dist
             mkdir nim
@@ -187,29 +187,15 @@ runs:
             cp arturo/bin/arturo.exe /usr/bin
           shell: msys2 {0}
 
-        - name: Install Nim (Windows / full)
+        - name: Install full dependencies (Windows)
           if: runner.os == 'Windows' && env.mode == 'full'
           run: |
             pacman --noconfirm -S mingw-w64-x86_64-mpfr
-            mkdir dist
-            mkdir nim
-            curl -L https://nim-lang.org/download/dlls.zip -o dist/dlls.zip
             curl -L https://arturo-lang.s3.amazonaws.com/extra-dlls.zip -o dist/extradlls.zip
-            curl -L https://nim-lang.org/download/nim-2.2.6_x64.zip -o dist/nim.zip
-            7z x dist/dlls.zip -obin
             7z x dist/extradlls.zip -obin
-            7z x dist/nim.zip -onim
             cp arturo/src/extras/webview/deps/dlls/x64/*.dll bin
-
-            export PATH="${{ github.workspace }}/nim/nim-2.2.6/bin":$PATH
-
-            cd arturo
-            ./build.nims build --mode ${{ env.mode }} --log
-            cd ..
             cp bin/*.dll /usr/bin
-            cp arturo/bin/arturo.exe /usr/bin
             curl -L https://curl.se/ca/cacert.pem -o /usr/bin/cacert.pem
-            
           shell: msys2 {0}
 
         - name: Install dependencies (Linux)
