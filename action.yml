@@ -269,3 +269,12 @@ runs:
                 curl -L https://curl.se/ca/cacert.pem -o /usr/bin/cacert.pem
             fi
           shell: msys2 {0}
+
+        ##====================================
+        ## Cleanup
+        ##====================================
+
+        - name: Cleanup source files
+          run: |
+            rm -rf arturo
+          shell: bash
