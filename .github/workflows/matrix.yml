@@ -41,7 +41,7 @@ jobs:
                     - {os: macos,   arch: amd64, mode: full}
                     - {os: macos,   arch: amd64, mode: mini}
                     - {os: macos,   arch: arm64, mode: full}
-                    - {os: macos,   arch: amd64, mode: mini}
+                    - {os: macos,   arch: arm64, mode: mini}
                     - {os: windows, arch: amd64, mode: full}
                     - {os: windows, arch: amd64, mode: mini}
                     - {os: web}
@@ -115,16 +115,8 @@ jobs:
                 echo "All checks passed!"
                 echo "======================================"
 
-            - if: (matrix.os == 'linux' && matrix.arch != 'arm64') || matrix.os == 'macos' || matrix.os == 'windows'
+            - if: env.ArturoCanRun == 'true'
               name: Run tests
               run: |
-                arturo -v
-                arturo tests/test.art
-
-            - if: matrix.os == 'freebsd'
-              name: Run tests (FreeBSD)
-              run: |
-                cd $GITHUB_WORKSPACE
-                export PATH="$HOME/.arturo/bin:$PATH"
                 arturo -v
                 arturo tests/test.art
