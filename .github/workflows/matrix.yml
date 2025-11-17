@@ -21,9 +21,9 @@ jobs:
     test:
         runs-on: ${{ 
             (matrix.os == 'linux' && matrix.webkit == '40')     && 'ubuntu-22.04'   || 
-            (matrix.os == 'windows')                            && 'windows-latest' || 
             (matrix.os == 'macos' && matrix.arch == 'arm64')    && 'macos-latest'   || 
             (matrix.os == 'macos')                              && 'macOS-15-intel' || 
+            (matrix.os == 'windows')                            && 'windows-latest' || 
                                                                    'ubuntu-latest'  }}
         strategy:
             matrix:
@@ -47,8 +47,9 @@ jobs:
         defaults:
             run:
                 shell: ${{ 
-                    (matrix.os == 'windows') && 'msys2 {0}' || 
-                                                'bash'      }}
+                    (matrix.os == 'freebsd') && 'freebsd {0}' ||
+                    (matrix.os == 'windows') && 'msys2 {0}'   || 
+                                                'bash'        }}
         steps:
             - uses: actions/checkout@v4
  
@@ -70,7 +71,6 @@ jobs:
 
             - if: matrix.os == 'freebsd'
               name: Run tests (FreeBSD)
-              shell: freebsd {0}
               run: |
                 cd $GITHUB_WORKSPACE
                 export PATH="$HOME/.arturo/bin:$PATH"
