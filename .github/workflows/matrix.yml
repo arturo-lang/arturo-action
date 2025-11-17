@@ -61,7 +61,7 @@ jobs:
                 arch: ${{ matrix.arch }}
                 mode: ${{ matrix.mode }}
                 webkit: ${{ matrix.webkit }}
-                src: "re-add-FreeBSD-builds"
+                src: "clean-up-main-CI-action"
 
             - if: (matrix.os == 'linux' && matrix.arch != 'arm64') || matrix.os == 'macos' || matrix.os == 'windows'
               name: Run tests
