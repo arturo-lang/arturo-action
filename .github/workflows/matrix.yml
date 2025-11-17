@@ -105,7 +105,7 @@ jobs:
                 
                 # Check: Any source repo leftovers?
                 echo "✓ Checking cleanup..."
-                if [ -d "arturo" ]; then
+                if [ -d "arturo-src" ]; then
                     echo "  ✗ FAILED: arturo sources not cleaned"
                     exit 1
                 else

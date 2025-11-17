@@ -119,13 +119,13 @@ runs:
           with:
             repository: arturo-lang/arturo
             submodules: recursive
-            path: arturo
+            path: arturo-src
             ref: ${{ env.src }}
 
         - name: Set build metadata
           if: env.os != 'freebsd' && env.metadata != ''
           run: |
-            echo "${{ env.metadata }}" > arturo/version/metadata
+            echo "${{ env.metadata }}" > arturo-src/version/metadata
           shell: bash
 
         - name: Export runtime flags
@@ -232,7 +232,7 @@ runs:
         - name: Build Arturo (*)
           if: env.os != 'freebsd' && runner.os != 'Windows'
           run: |
-            cd arturo
+            cd arturo-src
             ./build.nims --install --mode ${{ env.mode }} --arch ${{ env.arch }} --log
             echo "$HOME/.arturo/bin" >> $GITHUB_PATH
             cd ..
@@ -240,7 +240,7 @@ runs:
             mkdir -p .arturo-dist
             cp -r $HOME/.arturo/bin/* .arturo-dist/
             
-            rm -rf arturo
+            rm -rf arturo-src
           shell: bash
 
         - name: Build Arturo (FreeBSD)
@@ -257,8 +257,8 @@ runs:
                   pkg install -y pkgconf gtk3 mpfr ca_root_nss openssl webkit2-gtk_${{ env.webkit }}
               fi
             run: |
-              git clone --recursive https://github.com/arturo-lang/arturo.git arturo
-              cd arturo
+              git clone --recursive https://github.com/arturo-lang/arturo.git arturo-src
+              cd arturo-src
               git config --global --add safe.directory '*'
               if [ -n "${{ env.src }}" ]; then
                   git fetch origin ${{ env.src }}
@@ -274,30 +274,30 @@ runs:
               mkdir -p .arturo-dist
               cp -r $HOME/.arturo/bin/* .arturo-dist/
               
-              rm -rf arturo
+              rm -rf arturo-src
 
         - name: Build Arturo (Windows)
           if: runner.os == 'Windows'
           run: |
             export PATH="${{ github.workspace }}/nim/nim-2.2.6/bin":$PATH
 
-            cd arturo
+            cd arturo-src
             ./build.nims --install --mode ${{ env.mode }} --log
             cd ..
             mkdir -p .arturo-dist
             
             cp bin/*.dll .arturo-dist
-            cp arturo/bin/arturo.exe .arturo-dist
+            cp arturo-src/bin/arturo.exe .arturo-dist
             
             if [ "${{ env.mode }}" = "full" ]; then
                 curl -L https://arturo-lang.s3.amazonaws.com/extra-dlls.zip -o dist/extradlls.zip
                 7z x dist/extradlls.zip -o".arturo-dist"
                 rm -rf .arturo-dist/__MACOSX
-                cp arturo/src/extras/webview/deps/dlls/x64/*.dll .arturo-dist
+                cp arturo-src/src/extras/webview/deps/dlls/x64/*.dll .arturo-dist
                 curl -L https://curl.se/ca/cacert.pem -o .arturo-dist/cacert.pem
             fi
 
             cp .arturo-dist/* /usr/bin
             
-            rm -rf arturo
+            rm -rf arturo-src
           shell: msys2 {0}
