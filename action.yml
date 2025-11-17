@@ -255,6 +255,8 @@ runs:
               export PATH="/usr/local/nim/bin/:$PATH"
               ./build.nims --install --mode ${{ env.mode }} --log
               cd ..
+
+              export PATH="$HOME/.arturo/bin:$PATH"
               
               mkdir -p .arturo-dist
               cp -r $HOME/.arturo/bin/* .arturo-dist/
