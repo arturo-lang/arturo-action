@@ -256,7 +256,7 @@ runs:
             export PATH="${{ github.workspace }}/nim/nim-2.2.6/bin":$PATH
 
             cd arturo
-            ./build.nims build --mode ${{ env.mode }} --log
+            ./build.nims --install --mode ${{ env.mode }} --log
             cd ..
             cp bin/*.dll /usr/bin
             cp arturo/bin/arturo.exe /usr/bin
