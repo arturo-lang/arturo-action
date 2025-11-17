@@ -237,8 +237,8 @@ runs:
             echo "$HOME/.arturo/bin" >> $GITHUB_PATH
             cd ..
             
-            mkdir -p .arturo-dist
-            cp -r $HOME/.arturo/bin/* .arturo-dist/
+            mkdir -p arturo-dist
+            cp -r $HOME/.arturo/bin/* arturo-dist/
             
             rm -rf arturo-src
           shell: bash
@@ -271,8 +271,8 @@ runs:
 
               cp -r $HOME/.arturo/bin/* /usr/local/bin/
               
-              mkdir -p .arturo-dist
-              cp -r $HOME/.arturo/bin/* .arturo-dist/
+              mkdir -p arturo-dist
+              cp -r $HOME/.arturo/bin/* arturo-dist/
               
               rm -rf arturo-src
 
@@ -284,20 +284,20 @@ runs:
             cd arturo-src
             ./build.nims --install --mode ${{ env.mode }} --log
             cd ..
-            mkdir -p .arturo-dist
+            mkdir -p arturo-dist
             
-            cp bin/*.dll .arturo-dist
-            cp arturo-src/bin/arturo.exe .arturo-dist
+            cp bin/*.dll arturo-dist
+            cp arturo-src/bin/arturo.exe arturo-dist
             
             if [ "${{ env.mode }}" = "full" ]; then
                 curl -L https://arturo-lang.s3.amazonaws.com/extra-dlls.zip -o dist/extradlls.zip
-                7z x dist/extradlls.zip -o".arturo-dist"
-                rm -rf .arturo-dist/__MACOSX
-                cp arturo-src/src/extras/webview/deps/dlls/x64/*.dll .arturo-dist
-                curl -L https://curl.se/ca/cacert.pem -o .arturo-dist/cacert.pem
+                7z x dist/extradlls.zip -o"arturo-dist"
+                rm -rf arturo-dist/__MACOSX
+                cp arturo-src/src/extras/webview/deps/dlls/x64/*.dll arturo-dist
+                curl -L https://curl.se/ca/cacert.pem -o arturo-dist/cacert.pem
             fi
 
-            cp .arturo-dist/* /usr/bin
+            cp arturo-dist/* /usr/bin
             
             rm -rf arturo-src
           shell: msys2 {0}

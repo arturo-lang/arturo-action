@@ -91,13 +91,13 @@ jobs:
                 
                 echo ""
                 
-                # Check: .arturo-dist folder in place?
-                echo "✓ Checking .arturo-dist..."
-                if [ -d ".arturo-dist" ]; then
-                    echo "  ✓ .arturo-dist exists"
-                    ls -lh .arturo-dist/ || ls -l .arturo-dist/
+                # Check: arturo-dist folder in place?
+                echo "✓ Checking arturo-dist..."
+                if [ -d "arturo-dist" ]; then
+                    echo "  ✓ arturo-dist exists"
+                    ls -lh arturo-dist/ || ls -l arturo-dist/
                 else
-                    echo "  ✗ FAILED: .arturo-dist not found"
+                    echo "  ✗ FAILED: arturo-dist not found"
                     exit 1
                 fi
                 
