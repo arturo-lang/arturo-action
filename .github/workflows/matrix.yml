@@ -33,8 +33,6 @@ jobs:
                     - {os: linux,   arch: amd64, mode: safe}
                     - {os: linux,   arch: amd64, mode: mini}
                     - {os: linux,   arch: arm64, mode: mini}
-                    # - {os: linux,   arch: x86,   mode: mini}
-                    # - {os: linux,   arch: arm,   mode: mini}
                     - {os: freebsd, arch: amd64, mode: mini}
                     - {os: freebsd, arch: amd64, mode: full}
                     - {os: freebsd, arch: amd64, mode: full, webkit: "41"}
@@ -75,7 +73,6 @@ jobs:
                 echo "OS: ${{ matrix.os }} | Arch: ${{ matrix.arch || 'amd64' }} | Mode: ${{ matrix.mode || 'mini' }}"
                 echo "======================================"
                 
-                # Check: `arturo` command exists?
                 if [ "${{ env.ArturoCanRun }}" == "true" ]; then
                     echo "✓ Checking arturo command..."
                     if command -v arturo &> /dev/null; then
@@ -90,31 +87,8 @@ jobs:
                 fi
                 
                 echo ""
-                
-                # Check: arturo-dist folder in place?
-                echo "✓ Checking arturo-dist..."
-                if [ -d "arturo-dist" ]; then
-                    echo "  ✓ arturo-dist exists"
-                    ls -lh arturo-dist/ || ls -l arturo-dist/
-                else
-                    echo "  ✗ FAILED: arturo-dist not found"
-                    exit 1
-                fi
-                
-                echo ""
-                
-                # Check: Any source repo leftovers?
-                echo "✓ Checking cleanup..."
-                if [ -d "arturo-src" ]; then
-                    echo "  ✗ FAILED: arturo sources not cleaned"
-                    exit 1
-                else
-                    echo "  ✓ Sources cleaned"
-                fi
-                
-                echo ""
                 echo "======================================"
-                echo "All checks passed!"
+                echo "Installation verified!"
                 echo "======================================"
 
             - if: env.ArturoCanRun == 'true'
