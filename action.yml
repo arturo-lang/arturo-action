@@ -224,6 +224,11 @@ runs:
             ./build.nims --install --mode ${{ env.mode }} --arch ${{ env.arch }} --log
             echo "$HOME/.arturo/bin" >> $GITHUB_PATH
             cd ..
+            
+            mkdir -p .arturo-dist
+            cp -r $HOME/.arturo/bin/* .arturo-dist/
+            
+            rm -rf arturo
           shell: bash
 
         - name: Build Arturo (FreeBSD)
@@ -249,6 +254,12 @@ runs:
               ${{ env.metadata != '' && format('echo "{0}" > version/metadata', env.metadata) || '' }}
               export PATH="/usr/local/nim/bin/:$PATH"
               ./build.nims --install --mode ${{ env.mode }} --log
+              cd ..
+              
+              mkdir -p .arturo-dist
+              cp -r $HOME/.arturo/bin/* .arturo-dist/
+              
+              rm -rf arturo
 
         - name: Build Arturo (Windows)
           if: runner.os == 'Windows'
@@ -268,13 +279,13 @@ runs:
                 cp bin/*.dll /usr/bin
                 curl -L https://curl.se/ca/cacert.pem -o /usr/bin/cacert.pem
             fi
-          shell: msys2 {0}
-
-        ##====================================
-        ## Cleanup
-        ##====================================
-
-        - name: Cleanup source files
-          run: |
+            
+            mkdir -p .arturo-dist
+            cp /usr/bin/arturo.exe .arturo-dist/
+            cp /usr/bin/*.dll .arturo-dist/ 2>/dev/null || true
+            if [ "${{ env.mode }}" = "full" ]; then
+                cp /usr/bin/cacert.pem .arturo-dist/ 2>/dev/null || true
+            fi
+            
             rm -rf arturo
-          shell: bash
+          shell: msys2 {0}
