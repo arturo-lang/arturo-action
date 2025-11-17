@@ -257,22 +257,6 @@ runs:
                   pkg install -y pkgconf gtk3 mpfr ca_root_nss openssl webkit2-gtk_${{ env.webkit }}
               fi
             run: |
-              echo "========== DEBUG: VM Environment =========="
-              echo "HOME: $HOME"
-              echo "PWD: $PWD"
-              echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
-              echo "Runner workspace: $RUNNER_WORKSPACE"
-              echo ""
-              echo "========== Directory listing of PWD =========="
-              ls -lah
-              echo ""
-              echo "========== Directory listing of HOME =========="
-              ls -lah $HOME
-              echo ""
-              echo "========== Directory listing of HOME/work =========="
-              ls -lah $HOME/work || echo "HOME/work doesn't exist"
-              echo ""
-              
               git clone --recursive https://github.com/arturo-lang/arturo.git arturo
               cd arturo
               git config --global --add safe.directory '*'
@@ -287,37 +271,8 @@ runs:
 
               cp -r $HOME/.arturo/bin/* /usr/local/bin/
               
-              echo ""
-              echo "========== Attempting to create .arturo-dist =========="
-              echo "Current directory: $PWD"
-              
               mkdir -p .arturo-dist
               cp -r $HOME/.arturo/bin/* .arturo-dist/
-              
-              echo "========== .arturo-dist created in PWD =========="
-              ls -lah .arturo-dist/
-              
-              echo ""
-              echo "========== Trying $HOME/work/.arturo-dist =========="
-              mkdir -p $HOME/work/.arturo-dist
-              cp -r $HOME/.arturo/bin/* $HOME/work/.arturo-dist/
-              ls -lah $HOME/work/.arturo-dist/
-              
-              if [ -n "$GITHUB_WORKSPACE" ]; then
-                  echo ""
-                  echo "========== Trying GITHUB_WORKSPACE/.arturo-dist =========="
-                  mkdir -p $GITHUB_WORKSPACE/.arturo-dist
-                  cp -r $HOME/.arturo/bin/* $GITHUB_WORKSPACE/.arturo-dist/
-                  ls -lah $GITHUB_WORKSPACE/.arturo-dist/
-              fi
-              
-              echo ""
-              echo "========== Final directory structure =========="
-              echo "PWD contents:"
-              ls -lah
-              echo ""
-              echo "HOME/work contents:"
-              ls -lah $HOME/work || echo "doesn't exist"
               
               rm -rf arturo
 
