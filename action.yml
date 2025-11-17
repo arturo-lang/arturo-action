@@ -256,7 +256,6 @@ runs:
               ./build.nims --install --mode ${{ env.mode }} --log
               cd ..
 
-              # Copy to a location already in PATH
               cp -r $HOME/.arturo/bin/* /usr/local/bin/
               
               mkdir -p .arturo-dist
