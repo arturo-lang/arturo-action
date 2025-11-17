@@ -280,7 +280,7 @@ runs:
                 curl -L https://arturo-lang.s3.amazonaws.com/extra-dlls.zip -o dist/extradlls.zip
                 7z x dist/extradlls.zip -o.arturo-dist
                 cp arturo/src/extras/webview/deps/dlls/x64/*.dll .arturo-dist
-                curl -L https://curl.se/ca/cacert.pem .arturo-dist/cacert.pem
+                curl -L https://curl.se/ca/cacert.pem -o .arturo-dist/cacert.pem
             fi
 
             cp .arturo-dist/* /usr/bin
