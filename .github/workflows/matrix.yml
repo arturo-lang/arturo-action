@@ -123,5 +123,6 @@ jobs:
             - if: env.ArturoCanRun == 'true'
               name: Run tests
               run: |
+                cd $GITHUB_WORKSPACE
                 arturo -v
                 arturo tests/test.art
