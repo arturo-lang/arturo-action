@@ -67,10 +67,7 @@ jobs:
 
             - name: Verify installation
               run: |
-                # For FreeBSD, cd to the workspace first
-                if [ "${{ matrix.os }}" = "freebsd" ]; then
-                    cd $GITHUB_WORKSPACE
-                fi
+                cd $GITHUB_WORKSPACE
                 
                 echo "======================================"
                 echo "Verifying Arturo Installation"
@@ -78,7 +75,7 @@ jobs:
                 echo "OS: ${{ matrix.os }} | Arch: ${{ matrix.arch || 'amd64' }} | Mode: ${{ matrix.mode || 'mini' }}"
                 echo "======================================"
                 
-                # Check 1: arturo command (skip for web and cross-compiled arm64)
+                # Check: `arturo` command exists?
                 if [ "${{ env.ArturoCanRun }}" == "true" ]; then
                     echo "✓ Checking arturo command..."
                     if command -v arturo &> /dev/null; then
@@ -94,7 +91,7 @@ jobs:
                 
                 echo ""
                 
-                # Check 2: .arturo-dist folder
+                # Check: .arturo-dist folder in place?
                 echo "✓ Checking .arturo-dist..."
                 if [ -d ".arturo-dist" ]; then
                     echo "  ✓ .arturo-dist exists"
@@ -106,7 +103,7 @@ jobs:
                 
                 echo ""
                 
-                # Check 3: No arturo sources
+                # Check: Any source repo leftovers?
                 echo "✓ Checking cleanup..."
                 if [ -d "arturo" ]; then
                     echo "  ✗ FAILED: arturo sources not cleaned"
