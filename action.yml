@@ -278,7 +278,7 @@ runs:
             
             if [ "${{ env.mode }}" = "full" ]; then
                 curl -L https://arturo-lang.s3.amazonaws.com/extra-dlls.zip -o dist/extradlls.zip
-                7z x dist/extradlls.zip -o.arturo-dist
+                7z x dist/extradlls.zip -o".arturo-dist"
                 cp arturo/src/extras/webview/deps/dlls/x64/*.dll .arturo-dist
                 curl -L https://curl.se/ca/cacert.pem -o .arturo-dist/cacert.pem
             fi
