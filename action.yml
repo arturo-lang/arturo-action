@@ -270,6 +270,7 @@ runs:
 
               cp -r $HOME/.arturo/bin/* /usr/local/bin/
               
+              cd $GITHUB_WORKSPACE
               mkdir -p .arturo-dist
               cp -r $HOME/.arturo/bin/* .arturo-dist/
               
