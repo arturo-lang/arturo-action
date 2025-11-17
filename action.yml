@@ -248,7 +248,8 @@ runs:
           uses: vmactions/freebsd-vm@v1
           with:
             usesh: true
-            sync: sshfs
+            sync: rsync
+            copyback: true
             prepare: |
               pkg update
               pkg install -y wget nim bash git
