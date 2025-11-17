@@ -67,53 +67,74 @@ jobs:
 
             - name: Verify installation
               run: |
-                echo "======================================"
-                echo "Verifying Arturo Installation"
-                echo "======================================"
-                echo "OS: ${{ matrix.os }} | Arch: ${{ matrix.arch || 'amd64' }} | Mode: ${{ matrix.mode || 'mini' }}"
-                echo "======================================"
-                
-                # Check 1: arturo command (skip for web and cross-compiled arm64)
-                if [ "${{ matrix.os }}" != "web" ] && ! ([ "${{ matrix.os }}" = "linux" ] && [ "${{ matrix.arch }}" = "arm64" ]); then
-                    echo "✓ Checking arturo command..."
-                    if command -v arturo &> /dev/null; then
-                        echo "  ✓ arturo command found"
-                        arturo -v
-                    else
-                        echo "  ✗ FAILED: arturo not found"
-                        exit 1
-                    fi
-                else
-                    echo "⊘ Skipping arturo command check"
-                fi
-                
-                echo ""
-                
-                # Check 2: .arturo-dist folder
-                echo "✓ Checking .arturo-dist..."
-                if [ -d ".arturo-dist" ]; then
-                    echo "  ✓ .arturo-dist exists"
-                    ls -lh .arturo-dist/ || ls -l .arturo-dist/
-                else
-                    echo "  ✗ FAILED: .arturo-dist not found"
-                    exit 1
-                fi
-                
-                echo ""
-                
-                # Check 3: No arturo sources
-                echo "✓ Checking cleanup..."
-                if [ -d "arturo" ]; then
-                    echo "  ✗ FAILED: arturo sources not cleaned"
-                    exit 1
-                else
-                    echo "  ✓ Sources cleaned"
-                fi
-                
-                echo ""
-                echo "======================================"
-                echo "All checks passed!"
-                echo "======================================"
+                  echo "======================================"
+                  echo "Verifying Arturo Installation"
+                  echo "======================================"
+                  echo "OS: ${{ matrix.os }} | Arch: ${{ matrix.arch || 'amd64' }} | Mode: ${{ matrix.mode || 'mini' }}"
+                  echo "Shell: $SHELL"
+                  echo "======================================"
+                  
+                  if [ "${{ matrix.os }}" = "freebsd" ]; then
+                      echo ""
+                      echo "========== DEBUG: FreeBSD Environment =========="
+                      echo "HOME: $HOME"
+                      echo "PWD: $PWD"
+                      echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+                      echo ""
+                      echo "========== PWD contents =========="
+                      ls -lah
+                      echo ""
+                      echo "========== HOME/work contents =========="
+                      ls -lah $HOME/work || echo "doesn't exist"
+                      echo ""
+                  fi
+                  
+                  # Check 1: arturo command (skip for web and cross-compiled arm64)
+                  if [ "${{ matrix.os }}" != "web" ] && ! ([ "${{ matrix.os }}" = "linux" ] && [ "${{ matrix.arch }}" = "arm64" ]); then
+                      echo "✓ Checking arturo command..."
+                      if command -v arturo &> /dev/null; then
+                          echo "  ✓ arturo command found at: $(which arturo)"
+                          arturo -v
+                      else
+                          echo "  ✗ FAILED: arturo not found"
+                          exit 1
+                      fi
+                  else
+                      echo "⊘ Skipping arturo command check"
+                  fi
+                  
+                  echo ""
+                  
+                  # Check 2: .arturo-dist folder
+                  echo "✓ Checking .arturo-dist..."
+                  if [ -d ".arturo-dist" ]; then
+                      echo "  ✓ .arturo-dist exists at: $(pwd)/.arturo-dist"
+                      ls -lh .arturo-dist/ || ls -l .arturo-dist/
+                  else
+                      echo "  ✗ FAILED: .arturo-dist not found in $(pwd)"
+                      if [ "${{ matrix.os }}" = "freebsd" ]; then
+                          echo "  Checking alternate locations:"
+                          [ -d "$HOME/work/.arturo-dist" ] && echo "    Found at: $HOME/work/.arturo-dist" && ls -lh $HOME/work/.arturo-dist/
+                          [ -d "$GITHUB_WORKSPACE/.arturo-dist" ] && echo "    Found at: $GITHUB_WORKSPACE/.arturo-dist" && ls -lh $GITHUB_WORKSPACE/.arturo-dist/
+                      fi
+                      exit 1
+                  fi
+                  
+                  echo ""
+                  
+                  # Check 3: No arturo sources
+                  echo "✓ Checking cleanup..."
+                  if [ -d "arturo" ]; then
+                      echo "  ✗ FAILED: arturo sources not cleaned"
+                      exit 1
+                  else
+                      echo "  ✓ Sources cleaned"
+                  fi
+                  
+                  echo ""
+                  echo "======================================"
+                  echo "All checks passed!"
+                  echo "======================================"
 
             - if: env.ArturoCanRun == 'true'
               name: Run tests
