@@ -35,6 +35,14 @@ inputs:
         description: >-
             WebKit version for Linux/FreeBSD full builds (one of: '40', '41')
         default: '41'
+    create_artifact:
+        description: >-
+            Whether to create and upload artifact
+        default: 'false'
+    artifact_version:
+        description: >-
+            Version string for artifact naming (e.g., 0.9.84 or master.abc1234)
+        default: ''
 runs:
     using: "composite"
     steps:
@@ -237,9 +245,6 @@ runs:
             echo "$HOME/.arturo/bin" >> $GITHUB_PATH
             cd ..
             
-            mkdir -p arturo-dist
-            cp -r $HOME/.arturo/bin/* arturo-dist/
-            
             rm -rf arturo-src
           shell: bash
 
@@ -271,9 +276,6 @@ runs:
 
               cp -r $HOME/.arturo/bin/* /usr/local/bin/
               
-              mkdir -p arturo-dist
-              cp -r $HOME/.arturo/bin/* arturo-dist/
-              
               rm -rf arturo-src
 
         - name: Build Arturo (Windows)
@@ -284,20 +286,60 @@ runs:
             cd arturo-src
             ./build.nims --install --mode ${{ env.mode }} --log
             cd ..
-            mkdir -p arturo-dist
-            
-            cp bin/*.dll arturo-dist
-            cp arturo-src/bin/arturo.exe arturo-dist
             
             if [ "${{ env.mode }}" = "full" ]; then
                 curl -L https://arturo-lang.s3.amazonaws.com/extra-dlls.zip -o dist/extradlls.zip
-                7z x dist/extradlls.zip -o"arturo-dist"
-                rm -rf arturo-dist/__MACOSX
-                cp arturo-src/src/extras/webview/deps/dlls/x64/*.dll arturo-dist
-                curl -L https://curl.se/ca/cacert.pem -o arturo-dist/cacert.pem
+                7z x dist/extradlls.zip -o"bin"
+                rm -rf bin/__MACOSX
+                cp arturo-src/src/extras/webview/deps/dlls/x64/*.dll bin
+                curl -L https://curl.se/ca/cacert.pem -o bin/cacert.pem
             fi
 
-            cp arturo-dist/* /usr/bin
+            cp arturo-src/bin/arturo.exe bin
+            cp bin/* /usr/bin
             
             rm -rf arturo-src
           shell: msys2 {0}
+
+        ##====================================
+        ## Artifact creation
+        ##====================================
+
+        - name: Create artifact
+          if: inputs.create_artifact == 'true'
+          shell: bash
+          id: artifact-prep
+          run: |
+            # Determine platform name
+            platform="${{ env.os }}"
+            if [ "$platform" = "macos" ]; then
+                platform="darwin"
+            elif [ "$platform" = "windows" ]; then
+                platform="win"
+            fi
+            
+            # Determine arch/format
+            arch_or_format="${{ env.arch }}"
+            if [ "${{ env.os }}" = "web" ]; then
+                arch_or_format="js"
+            fi
+            
+            # Build artifact name: arturo-{version}-{platform}-{arch/format}-{mode}[-{extras}]
+            artifact_name="arturo-${{ inputs.artifact_version }}-${platform}-${arch_or_format}-${{ env.mode }}"
+            
+            # Add webkit suffix for Linux/FreeBSD full builds
+            if [ "${{ env.os }}" = "linux" ] || [ "${{ env.os }}" = "freebsd" ]; then
+                if [ "${{ env.mode }}" = "full" ]; then
+                    artifact_name="${artifact_name}-webkit${{ env.webkit }}"
+                fi
+            fi
+            
+            echo "ARTIFACT_NAME=$artifact_name" >> "$GITHUB_OUTPUT"
+
+        - name: Upload artifact
+          if: inputs.create_artifact == 'true'
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ steps.artifact-prep.outputs.ARTIFACT_NAME }}
+            path: ${{ runner.os == 'Windows' && 'bin/*' || '~/.arturo/bin/*' }}
+            include-hidden-files: false
