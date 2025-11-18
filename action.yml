@@ -207,6 +207,8 @@ runs:
             eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
             brew install nim
+
+            echo "/home/linuxbrew/.linuxbrew/bin" >> $GITHUB_PATH
           shell: bash
 
         - name: Install Nim & dependencies (macOS)
