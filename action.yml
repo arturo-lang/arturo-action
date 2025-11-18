@@ -244,6 +244,7 @@ runs:
             cd ..
             
             rm -rf arturo-src
+            echo "ARTURO_BIN_PATH=$HOME/.arturo/bin" >> $GITHUB_ENV
           shell: bash
 
         - name: Build Arturo (FreeBSD)
@@ -275,6 +276,9 @@ runs:
               cp -r $HOME/.arturo/bin/* /usr/local/bin/
               
               rm -rf arturo-src
+              echo "ARTURO_BIN_PATH=/tmp/arturo-bin" >> $GITHUB_ENV
+              mkdir -p /tmp/arturo-bin
+              cp -r /usr/local/bin/arturo* /tmp/arturo-bin/
 
         - name: Build Arturo (Windows)
           if: runner.os == 'Windows'
@@ -304,6 +308,7 @@ runs:
             cp bin/* /usr/bin
             
             rm -rf arturo-src
+            echo "ARTURO_BIN_PATH=${{ github.workspace }}/bin" >> $GITHUB_ENV
           shell: msys2 {0}
 
         ##====================================
@@ -346,5 +351,5 @@ runs:
           uses: actions/upload-artifact@v4
           with:
             name: ${{ steps.artifact-prep.outputs.ARTIFACT_NAME }}
-            path: ${{ runner.os == 'Windows' && 'bin/*' || '~/.arturo/bin/*' }}
+            path: ${{ env.ARTURO_BIN_PATH }}/*
             include-hidden-files: false
