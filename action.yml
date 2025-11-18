@@ -180,14 +180,7 @@ runs:
         ## Setup Nim & dependencies
         ##====================================
 
-        - name: Install Nim (Linux)
-          if: runner.os == 'Linux' && env.os != 'freebsd'
-          uses: jiro4989/setup-nim-action@v2
-          with:
-            nim-version: '2.2.6'
-            repo-token: ${{ inputs.token }}
-
-        - name: Install dependencies (Linux)
+        - name: Install Nim & dependencies (Linux)
           if: runner.os == 'Linux' && env.os != 'freebsd'
           run: |
             sudo apt-get update
@@ -207,6 +200,11 @@ runs:
                     sudo apt-get install -y libwebkit2gtk-4.1-dev
                 fi
             fi
+
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            echo "/home/linuxbrew/.linuxbrew/bin" >> $GITHUB_PATH
+
+            brew install nim
           shell: bash
 
         - name: Install Nim & dependencies (macOS)
