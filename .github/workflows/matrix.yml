@@ -33,9 +33,8 @@ jobs:
                     - {os: linux,   arch: amd64, mode: safe}
                     - {os: linux,   arch: amd64, mode: mini}
                     - {os: linux,   arch: arm64, mode: mini}
-                    - {os: freebsd, arch: amd64, mode: mini}
                     - {os: freebsd, arch: amd64, mode: full}
-                    - {os: freebsd, arch: amd64, mode: full, webkit: "41"}
+                    - {os: freebsd, arch: amd64, mode: mini}
                     - {os: macos,   arch: amd64, mode: full}
                     - {os: macos,   arch: amd64, mode: mini}
                     - {os: macos,   arch: arm64, mode: full}
@@ -61,7 +60,7 @@ jobs:
                 arch: ${{ matrix.arch }}
                 mode: ${{ matrix.mode }}
                 webkit: ${{ matrix.webkit }}
-                src: "clean-up-main-CI-action"
+                src: "make-sure-all-artifacts-are-in-place"
 
             - name: Verify installation
               run: |

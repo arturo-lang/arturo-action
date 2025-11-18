@@ -33,7 +33,7 @@ inputs:
         default: 'linux'
     webkit:
         description: >-
-            WebKit version for Linux/FreeBSD full builds (one of: '40', '41')
+            WebKit version for Linux full builds (one of: '40', '41')
         default: '41'
     create_artifact:
         description: >-
@@ -263,7 +263,7 @@ runs:
               pkg update
               pkg install -y wget nim bash git
               if [ "${{ env.mode }}" = "full" ]; then
-                  pkg install -y pkgconf gtk3 mpfr ca_root_nss openssl webkit2-gtk_${{ env.webkit }}
+                  pkg install -y pkgconf gtk3 mpfr ca_root_nss openssl webkit2-gtk41
               fi
             run: |
               git clone --recursive https://github.com/arturo-lang/arturo.git arturo-src
@@ -338,11 +338,9 @@ runs:
             # Build artifact name: arturo-{version}-{platform}-{arch/format}-{mode}[-{extras}]
             artifact_name="arturo-${{ inputs.artifact_version }}-${platform}-${arch_or_format}-${{ env.mode }}"
             
-            # Add webkit suffix for Linux/FreeBSD full builds
-            if [ "${{ env.os }}" = "linux" ] || [ "${{ env.os }}" = "freebsd" ]; then
-                if [ "${{ env.mode }}" = "full" ]; then
-                    artifact_name="${artifact_name}-webkit${{ env.webkit }}"
-                fi
+            # Add legacy suffix for webkit 4.0 builds on Linux only
+            if [ "${{ env.os }}" = "linux" ] && [ "${{ env.mode }}" = "full" ] && [ "${{ env.webkit }}" = "40" ]; then
+                artifact_name="${artifact_name}-legacy"
             fi
             
             echo "ARTIFACT_NAME=$artifact_name" >> "$GITHUB_OUTPUT"
