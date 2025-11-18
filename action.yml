@@ -223,12 +223,10 @@ runs:
                 pacman --noconfirm -S mingw-w64-x86_64-mpfr
             fi
 
-            mkdir dist
             mkdir nim
-            #curl -L https://nim-lang.org/download/dlls.zip -o dist/dlls.zip
             curl -L https://nim-lang.org/download/nim-2.2.6_x64.zip -o dist/nim.zip
-            #7z x dist/dlls.zip -obin
             7z x dist/nim.zip -onim
+            rm nim.zip
 
             export PATH="${{ github.workspace }}/nim/nim-2.2.6/bin":$PATH
           shell: msys2 {0}
@@ -287,23 +285,23 @@ runs:
             ./build.nims --install --mode ${{ env.mode }} --log
             cd ..
             
-            mkdir distro
+            mkdir bin
             if [ "${{ env.mode }}" = "full" ]; then
-                cp arturo-src/src/extras/webview/deps/dlls/x64/webview.dll distro
-                cp arturo-src/src/extras/webview/deps/dlls/x64/WebView2Loader.dll distro
-                curl -L https://arturo-lang.s3.amazonaws.com/libgmp-10.dll -o distro/libgmp-10.dll
-                curl -L https://arturo-lang.s3.amazonaws.com/libmpfr-6.dll -o distro/libmpfr-6.dll
-                curl -L https://arturo-lang.s3.amazonaws.com/sqlite3_64.dll -o distro/sqlite3_64.dll
-                curl -L https://arturo-lang.s3.amazonaws.com/libgcc_s_seh-1.dll -o distro/libgcc_s_seh-1.dll
+                cp arturo-src/src/extras/webview/deps/dlls/x64/webview.dll bin
+                cp arturo-src/src/extras/webview/deps/dlls/x64/WebView2Loader.dll bin
+                curl -L https://arturo-lang.s3.amazonaws.com/libgmp-10.dll -o bin/libgmp-10.dll
+                curl -L https://arturo-lang.s3.amazonaws.com/libmpfr-6.dll -o bin/libmpfr-6.dll
+                curl -L https://arturo-lang.s3.amazonaws.com/sqlite3_64.dll -o bin/sqlite3_64.dll
+                curl -L https://arturo-lang.s3.amazonaws.com/libgcc_s_seh-1.dll -o bin/libgcc_s_seh-1.dll
             fi
 
-            curl -L https://arturo-lang.s3.amazonaws.com/pcre64.dll -o distro/pcre64.dll
-            curl -L https://curl.se/ca/cacert.pem -o distro/cacert.pem
-            cp /mingw64/bin/libwinpthread-1.dll distro
+            curl -L https://arturo-lang.s3.amazonaws.com/pcre64.dll -o bin/pcre64.dll
+            curl -L https://curl.se/ca/cacert.pem -o bin/cacert.pem
+            cp /mingw64/bin/libwinpthread-1.dll bin
 
-            cp arturo-src/bin/arturo.exe distro
+            cp arturo-src/bin/arturo.exe bin
 
-            cp distro/* /usr/bin
+            cp bin/* /usr/bin
             
             rm -rf arturo-src
           shell: msys2 {0}
@@ -348,5 +346,5 @@ runs:
           uses: actions/upload-artifact@v4
           with:
             name: ${{ steps.artifact-prep.outputs.ARTIFACT_NAME }}
-            path: ${{ runner.os == 'Windows' && 'distro/*' || '~/.arturo/bin/*' }}
+            path: ${{ runner.os == 'Windows' && 'bin/*' || '~/.arturo/bin/*' }}
             include-hidden-files: false
