@@ -33,7 +33,7 @@ inputs:
         default: 'linux'
     webkit:
         description: >-
-            WebKit version for Linux/FreeBSD full builds (one of: '40', '41')
+            WebKit version for Linux full builds (one of: '40', '41')
         default: '41'
     create_artifact:
         description: >-
@@ -89,7 +89,6 @@ runs:
                 detected_webkit="${{ inputs.webkit }}"
             fi
 
-            # Set mode to 'web' if os is 'web', otherwise use input
             if [ "$detected_os" = "web" ]; then
                 detected_mode="web"
             else
@@ -142,9 +141,9 @@ runs:
             if [ "${{ env.os }}" = "web" ] || \
                [ "${{ env.mode }}" = "safe" ] || \
               ([ "${{ env.os }}" = "linux" ] && [ "${{ env.arch }}" = "arm64" ]); then
-                echo "ArturoCanRun=false" >> $GITHUB_ENV
+                echo "arturoCanRun=false" >> $GITHUB_ENV
             else
-                echo "ArturoCanRun=true" >> $GITHUB_ENV
+                echo "arturoCanRun=true" >> $GITHUB_ENV
             fi
           shell: bash
 
@@ -232,8 +231,6 @@ runs:
             curl -L https://nim-lang.org/download/nim-2.2.6_x64.zip -o nim.zip
             7z x nim.zip -onim
             rm nim.zip
- 
-            export PATH="${{ github.workspace }}/nim/nim-2.2.6/bin":$PATH
           shell: msys2 {0}
 
         ##====================================
@@ -249,7 +246,7 @@ runs:
             cd ..
             
             rm -rf arturo-src
-            echo "ARTURO_BIN_PATH=$HOME/.arturo/bin" >> $GITHUB_ENV
+            echo "arturoDistPath=$HOME/.arturo/bin" >> $GITHUB_ENV
           shell: bash
 
         - name: Build Arturo (FreeBSD)
@@ -263,7 +260,7 @@ runs:
               pkg update
               pkg install -y wget nim bash git
               if [ "${{ env.mode }}" = "full" ]; then
-                  pkg install -y pkgconf gtk3 mpfr ca_root_nss openssl webkit2-gtk_${{ env.webkit }}
+                  pkg install -y pkgconf gtk3 mpfr ca_root_nss openssl webkit2-gtk_41
               fi
             run: |
               git clone --recursive https://github.com/arturo-lang/arturo.git arturo-src
@@ -284,7 +281,7 @@ runs:
               
               mkdir -p arturo-bin
               cp -r /usr/local/bin/arturo* arturo-bin/
-              echo "ARTURO_BIN_PATH=arturo-bin" >> $GITHUB_ENV
+              echo "arturoDistPath=arturo-bin" >> $GITHUB_ENV
 
         - name: Build Arturo (Windows)
           if: runner.os == 'Windows'
@@ -314,7 +311,7 @@ runs:
             cp bin/* /usr/bin
             
             rm -rf arturo-src
-            echo "ARTURO_BIN_PATH=${{ github.workspace }}/bin" >> $GITHUB_ENV
+            echo "arturoDistPath=${{ github.workspace }}/bin" >> $GITHUB_ENV
           shell: msys2 {0}
 
         ##====================================
@@ -326,28 +323,17 @@ runs:
           shell: bash
           id: artifact-prep
           run: |
-            # Determine platform name
             platform="${{ env.os }}"
-            if [ "$platform" = "macos" ]; then
-                platform="darwin"
-            elif [ "$platform" = "windows" ]; then
-                platform="win"
-            fi
             
-            # Determine arch/format
             arch_or_format="${{ env.arch }}"
             if [ "${{ env.os }}" = "web" ]; then
                 arch_or_format="js"
             fi
             
-            # Build artifact name: arturo-{version}-{platform}-{arch/format}-{mode}[-{extras}]
             artifact_name="arturo-${{ inputs.artifact_version }}-${platform}-${arch_or_format}-${{ env.mode }}"
             
-            # Add webkit suffix for Linux/FreeBSD full builds
-            if [ "${{ env.os }}" = "linux" ] || [ "${{ env.os }}" = "freebsd" ]; then
-                if [ "${{ env.mode }}" = "full" ]; then
-                    artifact_name="${artifact_name}-webkit${{ env.webkit }}"
-                fi
+            if [ "${{ env.os }}" = "linux" ] && [ "${{ env.mode }}" = "full" ] && [ "${{ env.webkit }}" = "40" ]; then
+                artifact_name="${artifact_name}-legacy"
             fi
             
             echo "ARTIFACT_NAME=$artifact_name" >> "$GITHUB_OUTPUT"
@@ -357,5 +343,5 @@ runs:
           uses: actions/upload-artifact@v4
           with:
             name: ${{ steps.artifact-prep.outputs.ARTIFACT_NAME }}
-            path: ${{ env.ARTURO_BIN_PATH }}/*
+            path: ${{ env.arturoDistPath }}/*
             include-hidden-files: false
