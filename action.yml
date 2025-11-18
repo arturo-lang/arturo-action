@@ -281,9 +281,10 @@ runs:
               cp -r $HOME/.arturo/bin/* /usr/local/bin/
               
               rm -rf arturo-src
-              echo "ARTURO_BIN_PATH=/tmp/arturo-bin" >> $GITHUB_ENV
-              mkdir -p /tmp/arturo-bin
-              cp -r /usr/local/bin/arturo* /tmp/arturo-bin/
+              
+              mkdir -p arturo-bin
+              cp -r /usr/local/bin/arturo* arturo-bin/
+              echo "ARTURO_BIN_PATH=arturo-bin" >> $GITHUB_ENV
 
         - name: Build Arturo (Windows)
           if: runner.os == 'Windows'
