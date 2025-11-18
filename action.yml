@@ -46,7 +46,7 @@ inputs:
 runs:
     using: "composite"
     steps:
-
+ 
         ##====================================
         ## General setup
         ##====================================
@@ -288,14 +288,20 @@ runs:
             cd ..
             
             if [ "${{ env.mode }}" = "full" ]; then
-                curl -L https://arturo-lang.s3.amazonaws.com/extra-dlls.zip -o dist/extradlls.zip
-                7z x dist/extradlls.zip -o"bin"
-                rm -rf bin/__MACOSX
-                cp arturo-src/src/extras/webview/deps/dlls/x64/*.dll bin
-                curl -L https://curl.se/ca/cacert.pem -o bin/cacert.pem
+                cp arturo-src/src/extras/webview/deps/dlls/x64/webview.dll bin
+                cp arturo-src/src/extras/webview/deps/dlls/x64/WebView2Loader.dll bin
+                curl -L https://arturo-lang.s3.amazonaws.com/libgmp-10.dll -o bin/libgmp-10.dll
+                curl -L https://arturo-lang.s3.amazonaws.com/libmpfr-6.dll -o bin/libmpfr-6.dll
+                curl -L https://arturo-lang.s3.amazonaws.com/sqlite3_64.dll -o bin/sqlite3_64.dll
+                curl -L https://arturo-lang.s3.amazonaws.com/libgcc_s_seh-1.dll -o bin/libgcc_s_seh-1.dll
             fi
 
+            curl -L https://arturo-lang.s3.amazonaws.com/pcre64.dll -o bin/pcre64.dll
+            curl -L https://curl.se/ca/cacert.pem -o bin/cacert.pem
+            cp /mingw64/bin/libwinpthread-1.dll bin
+
             cp arturo-src/bin/arturo.exe bin
+
             cp bin/* /usr/bin
             
             rm -rf arturo-src
