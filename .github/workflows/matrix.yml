@@ -72,7 +72,7 @@ jobs:
                 echo "OS: ${{ matrix.os }} | Arch: ${{ matrix.arch || 'amd64' }} | Mode: ${{ matrix.mode || 'mini' }}"
                 echo "======================================"
                 
-                if [ "${{ env.ArturoCanRun }}" == "true" ]; then
+                if [ "${{ env.arturoCanRun }}" == "true" ]; then
                     echo "✓ Checking arturo command..."
                     if command -v arturo &> /dev/null; then
                         echo "  ✓ arturo command found"
@@ -90,7 +90,7 @@ jobs:
                 echo "Installation verified!"
                 echo "======================================"
 
-            - if: env.ArturoCanRun == 'true'
+            - if: env.arturoCanRun == 'true'
               name: Run tests
               run: |
                 cd $GITHUB_WORKSPACE

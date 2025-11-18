@@ -14,7 +14,7 @@ on:
     workflow_dispatch:
 
 jobs:
-    linux-webkit2gtk40:
+    linux-legacy:
         runs-on: ubuntu-22.04
         steps:
             - uses: actions/checkout@v4
