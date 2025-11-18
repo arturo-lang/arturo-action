@@ -140,7 +140,7 @@ runs:
           run: |
             # Determine if tests can be executed
             if [ "${{ env.os }}" = "web" ] || \
-              [ "${{ env.mode }}" = "safe" ] || \
+               [ "${{ env.mode }}" = "safe" ] || \
               ([ "${{ env.os }}" = "linux" ] && [ "${{ env.arch }}" = "arm64" ]); then
                 echo "ArturoCanRun=false" >> $GITHUB_ENV
             else
@@ -180,14 +180,7 @@ runs:
         ## Setup Nim & dependencies
         ##====================================
 
-        - name: Install Nim (Linux)
-          if: runner.os == 'Linux' && env.os != 'freebsd'
-          uses: jiro4989/setup-nim-action@v2
-          with:
-            nim-version: '2.2.6'
-            repo-token: ${{ inputs.token }}
-
-        - name: Install dependencies (Linux)
+        - name: Install Nim & dependencies (Linux)
           if: runner.os == 'Linux' && env.os != 'freebsd'
           run: |
             sudo apt-get update
@@ -196,9 +189,8 @@ runs:
             if [ "${{ env.arch }}" = "arm64" ]; then
                 sudo apt-get install gcc-aarch64-linux-gnu
             fi
-            
+
             if [ "${{ env.mode }}" != "mini" ]; then
-                npm install -g uglify-js
                 sudo apt-get install libgtk-3-dev libmpfr-dev
                 UBUNTU_VERSION=$(lsb_release -rs)
                 if [[ "$UBUNTU_VERSION" < "24.04" ]]; then
@@ -207,6 +199,19 @@ runs:
                     sudo apt-get install -y libwebkit2gtk-4.1-dev
                 fi
             fi
+
+            if [ "${{ env.mode }}" == "web" ]; then
+                 npm install -g uglify-js
+            fi
+
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            echo >> /home/runner/.bashrc
+            echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/runner/.bashrc
+            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+            brew install nim
+
+            echo "/home/linuxbrew/.linuxbrew/bin" >> $GITHUB_PATH
           shell: bash
 
         - name: Install Nim & dependencies (macOS)
@@ -227,7 +232,7 @@ runs:
             curl -L https://nim-lang.org/download/nim-2.2.6_x64.zip -o nim.zip
             7z x nim.zip -onim
             rm nim.zip
-
+ 
             export PATH="${{ github.workspace }}/nim/nim-2.2.6/bin":$PATH
           shell: msys2 {0}
 
