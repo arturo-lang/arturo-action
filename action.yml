@@ -328,11 +328,6 @@ runs:
           run: |
             # Determine platform name
             platform="${{ env.os }}"
-            if [ "$platform" = "macos" ]; then
-                platform="darwin"
-            elif [ "$platform" = "windows" ]; then
-                platform="win"
-            fi
             
             # Determine arch/format
             arch_or_format="${{ env.arch }}"
