@@ -302,7 +302,6 @@ runs:
                 curl -L https://arturo-lang.s3.amazonaws.com/libgcc_s_seh-1.dll -o bin/libgcc_s_seh-1.dll
             fi
 
-            curl -L https://arturo-lang.s3.amazonaws.com/pcre64.dll -o bin/pcre64.dll
             curl -L https://curl.se/ca/cacert.pem -o bin/cacert.pem
             cp /mingw64/bin/libwinpthread-1.dll bin
 
