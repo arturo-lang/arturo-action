@@ -4,7 +4,7 @@
 
 ### Install & use Arturo on any GitHub runner
 
-![License](https://img.shields.io/github/license/arturo-lang/arturo-action?style=for-the-badge) [![Build Status](https://img.shields.io/github/actions/workflow/status/arturo-lang/arturo-action/test.yml?branch=main&style=for-the-badge)](https://github.com/arturo-lang/arturo-action/actions) 
+![License](https://img.shields.io/github/license/arturo-lang/arturo-action?style=for-the-badge) [![Build Status](https://img.shields.io/github/actions/workflow/status/arturo-lang/arturo-action/matrix.yml?branch=main&style=for-the-badge)](https://github.com/arturo-lang/arturo-action/actions) 
 </div>
 
 ---
