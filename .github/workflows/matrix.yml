@@ -60,7 +60,7 @@ jobs:
                 arch: ${{ matrix.arch }}
                 mode: ${{ matrix.mode }}
                 webkit: ${{ matrix.webkit }}
-                src: "make-sure-all-artifacts-are-in-place"
+                src: "dissect-webkit2gtk-issue"
 
             - name: Verify installation
               run: |
