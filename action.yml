@@ -231,8 +231,6 @@ runs:
             curl -L https://nim-lang.org/download/nim-2.2.6_x64.zip -o nim.zip
             7z x nim.zip -onim
             rm nim.zip
- 
-            # export PATH="${{ github.workspace }}/nim/nim-2.2.6/bin":$PATH
           shell: msys2 {0}
 
         ##====================================
