@@ -260,7 +260,7 @@ runs:
               pkg update
               pkg install -y wget nim bash git
               if [ "${{ env.mode }}" = "full" ]; then
-                  pkg install -y pkgconf gtk3 mpfr ca_root_nss openssl webkit2-gtk41
+                  pkg install -y pkgconf gtk3 mpfr ca_root_nss openssl webkit2-gtk_41
               fi
             run: |
               git clone --recursive https://github.com/arturo-lang/arturo.git arturo-src
