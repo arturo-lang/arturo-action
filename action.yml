@@ -300,6 +300,8 @@ runs:
             curl -L https://curl.se/ca/cacert.pem -o bin/cacert.pem
             cp /mingw64/bin/libwinpthread-1.dll bin
 
+            cp arturo-src/bin/arturo.exe bin
+
             cp bin/* /usr/bin
             
             rm -rf arturo-src
