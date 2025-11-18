@@ -296,6 +296,8 @@ runs:
             fi
 
             cp arturo-src/bin/arturo.exe bin
+            cp -f /mingw64/bin/libwinpthread-1.dll bin
+
             cp bin/* /usr/bin
             
             rm -rf arturo-src
