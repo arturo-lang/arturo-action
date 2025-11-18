@@ -89,7 +89,6 @@ runs:
                 detected_webkit="${{ inputs.webkit }}"
             fi
 
-            # Set mode to 'web' if os is 'web', otherwise use input
             if [ "$detected_os" = "web" ]; then
                 detected_mode="web"
             else
@@ -142,9 +141,9 @@ runs:
             if [ "${{ env.os }}" = "web" ] || \
                [ "${{ env.mode }}" = "safe" ] || \
               ([ "${{ env.os }}" = "linux" ] && [ "${{ env.arch }}" = "arm64" ]); then
-                echo "ArturoCanRun=false" >> $GITHUB_ENV
+                echo "arturoCanRun=false" >> $GITHUB_ENV
             else
-                echo "ArturoCanRun=true" >> $GITHUB_ENV
+                echo "arturoCanRun=true" >> $GITHUB_ENV
             fi
           shell: bash
 
@@ -249,7 +248,7 @@ runs:
             cd ..
             
             rm -rf arturo-src
-            echo "ARTURO_BIN_PATH=$HOME/.arturo/bin" >> $GITHUB_ENV
+            echo "arturoDistPath=$HOME/.arturo/bin" >> $GITHUB_ENV
           shell: bash
 
         - name: Build Arturo (FreeBSD)
@@ -284,7 +283,7 @@ runs:
               
               mkdir -p arturo-bin
               cp -r /usr/local/bin/arturo* arturo-bin/
-              echo "ARTURO_BIN_PATH=arturo-bin" >> $GITHUB_ENV
+              echo "arturoDistPath=arturo-bin" >> $GITHUB_ENV
 
         - name: Build Arturo (Windows)
           if: runner.os == 'Windows'
@@ -314,7 +313,7 @@ runs:
             cp bin/* /usr/bin
             
             rm -rf arturo-src
-            echo "ARTURO_BIN_PATH=${{ github.workspace }}/bin" >> $GITHUB_ENV
+            echo "arturoDistPath=${{ github.workspace }}/bin" >> $GITHUB_ENV
           shell: msys2 {0}
 
         ##====================================
@@ -326,19 +325,15 @@ runs:
           shell: bash
           id: artifact-prep
           run: |
-            # Determine platform name
             platform="${{ env.os }}"
             
-            # Determine arch/format
             arch_or_format="${{ env.arch }}"
             if [ "${{ env.os }}" = "web" ]; then
                 arch_or_format="js"
             fi
             
-            # Build artifact name: arturo-{version}-{platform}-{arch/format}-{mode}[-{extras}]
             artifact_name="arturo-${{ inputs.artifact_version }}-${platform}-${arch_or_format}-${{ env.mode }}"
             
-            # Add legacy suffix for webkit 4.0 builds on Linux only
             if [ "${{ env.os }}" = "linux" ] && [ "${{ env.mode }}" = "full" ] && [ "${{ env.webkit }}" = "40" ]; then
                 artifact_name="${artifact_name}-legacy"
             fi
@@ -350,5 +345,5 @@ runs:
           uses: actions/upload-artifact@v4
           with:
             name: ${{ steps.artifact-prep.outputs.ARTIFACT_NAME }}
-            path: ${{ env.ARTURO_BIN_PATH }}/*
+            path: ${{ env.arturoDistPath }}/*
             include-hidden-files: false
