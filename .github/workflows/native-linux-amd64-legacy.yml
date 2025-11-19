@@ -23,6 +23,7 @@ jobs:
               uses: ./
               with: 
                 token: ${{ secrets.GITHUB_TOKEN }}
+                src: "dissect-webkit2gtk-issue"
                 
             - name: Test Arturo
               run: |
