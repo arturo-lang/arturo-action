@@ -14,7 +14,7 @@ on:
     workflow_dispatch:
 
 jobs:
-    linux-amd64-mini:
+    linux-arm64-mini:
         runs-on: ubuntu-24.04-arm
         steps:
             - uses: actions/checkout@v4
