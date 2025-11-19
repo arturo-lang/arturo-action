@@ -15,7 +15,7 @@ on:
 
 concurrency: 
     group: ${{ github.workflow }}-${{ github.ref }}
-    #cancel-in-progress: true
+    cancel-in-progress: true
 
 jobs:
     test:
@@ -61,7 +61,6 @@ jobs:
                 arch: ${{ matrix.arch }}
                 mode: ${{ matrix.mode }}
                 webkit: ${{ matrix.webkit }}
-                src: "dissect-webkit2gtk-issue"
 
             - name: Verify installation
               run: |
