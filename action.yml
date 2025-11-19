@@ -43,7 +43,7 @@ inputs:
         description: >-
             Version string for artifact naming (e.g., 0.9.84 or master.abc1234)
         default: ''
-
+ 
 runs:
     using: "composite"
     steps:
