@@ -14,8 +14,8 @@ on:
     workflow_dispatch:
 
 jobs:
-    linux-legacy:
-        runs-on: ubuntu-22.04
+    linux-arm64-legacy:
+        runs-on: ubuntu-22.04-arm
         steps:
             - uses: actions/checkout@v4
             
@@ -23,6 +23,7 @@ jobs:
               uses: ./
               with: 
                 token: ${{ secrets.GITHUB_TOKEN }}
+                src: "dissect-webkit2gtk-issue"
 
             - name: Test Arturo
               run: |
@@ -38,7 +39,7 @@ jobs:
                 fi
 
                 DETECTED_ARCH=$(arturo -e "print sys\cpu\arch")
-                if [ "$DETECTED_ARCH" != "amd64" ]; then
+                if [ "$DETECTED_ARCH" != "arm64" ]; then
                     echo "UNEXPECTED ARCH: Got $DETECTED_ARCH"
                     exit 1
                 fi

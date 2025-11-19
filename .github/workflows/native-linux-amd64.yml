@@ -14,7 +14,7 @@ on:
     workflow_dispatch:
 
 jobs:
-    linux-mini:
+    linux-amd64:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
@@ -22,8 +22,8 @@ jobs:
             - name: Install Arturo
               uses: ./
               with: 
-                mode: mini
                 token: ${{ secrets.GITHUB_TOKEN }}
+                src: "dissect-webkit2gtk-issue"
 
             - name: Test Arturo
               run: |
@@ -45,7 +45,7 @@ jobs:
                 fi
 
                 DETECTED_RELEASE=$(arturo -e "print sys\release")
-                if [ "$DETECTED_RELEASE" != "mini" ]; then
+                if [ "$DETECTED_RELEASE" != "full" ]; then
                     echo "UNEXPECTED RELEASE: Got $DETECTED_RELEASE"
                     exit 1
                 fi

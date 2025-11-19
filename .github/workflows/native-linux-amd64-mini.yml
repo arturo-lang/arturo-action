@@ -14,8 +14,8 @@ on:
     workflow_dispatch:
 
 jobs:
-    macos-amd64-mini:
-        runs-on: macOS-15-intel
+    linux-amd64-mini:
+        runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
             
@@ -34,7 +34,7 @@ jobs:
                 arturo -e "print [{arch:} sys\cpu\arch]"
                 
                 DETECTED_OS=$(arturo -e "print sys\os")
-                if [ "$DETECTED_OS" != "macos" ]; then
+                if [ "$DETECTED_OS" != "linux" ]; then
                     echo "UNEXPECTED OS: Got $DETECTED_OS"
                     exit 1
                 fi
