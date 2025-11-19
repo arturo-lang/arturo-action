@@ -329,8 +329,16 @@ runs:
             if [ "${{ env.os }}" = "web" ]; then
                 arch_or_format="js"
             fi
+
+            processed_mode="${{ env.mode }}"
+            if [ "${{ env.mode }}" = "web" ]; then
+                processed_mode="mini"
+            fi
             
-            artifact_name="arturo-${{ inputs.artifact_version }}-${platform}-${arch_or_format}-${{ env.mode }}"
+            artifact_name="arturo-${{ inputs.artifact_version }}-${platform}-${arch_or_format}"
+            if [ "${{ processed_mode }}" != "full" ]; then
+                artifact_name="${artifact_name}-${processed_mode}"
+            fi
             
             if [ "${{ env.os }}" = "linux" ] && [ "${{ env.mode }}" = "full" ] && [ "${{ env.webkit }}" = "40" ]; then
                 artifact_name="${artifact_name}-legacy"
