@@ -234,122 +234,122 @@ runs:
             rm nim.zip
           shell: msys2 {0}
 
-        # ##====================================
-        # ## Compilation
-        # ##====================================
+        ##====================================
+        ## Compilation
+        ##====================================
         
-        # - name: Build Arturo (*)
-        #   if: env.os != 'freebsd' && runner.os != 'Windows'
-        #   run: |
-        #     cd arturo-src
-        #     ./build.nims --install --mode ${{ env.mode }} --arch ${{ env.arch }} --log
-        #     echo "$HOME/.arturo/bin" >> $GITHUB_PATH
-        #     cd ..
+        - name: Build Arturo (*)
+          if: env.os != 'freebsd' && runner.os != 'Windows'
+          run: |
+            cd arturo-src
+            ./build.nims --install --mode ${{ env.mode }} --arch ${{ env.arch }} --log
+            echo "$HOME/.arturo/bin" >> $GITHUB_PATH
+            cd ..
             
-        #     rm -rf arturo-src
-        #     echo "arturoDistPath=$HOME/.arturo/bin" >> $GITHUB_ENV
-        #   shell: bash
+            rm -rf arturo-src
+            echo "arturoDistPath=$HOME/.arturo/bin" >> $GITHUB_ENV
+          shell: bash
 
-        # - name: Build Arturo (FreeBSD)
-        #   if: env.os == 'freebsd'
-        #   uses: vmactions/freebsd-vm@v1
-        #   with:
-        #     usesh: true
-        #     sync: rsync
-        #     copyback: true
-        #     prepare: |
-        #       pkg update
-        #       pkg install -y wget nim bash git
-        #       if [ "${{ env.mode }}" = "full" ]; then
-        #           pkg install -y pkgconf gtk3 mpfr ca_root_nss openssl webkit2-gtk_41
-        #       fi
-        #     run: |
-        #       git clone --recursive https://github.com/arturo-lang/arturo.git arturo-src
-        #       cd arturo-src
-        #       git config --global --add safe.directory '*'
-        #       if [ -n "${{ env.src }}" ]; then
-        #           git fetch origin ${{ env.src }}
-        #           git checkout FETCH_HEAD
-        #       fi
-        #       ${{ env.metadata != '' && format('echo "{0}" > version/metadata', env.metadata) || '' }}
-        #       export PATH="/usr/local/nim/bin/:$PATH"
-        #       ./build.nims --install --mode ${{ env.mode }} --log
-        #       cd ..
+        - name: Build Arturo (FreeBSD)
+          if: env.os == 'freebsd'
+          uses: vmactions/freebsd-vm@v1
+          with:
+            usesh: true
+            sync: rsync
+            copyback: true
+            prepare: |
+              pkg update
+              pkg install -y wget nim bash git
+              if [ "${{ env.mode }}" = "full" ]; then
+                  pkg install -y pkgconf gtk3 mpfr ca_root_nss openssl webkit2-gtk_41
+              fi
+            run: |
+              git clone --recursive https://github.com/arturo-lang/arturo.git arturo-src
+              cd arturo-src
+              git config --global --add safe.directory '*'
+              if [ -n "${{ env.src }}" ]; then
+                  git fetch origin ${{ env.src }}
+                  git checkout FETCH_HEAD
+              fi
+              ${{ env.metadata != '' && format('echo "{0}" > version/metadata', env.metadata) || '' }}
+              export PATH="/usr/local/nim/bin/:$PATH"
+              ./build.nims --install --mode ${{ env.mode }} --log
+              cd ..
 
-        #       cp -r $HOME/.arturo/bin/* /usr/local/bin/
+              cp -r $HOME/.arturo/bin/* /usr/local/bin/
               
-        #       rm -rf arturo-src
+              rm -rf arturo-src
               
-        #       mkdir -p arturo-bin
-        #       cp -r /usr/local/bin/arturo* arturo-bin/
-        #       echo "arturoDistPath=arturo-bin" >> $GITHUB_ENV
+              mkdir -p arturo-bin
+              cp -r /usr/local/bin/arturo* arturo-bin/
+              echo "arturoDistPath=arturo-bin" >> $GITHUB_ENV
 
-        # - name: Build Arturo (Windows)
-        #   if: runner.os == 'Windows'
-        #   run: |
-        #     export PATH="${{ github.workspace }}/nim/nim-2.2.6/bin":$PATH
+        - name: Build Arturo (Windows)
+          if: runner.os == 'Windows'
+          run: |
+            export PATH="${{ github.workspace }}/nim/nim-2.2.6/bin":$PATH
 
-        #     cd arturo-src
-        #     ./build.nims --install --mode ${{ env.mode }} --log
-        #     cd ..
+            cd arturo-src
+            ./build.nims --install --mode ${{ env.mode }} --log
+            cd ..
             
-        #     mkdir bin
-        #     if [ "${{ env.mode }}" = "full" ]; then
-        #         cp arturo-src/src/extras/webview/deps/dlls/x64/webview.dll bin
-        #         cp arturo-src/src/extras/webview/deps/dlls/x64/WebView2Loader.dll bin
-        #         curl -L https://arturo-lang.s3.amazonaws.com/libgmp-10.dll -o bin/libgmp-10.dll
-        #         curl -L https://arturo-lang.s3.amazonaws.com/libmpfr-6.dll -o bin/libmpfr-6.dll
-        #         curl -L https://arturo-lang.s3.amazonaws.com/sqlite3_64.dll -o bin/sqlite3_64.dll
-        #         curl -L https://arturo-lang.s3.amazonaws.com/libgcc_s_seh-1.dll -o bin/libgcc_s_seh-1.dll
-        #     fi
+            mkdir bin
+            if [ "${{ env.mode }}" = "full" ]; then
+                cp arturo-src/src/extras/webview/deps/dlls/x64/webview.dll bin
+                cp arturo-src/src/extras/webview/deps/dlls/x64/WebView2Loader.dll bin
+                curl -L https://arturo-lang.s3.amazonaws.com/libgmp-10.dll -o bin/libgmp-10.dll
+                curl -L https://arturo-lang.s3.amazonaws.com/libmpfr-6.dll -o bin/libmpfr-6.dll
+                curl -L https://arturo-lang.s3.amazonaws.com/sqlite3_64.dll -o bin/sqlite3_64.dll
+                curl -L https://arturo-lang.s3.amazonaws.com/libgcc_s_seh-1.dll -o bin/libgcc_s_seh-1.dll
+            fi
 
-        #     curl -L https://curl.se/ca/cacert.pem -o bin/cacert.pem
-        #     cp /mingw64/bin/libwinpthread-1.dll bin
+            curl -L https://curl.se/ca/cacert.pem -o bin/cacert.pem
+            cp /mingw64/bin/libwinpthread-1.dll bin
 
-        #     cp arturo-src/bin/arturo.exe bin
+            cp arturo-src/bin/arturo.exe bin
 
-        #     cp bin/* /usr/bin
+            cp bin/* /usr/bin
             
-        #     rm -rf arturo-src
-        #     echo "arturoDistPath=${{ github.workspace }}/bin" >> $GITHUB_ENV
-        #   shell: msys2 {0}
+            rm -rf arturo-src
+            echo "arturoDistPath=${{ github.workspace }}/bin" >> $GITHUB_ENV
+          shell: msys2 {0}
 
-        # ##====================================
-        # ## Artifact creation
-        # ##====================================
+        ##====================================
+        ## Artifact creation
+        ##====================================
 
-        # - name: Create artifact
-        #   if: inputs.create_artifact == 'true'
-        #   shell: bash
-        #   id: artifact-prep
-        #   run: |
-        #     platform="${{ env.os }}"
+        - name: Create artifact
+          if: inputs.create_artifact == 'true'
+          shell: bash
+          id: artifact-prep
+          run: |
+            platform="${{ env.os }}"
             
-        #     arch_or_format="${{ env.arch }}"
-        #     if [ "${{ env.os }}" = "web" ]; then
-        #         arch_or_format="js"
-        #     fi
+            arch_or_format="${{ env.arch }}"
+            if [ "${{ env.os }}" = "web" ]; then
+                arch_or_format="js"
+            fi
 
-        #     processed_mode="${{ env.mode }}"
-        #     if [ "${{ env.mode }}" = "web" ]; then
-        #         processed_mode="mini"
-        #     fi
+            processed_mode="${{ env.mode }}"
+            if [ "${{ env.mode }}" = "web" ]; then
+                processed_mode="mini"
+            fi
             
-        #     artifact_name="arturo-${{ inputs.artifact_version }}-${platform}-${arch_or_format}"
-        #     if [ "$processed_mode" != "full" ]; then
-        #         artifact_name="${artifact_name}-${processed_mode}"
-        #     fi
+            artifact_name="arturo-${{ inputs.artifact_version }}-${platform}-${arch_or_format}"
+            if [ "$processed_mode" != "full" ]; then
+                artifact_name="${artifact_name}-${processed_mode}"
+            fi
             
-        #     if [ "${{ env.os }}" = "linux" ] && [ "${{ env.mode }}" = "full" ] && [ "${{ env.webkit }}" = "40" ]; then
-        #         artifact_name="${artifact_name}-legacy"
-        #     fi
+            if [ "${{ env.os }}" = "linux" ] && [ "${{ env.mode }}" = "full" ] && [ "${{ env.webkit }}" = "40" ]; then
+                artifact_name="${artifact_name}-legacy"
+            fi
             
-        #     echo "ARTIFACT_NAME=$artifact_name" >> "$GITHUB_OUTPUT"
+            echo "ARTIFACT_NAME=$artifact_name" >> "$GITHUB_OUTPUT"
 
-        # - name: Upload artifact
-        #   if: inputs.create_artifact == 'true'
-        #   uses: actions/upload-artifact@v4
-        #   with:
-        #     name: ${{ steps.artifact-prep.outputs.ARTIFACT_NAME }}
-        #     path: ${{ env.arturoDistPath }}/*
-        #     include-hidden-files: false
+        - name: Upload artifact
+          if: inputs.create_artifact == 'true'
+          uses: actions/upload-artifact@v4
+          with:
+            name: ${{ steps.artifact-prep.outputs.ARTIFACT_NAME }}
+            path: ${{ env.arturoDistPath }}/*
+            include-hidden-files: false
