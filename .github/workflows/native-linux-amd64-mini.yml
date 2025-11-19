@@ -14,14 +14,15 @@ on:
     workflow_dispatch:
 
 jobs:
-    macos:
-        runs-on: macos-latest
+    linux-amd64-mini:
+        runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
             
             - name: Install Arturo
               uses: ./
               with: 
+                mode: mini
                 token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Test Arturo
@@ -32,19 +33,19 @@ jobs:
                 arturo -e "print [{arch:} sys\cpu\arch]"
                 
                 DETECTED_OS=$(arturo -e "print sys\os")
-                if [ "$DETECTED_OS" != "macos" ]; then
+                if [ "$DETECTED_OS" != "linux" ]; then
                     echo "UNEXPECTED OS: Got $DETECTED_OS"
                     exit 1
                 fi
 
                 DETECTED_ARCH=$(arturo -e "print sys\cpu\arch")
-                if [ "$DETECTED_ARCH" != "arm64" ]; then
+                if [ "$DETECTED_ARCH" != "amd64" ]; then
                     echo "UNEXPECTED ARCH: Got $DETECTED_ARCH"
                     exit 1
                 fi
 
                 DETECTED_RELEASE=$(arturo -e "print sys\release")
-                if [ "$DETECTED_RELEASE" != "full" ]; then
+                if [ "$DETECTED_RELEASE" != "mini" ]; then
                     echo "UNEXPECTED RELEASE: Got $DETECTED_RELEASE"
                     exit 1
                 fi

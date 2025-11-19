@@ -14,15 +14,14 @@ on:
     workflow_dispatch:
 
 jobs:
-    linux-mini:
-        runs-on: ubuntu-latest
+    linux-amd64-legacy:
+        runs-on: ubuntu-22.04
         steps:
             - uses: actions/checkout@v4
             
             - name: Install Arturo
               uses: ./
               with: 
-                mode: mini
                 token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Test Arturo
@@ -45,7 +44,7 @@ jobs:
                 fi
 
                 DETECTED_RELEASE=$(arturo -e "print sys\release")
-                if [ "$DETECTED_RELEASE" != "mini" ]; then
+                if [ "$DETECTED_RELEASE" != "full" ]; then
                     echo "UNEXPECTED RELEASE: Got $DETECTED_RELEASE"
                     exit 1
                 fi

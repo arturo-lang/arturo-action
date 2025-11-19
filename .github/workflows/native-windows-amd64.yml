@@ -14,8 +14,8 @@ on:
     workflow_dispatch:
 
 jobs:
-    linux:
-        runs-on: ubuntu-latest
+    windows-amd64:
+        runs-on: windows-latest
         steps:
             - uses: actions/checkout@v4
             
@@ -32,7 +32,7 @@ jobs:
                 arturo -e "print [{arch:} sys\cpu\arch]"
                 
                 DETECTED_OS=$(arturo -e "print sys\os")
-                if [ "$DETECTED_OS" != "linux" ]; then
+                if [ "$DETECTED_OS" != "windows" ]; then
                     echo "UNEXPECTED OS: Got $DETECTED_OS"
                     exit 1
                 fi
@@ -48,3 +48,4 @@ jobs:
                     echo "UNEXPECTED RELEASE: Got $DETECTED_RELEASE"
                     exit 1
                 fi
+              shell: "msys2 {0}"
