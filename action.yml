@@ -336,7 +336,7 @@ runs:
             fi
             
             artifact_name="arturo-${{ inputs.artifact_version }}-${platform}-${arch_or_format}"
-            if [ "${{ processed_mode }}" != "full" ]; then
+            if [ "$processed_mode" != "full" ]; then
                 artifact_name="${artifact_name}-${processed_mode}"
             fi
             
