@@ -32,6 +32,9 @@ inputs:
     artifact_version:
         description: 'Version string for artifact naming'
         default: ''
+    build:
+        description: 'Build from source (true) or download nightly (false)'
+        default: 'true'
  
 runs:
     using: "composite"
@@ -111,6 +114,7 @@ runs:
             echo "======================================"
             echo "Arturo Builder Configuration"
             echo "======================================"
+            echo "Mode:             ${{ inputs.build == 'true' && 'BUILD FROM SOURCE' || 'DOWNLOAD NIGHTLY' }}"
             echo "Runner OS:        ${{ runner.os }}"
             echo "Runner Arch:      ${{ runner.arch }}"
             echo "======================================"
@@ -125,21 +129,6 @@ runs:
             echo "======================================"
           shell: bash
 
-        - name: Checkout Arturo repo
-          if: env.os != 'freebsd'
-          uses: actions/checkout@v4
-          with:
-            repository: arturo-lang/arturo
-            submodules: recursive
-            path: arturo-src
-            ref: ${{ env.src }}
-
-        - name: Set build metadata
-          if: env.os != 'freebsd' && env.metadata != ''
-          run: |
-            echo "${{ env.metadata }}" > arturo-src/version/metadata
-          shell: bash
-
         - name: Export runtime flags
           run: |
             if [ "${{ env.os }}" = "web" ] || [ "${{ env.mode }}" = "safe" ]; then
@@ -149,12 +138,155 @@ runs:
             fi
           shell: bash
 
+        ######################################
+        ######################################
+        ## DOWNLOAD
+        ## from nightlies
+        ######################################
+        ######################################
+
+        - name: Determine latest nightly release
+          if: inputs.build != 'true'
+          id: nightly-info
+          run: |
+            echo "Fetching latest nightly release..."
+            
+            # Get the latest release from arturo-lang/arturo
+            LATEST_RELEASE=$(curl -s -H "Authorization: token ${{ inputs.token }}" \
+              https://api.github.com/repos/arturo-lang/arturo/releases | \
+              jq -r '[.[] | select(.tag_name | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}$"))] | .[0].tag_name')
+            
+            if [ -z "$LATEST_RELEASE" ] || [ "$LATEST_RELEASE" = "null" ]; then
+                echo "ERROR: Could not find latest nightly release"
+                exit 1
+            fi
+            
+            echo "Latest nightly release: $LATEST_RELEASE"
+            echo "release_tag=$LATEST_RELEASE" >> $GITHUB_OUTPUT
+            
+            # Convert date format: 2024-11-20 -> nightly.20241120
+            VERSION=$(echo $LATEST_RELEASE | tr -d '-')
+            VERSION="nightly.$VERSION"
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            
+            # Construct artifact name
+            ARTIFACT_NAME="arturo-${VERSION}-${{ env.os }}-${{ env.artifact_arch }}"
+            
+            # Add mode suffix if not full and not web
+            if [ "${{ env.mode }}" != "full" ] && [ "${{ env.mode }}" != "web" ]; then
+                ARTIFACT_NAME="${ARTIFACT_NAME}-${{ env.mode }}"
+            fi
+            
+            # Add legacy suffix if applicable
+            if [ "${{ env.support }}" = "legacy" ]; then
+                ARTIFACT_NAME="${ARTIFACT_NAME}-legacy"
+            fi
+            
+            echo "artifact_name=$ARTIFACT_NAME" >> $GITHUB_OUTPUT
+            echo "Artifact to download: $ARTIFACT_NAME"
+          shell: bash
+
+        - name: Download nightly artifact
+          if: inputs.build != 'true'
+          run: |
+            echo "Downloading artifact: ${{ steps.nightly-info.outputs.artifact_name }}"
+            
+            # Create download directory
+            mkdir -p arturo-download
+            cd arturo-download
+            
+            # Download the artifact from the release
+            DOWNLOAD_URL="https://github.com/arturo-lang/arturo/releases/download/${{ steps.nightly-info.outputs.release_tag }}/${{ steps.nightly-info.outputs.artifact_name }}.zip"
+            
+            echo "Download URL: $DOWNLOAD_URL"
+            
+            curl -L -H "Authorization: token ${{ inputs.token }}" \
+              "$DOWNLOAD_URL" -o artifact.zip
+            
+            if [ ! -f artifact.zip ]; then
+                echo "ERROR: Failed to download artifact"
+                exit 1
+            fi
+            
+            # Extract artifact
+            unzip -q artifact.zip
+            rm artifact.zip
+            
+            echo "Artifact downloaded and extracted successfully"
+            ls -la
+          shell: bash
+
+        - name: Setup nightly binary (Linux/macOS)
+          if: inputs.build != 'true' && (runner.os == 'Linux' || runner.os == 'macOS')
+          run: |
+            cd arturo-download
+            
+            # Make binaries executable
+            chmod +x arturo*
+            
+            # Create installation directory
+            mkdir -p $HOME/.arturo/bin
+            
+            # Copy files
+            cp -r * $HOME/.arturo/bin/
+            
+            # Add to PATH
+            echo "$HOME/.arturo/bin" >> $GITHUB_PATH
+            
+            # Set environment variable for cleanup
+            echo "arturoDistPath=$HOME/.arturo/bin" >> $GITHUB_ENV
+            
+            echo "Arturo nightly installed successfully"
+          shell: bash
+
+        - name: Setup nightly binary (Windows)
+          if: inputs.build != 'true' && runner.os == 'Windows'
+          run: |
+            cd arturo-download
+            
+            # Create installation directory
+            mkdir -p /usr/bin
+            
+            # Copy files
+            cp -r * /usr/bin/
+            
+            # Add to PATH
+            echo "/usr/bin" >> $GITHUB_PATH
+            
+            # Set environment variable
+            echo "arturoDistPath=/usr/bin" >> $GITHUB_ENV
+            
+            echo "Arturo nightly installed successfully"
+          shell: bash
+
+        ######################################
+        ######################################
+        ## BUILD
+        ## from sources
+        ######################################
+        ######################################
+
+        - name: Checkout Arturo repo
+          if: inputs.build == 'true' && env.os != 'freebsd'
+          uses: actions/checkout@v4
+          with:
+            repository: arturo-lang/arturo
+            submodules: recursive
+            path: arturo-src
+            ref: ${{ env.src }}
+
+        - name: Set build metadata
+          if: inputs.build == 'true' && env.os != 'freebsd' && env.metadata != ''
+          run: |
+            echo "${{ env.metadata }}" > arturo-src/version/metadata
+          shell: bash
+
         ##====================================
         ## OS-specific preparations
         ##====================================
 
         - name: Cache ChooseNim
-          if: runner.os == 'Linux' || runner.os == 'macOS'
+          if: inputs.build == 'true' && (runner.os == 'Linux' || runner.os == 'macOS')
           id: cache-choosenim
           uses: actions/cache@v4
           with:
@@ -162,7 +294,7 @@ runs:
             key: ${{ runner.os }}-choosenim-${{ steps.get-date.outputs.date }}
   
         - name: Cache Nimble
-          if: runner.os == 'Linux' || runner.os == 'macOS'
+          if: inputs.build == 'true' && (runner.os == 'Linux' || runner.os == 'macOS')
           id: cache-nimble
           uses: actions/cache@v4
           with:
@@ -170,7 +302,7 @@ runs:
             key: ${{ runner.os }}-nimble-v2-${{ hashFiles('*.nimble') }}
 
         - name: Setup Msys
-          if: runner.os == 'Windows'
+          if: inputs.build == 'true' && runner.os == 'Windows'
           uses: msys2/setup-msys2@v2
           with:
             update: true
@@ -182,7 +314,7 @@ runs:
         ##====================================
 
         - name: Install Nim & dependencies (Linux)
-          if: runner.os == 'Linux' && env.os != 'freebsd'
+          if: inputs.build == 'true' && runner.os == 'Linux' && env.os != 'freebsd'
           run: |
             sudo apt-get update
             sudo apt-get install libpcre3
@@ -212,14 +344,14 @@ runs:
           shell: bash
 
         - name: Install Nim & dependencies (macOS)
-          if: runner.os == 'macOS'
+          if: inputs.build == 'true' && runner.os == 'macOS'
           run: |
             brew update
             brew install pcre nim
           shell: bash
 
         - name: Install Nim & dependencies (Windows)
-          if: runner.os == 'Windows'
+          if: inputs.build == 'true' && runner.os == 'Windows'
           run: |
             if [ "${{ env.mode }}" = "full" ]; then
                 pacman --noconfirm -S mingw-w64-x86_64-mpfr
@@ -236,7 +368,7 @@ runs:
         ##====================================
         
         - name: Build Arturo (*)
-          if: env.os != 'freebsd' && runner.os != 'Windows'
+          if: inputs.build == 'true' && env.os != 'freebsd' && runner.os != 'Windows'
           run: |
             cd arturo-src
             ./build.nims --install --mode ${{ env.mode }} --arch ${{ env.arch }} --log
@@ -248,7 +380,7 @@ runs:
           shell: bash
 
         - name: Build Arturo (FreeBSD)
-          if: env.os == 'freebsd'
+          if: inputs.build == 'true' && env.os == 'freebsd'
           uses: vmactions/freebsd-vm@v1
           with:
             usesh: true
@@ -282,7 +414,7 @@ runs:
               echo "arturoDistPath=arturo-bin" >> $GITHUB_ENV
 
         - name: Build Arturo (Windows)
-          if: runner.os == 'Windows'
+          if: inputs.build == 'true' && runner.os == 'Windows'
           run: |
             export PATH="${{ github.workspace }}/nim/nim-2.2.6/bin":$PATH
 
@@ -316,7 +448,7 @@ runs:
         ##====================================
 
         - name: Create artifact
-          if: inputs.create_artifact == 'true'
+          if: inputs.build == 'true' && inputs.create_artifact == 'true'
           id: artifact-prep
           run: |
             artifact_name="arturo-${{ inputs.artifact_version }}-${{ env.os }}-${{ env.artifact_arch }}"
@@ -335,7 +467,7 @@ runs:
           shell: bash
 
         - name: Upload artifact
-          if: inputs.create_artifact == 'true'
+          if: inputs.build == 'true' && inputs.create_artifact == 'true'
           uses: actions/upload-artifact@v4
           with:
             name: ${{ steps.artifact-prep.outputs.ARTIFACT_NAME }}
