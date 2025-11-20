@@ -85,16 +85,20 @@ runs:
             # Handle web/js builds
             if [ "$detected_os" = "web" ] || [ "$detected_arch" = "js" ]; then
                 detected_os="web"
-                detected_arch="js"
                 detected_mode="mini"
+                artifact_arch="js"
+                build_arch="amd64"
             else
                 detected_mode="${{ inputs.mode }}"
                 [ -z "$detected_mode" ] && detected_mode="full"
+                artifact_arch="$detected_arch"
+                build_arch="$detected_arch"
             fi
 
             # Export to environment
             echo "os=$detected_os" >> $GITHUB_ENV
-            echo "arch=$detected_arch" >> $GITHUB_ENV
+            echo "arch=$build_arch" >> $GITHUB_ENV
+            echo "artifact_arch=$artifact_arch" >> $GITHUB_ENV
             echo "mode=$detected_mode" >> $GITHUB_ENV
             echo "webkit=$detected_webkit" >> $GITHUB_ENV
             echo "support=${{ inputs.support }}" >> $GITHUB_ENV
@@ -112,6 +116,7 @@ runs:
             echo "======================================"
             echo "Target OS:        ${{ env.os }}"
             echo "Target Arch:      ${{ env.arch }}"
+            echo "Artifact Arch:    ${{ env.artifact_arch }}"
             echo "Build Mode:       ${{ env.mode }}"
             echo "Support Level:    ${{ env.support != '' && env.support || '(standard)' }}"
             echo "WebKit Version:   ${{ env.webkit }}"
@@ -314,10 +319,10 @@ runs:
           if: inputs.create_artifact == 'true'
           id: artifact-prep
           run: |
-            artifact_name="arturo-${{ inputs.artifact_version }}-${{ env.os }}-${{ env.arch }}"
+            artifact_name="arturo-${{ inputs.artifact_version }}-${{ env.os }}-${{ env.artifact_arch }}"
             
-            # Add mode suffix if not full
-            if [ "${{ env.mode }}" != "full" ] && [ "${{ env.mode }}" != "mini" ] && [ "${{ env.mode }}" != "web" ]; then
+            # Add mode suffix if not full and not web
+            if [ "${{ env.mode }}" != "full" ] && [ "${{ env.mode }}" != "web" ]; then
                 artifact_name="${artifact_name}-${{ env.mode }}"
             fi
             
