@@ -142,6 +142,18 @@ runs:
             fi
           shell: bash
 
+        ##====================================
+        ## OS-specific environment setup
+        ##====================================
+
+        - name: Setup Msys (Windows)
+          if: runner.os == 'Windows'
+          uses: msys2/setup-msys2@v2
+          with:
+            update: true
+            cache: true
+            install: 'git base-devel p7zip mingw-w64-x86_64-toolchain'
+
         ######################################
         ######################################
         ## DOWNLOAD
@@ -150,7 +162,7 @@ runs:
         ######################################
 
         - name: Install dependencies (Linux - Download Mode)
-          if: inputs.build != 'true' && runner.os == 'Linux' && env.os != 'freebsd'
+          if: inputs.build != 'true' && runner.os == 'Linux' && env.os == 'linux'
           run: |
             sudo apt-get update
             sudo apt-get install libpcre3
@@ -218,8 +230,8 @@ runs:
             echo "Artifact to download: $ARTIFACT_NAME"
           shell: bash
 
-        - name: Download nightly artifact
-          if: inputs.build != 'true'
+        - name: Download nightly artifact (non-FreeBSD)
+          if: inputs.build != 'true' && env.os != 'freebsd'
           run: |
             echo "Downloading artifact: ${{ steps.nightly-info.outputs.artifact_name }}.zip"
             
@@ -311,7 +323,44 @@ runs:
             echo "arturoDistPath=/usr/bin" >> $GITHUB_ENV
             
             echo "Arturo nightly installed successfully"
-          shell: bash
+          shell: msys2 {0}
+
+        - name: Download & setup nightly binary (FreeBSD)
+          if: inputs.build != 'true' && env.os == 'freebsd'
+          uses: vmactions/freebsd-vm@v1
+          with:
+            usesh: true
+            sync: rsync
+            copyback: false
+            prepare: |
+              pkg update
+              pkg install -y wget curl bash ca_root_nss jq
+              if [ "${{ env.mode }}" = "full" ]; then
+                  pkg install -y gtk3 mpfr webkit2-gtk_41
+              fi
+            run: |
+              echo "Downloading artifact: ${{ steps.nightly-info.outputs.artifact_name }}.zip"
+              
+              # Construct download URL
+              DOWNLOAD_URL="https://github.com/arturo-lang/nightly/releases/download/${{ steps.nightly-info.outputs.release_tag }}/${{ steps.nightly-info.outputs.artifact_name }}.zip"
+              
+              echo "Download URL: $DOWNLOAD_URL"
+              
+              # Download and extract
+              mkdir -p arturo-download
+              cd arturo-download
+              
+              curl -L -o artifact.zip "$DOWNLOAD_URL"
+              unzip -q artifact.zip
+              rm artifact.zip
+              
+              # Make executable and install
+              chmod +x arturo*
+              mkdir -p /usr/local/bin
+              cp -r * /usr/local/bin/
+              
+              echo "Arturo nightly installed successfully on FreeBSD"
+              ls -lah /usr/local/bin/arturo*
 
         ######################################
         ######################################
@@ -354,14 +403,6 @@ runs:
           with:
             path: ~/.nimble
             key: ${{ runner.os }}-nimble-v2-${{ hashFiles('*.nimble') }}
-
-        - name: Setup Msys
-          if: inputs.build == 'true' && runner.os == 'Windows'
-          uses: msys2/setup-msys2@v2
-          with:
-            update: true
-            cache: true
-            install: 'git base-devel p7zip mingw-w64-x86_64-toolchain'
 
         ##====================================
         ## Setup Nim & dependencies
@@ -442,9 +483,9 @@ runs:
             copyback: true
             prepare: |
               pkg update
-              pkg install -y wget nim bash git
+              pkg install -y wget nim bash git ca_root_nss
               if [ "${{ env.mode }}" = "full" ]; then
-                  pkg install -y pkgconf gtk3 mpfr ca_root_nss openssl webkit2-gtk_41
+                  pkg install -y pkgconf gtk3 mpfr openssl webkit2-gtk_41
               fi
             run: |
               git clone --recursive https://github.com/arturo-lang/arturo.git arturo-src
