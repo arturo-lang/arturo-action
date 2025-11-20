@@ -26,7 +26,6 @@ jobs:
                                         'ubuntu-latest'  }}
         strategy:
             matrix:
-                build: [ true, false ]
                 include: 
                     - {os: linux,   arch: amd64}
                     - {os: linux,   arch: amd64,    support: legacy}
