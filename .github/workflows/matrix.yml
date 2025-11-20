@@ -62,6 +62,7 @@ jobs:
                 arch: ${{ matrix.arch }}
                 mode: ${{ matrix.mode }}
                 support: ${{ matrix.support }}
+                build: ${{ matrix.build }}
 
             - name: Verify installation
               run: |
