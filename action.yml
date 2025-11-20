@@ -40,9 +40,11 @@ runs:
     using: "composite"
     steps:
 
-        ##====================================
-        ## General setup
-        ##====================================
+        ######################################
+        ######################################
+        ## SETUP
+        ######################################
+        ######################################
 
         - name: Sanitize inputs & auto-detect platform
           run: |
@@ -140,9 +142,36 @@ runs:
             fi
           shell: bash
 
-        ##====================================
-        ## PATH 1: Download pre-built nightly
-        ##====================================
+        ######################################
+        ######################################
+        ## DOWNLOAD
+        ## from nightly releases
+        ######################################
+        ######################################
+
+        - name: Install dependencies (Linux - Download Mode)
+          if: inputs.build != 'true' && runner.os == 'Linux' && env.os != 'freebsd'
+          run: |
+            sudo apt-get update
+            sudo apt-get install libpcre3
+
+            if [ "${{ env.mode }}" != "mini" ]; then
+                sudo apt-get install libgtk-3-dev libmpfr-dev
+                UBUNTU_VERSION=$(lsb_release -rs)
+                if [[ "$UBUNTU_VERSION" < "24.04" ]] || [ "${{ env.support }}" = "legacy" ]; then
+                    sudo apt-get install -y libwebkit2gtk-4.0-dev
+                else
+                    sudo apt-get install -y libwebkit2gtk-4.1-dev
+                fi
+            fi
+          shell: bash
+
+        - name: Install dependencies (macOS - Download Mode)
+          if: inputs.build != 'true' && runner.os == 'macOS'
+          run: |
+            brew update
+            brew install pcre
+          shell: bash
 
         - name: Determine latest nightly release
           if: inputs.build != 'true'
@@ -284,9 +313,12 @@ runs:
             echo "Arturo nightly installed successfully"
           shell: bash
 
-        ##====================================
-        ## PATH 2: Build from source
-        ##====================================
+        ######################################
+        ######################################
+        ## BUILD
+        ## from source
+        ######################################
+        ######################################
 
         - name: Checkout Arturo repo
           if: inputs.build == 'true' && env.os != 'freebsd'
@@ -304,7 +336,7 @@ runs:
           shell: bash
 
         ##====================================
-        ## OS-specific preparations (BUILD ONLY)
+        ## OS-specific preparations
         ##====================================
 
         - name: Cache ChooseNim
@@ -332,7 +364,7 @@ runs:
             install: 'git base-devel p7zip mingw-w64-x86_64-toolchain'
 
         ##====================================
-        ## Setup Nim & dependencies (BUILD ONLY)
+        ## Setup Nim & dependencies
         ##====================================
 
         - name: Install Nim & dependencies (Linux)
@@ -386,7 +418,7 @@ runs:
           shell: msys2 {0}
 
         ##====================================
-        ## Compilation (BUILD ONLY)
+        ## Compilation
         ##====================================
         
         - name: Build Arturo (*)
@@ -466,7 +498,7 @@ runs:
           shell: msys2 {0}
 
         ##====================================
-        ## Artifact creation (BUILD ONLY)
+        ## Artifact creation
         ##====================================
 
         - name: Create artifact
