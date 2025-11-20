@@ -70,13 +70,15 @@ runs:
             fi
 
             # Determine WebKit version
-            if [ "${{ inputs.support }}" = "legacy" ]; then
+            detected_support="${{ inputs.support }}"
+            if [ "$detected_support" = "legacy" ]; then
                 detected_webkit="40"
             else
                 if [ "${{ runner.os }}" = "Linux" ]; then
                     UBUNTU_VERSION=$(lsb_release -rs 2>/dev/null || echo "24.04")
                     if [[ "$UBUNTU_VERSION" < "24.04" ]]; then
                         detected_webkit="40"
+                        detected_support="legacy"
                     else
                         detected_webkit="41"
                     fi
@@ -104,7 +106,7 @@ runs:
             echo "artifact_arch=$artifact_arch" >> $GITHUB_ENV
             echo "mode=$detected_mode" >> $GITHUB_ENV
             echo "webkit=$detected_webkit" >> $GITHUB_ENV
-            echo "support=${{ inputs.support }}" >> $GITHUB_ENV
+            echo "support=$detected_support" >> $GITHUB_ENV
             echo "src=${{ inputs.src }}" >> $GITHUB_ENV
             echo "metadata=${{ inputs.metadata }}" >> $GITHUB_ENV
           shell: bash
