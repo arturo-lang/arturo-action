@@ -31,10 +31,10 @@ inputs:
             Target operating system
             (one of: 'linux', 'windows', 'macos', 'freebsd', 'web')
         default: 'linux'
-    webkit:
+    support:
         description: >-
-            WebKit version for Linux full builds (one of: '40', '41')
-        default: '41'
+            Build support level (empty for standard, 'legacy' for older systems)
+        default: ''
     create_artifact:
         description: >-
             Whether to create and upload artifact
@@ -75,7 +75,10 @@ runs:
                 detected_arch="${{ inputs.arch }}"
             fi
 
-            if [ "${{ inputs.webkit }}" = "" ] || [ "${{ inputs.webkit }}" = "41" ]; then
+            # Determine WebKit version based on support level
+            if [ "${{ inputs.support }}" = "legacy" ]; then
+                detected_webkit="40"
+            else
                 if [ "${{ runner.os }}" = "Linux" ]; then
                     UBUNTU_VERSION=$(lsb_release -rs 2>/dev/null || echo "24.04")
                     if [[ "$UBUNTU_VERSION" < "24.04" ]]; then
@@ -86,8 +89,6 @@ runs:
                 else
                     detected_webkit="41"
                 fi
-            else
-                detected_webkit="${{ inputs.webkit }}"
             fi
 
             if [ "$detected_os" = "web" ]; then
@@ -100,6 +101,7 @@ runs:
             echo "arch=$detected_arch" >> $GITHUB_ENV
             echo "mode=$detected_mode" >> $GITHUB_ENV
             echo "webkit=$detected_webkit" >> $GITHUB_ENV
+            echo "support=${{ inputs.support }}" >> $GITHUB_ENV
             echo "src=${{ inputs.src }}" >> $GITHUB_ENV
             echo "metadata=${{ inputs.metadata }}" >> $GITHUB_ENV
           shell: bash
@@ -115,6 +117,7 @@ runs:
             echo "Target OS:        ${{ env.os }}"
             echo "Target Arch:      ${{ env.arch }}"
             echo "Build Mode:       ${{ env.mode }}"
+            echo "Support Level:    ${{ env.support != '' && env.support || '(standard)' }}"
             echo "WebKit Version:   ${{ env.webkit }}"
             echo "Source Ref:       ${{ env.src != '' && env.src || '(latest)' }}"
             echo "Metadata:         ${{ env.metadata != '' && env.metadata || '(none)' }}"
@@ -188,7 +191,7 @@ runs:
             if [ "${{ env.mode }}" != "mini" ]; then
                 sudo apt-get install libgtk-3-dev libmpfr-dev
                 UBUNTU_VERSION=$(lsb_release -rs)
-                if [[ "$UBUNTU_VERSION" < "24.04" ]]; then
+                if [[ "$UBUNTU_VERSION" < "24.04" ]] || [ "${{ env.support }}" = "legacy" ]; then
                     sudo apt-get install -y libwebkit2gtk-4.0-dev
                 else
                     sudo apt-get install -y libwebkit2gtk-4.1-dev
@@ -335,7 +338,7 @@ runs:
                 artifact_name="${artifact_name}-${processed_mode}"
             fi
             
-            if [ "${{ env.os }}" = "linux" ] && [ "${{ env.mode }}" = "full" ] && [ "${{ env.webkit }}" = "40" ]; then
+            if [ "${{ env.support }}" = "legacy" ]; then
                 artifact_name="${artifact_name}-legacy"
             fi
             
