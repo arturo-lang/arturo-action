@@ -16,7 +16,7 @@ inputs:
     arch:
         description: >-
             The architecture to build for.
-            (one of: 'amd64', 'arm64')
+            (one of: 'amd64', 'arm64', 'js')
         default: 'amd64'
     src:
         description: >-
