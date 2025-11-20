@@ -148,17 +148,17 @@ runs:
           run: |
             echo "Fetching latest nightly release..."
             
-            # Get the latest release from arturo-lang/arturo
+            # Get the latest release from arturo-lang/nightly
             # Look for releases with tag_name matching YYYY-MM-DD format
             LATEST_RELEASE=$(curl -s -H "Authorization: token ${{ inputs.token }}" \
-              "https://api.github.com/repos/arturo-lang/arturo/releases?per_page=10" | \
+              "https://api.github.com/repos/arturo-lang/nightly/releases?per_page=10" | \
               jq -r '[.[] | select(.tag_name | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}$"))] | sort_by(.created_at) | reverse | .[0].tag_name')
             
             if [ -z "$LATEST_RELEASE" ] || [ "$LATEST_RELEASE" = "null" ]; then
                 echo "ERROR: Could not find latest nightly release"
                 echo "Checking releases API response..."
                 curl -s -H "Authorization: token ${{ inputs.token }}" \
-                  "https://api.github.com/repos/arturo-lang/arturo/releases?per_page=5" | \
+                  "https://api.github.com/repos/arturo-lang/nightly/releases?per_page=5" | \
                   jq -r '.[].tag_name' || echo "Failed to fetch releases"
                 exit 1
             fi
@@ -196,8 +196,8 @@ runs:
             mkdir -p arturo-download
             cd arturo-download
             
-            # Construct download URL
-            DOWNLOAD_URL="https://github.com/arturo-lang/arturo/releases/download/${{ steps.nightly-info.outputs.release_tag }}/${{ steps.nightly-info.outputs.artifact_name }}.zip"
+            # Construct download URL from arturo-lang/nightly
+            DOWNLOAD_URL="https://github.com/arturo-lang/nightly/releases/download/${{ steps.nightly-info.outputs.release_tag }}/${{ steps.nightly-info.outputs.artifact_name }}.zip"
             
             echo "Download URL: $DOWNLOAD_URL"
             echo "Release tag: ${{ steps.nightly-info.outputs.release_tag }}"
@@ -212,7 +212,7 @@ runs:
                 echo ""
                 echo "Available assets for release ${{ steps.nightly-info.outputs.release_tag }}:"
                 curl -s -H "Authorization: token ${{ inputs.token }}" \
-                  "https://api.github.com/repos/arturo-lang/arturo/releases/tags/${{ steps.nightly-info.outputs.release_tag }}" | \
+                  "https://api.github.com/repos/arturo-lang/nightly/releases/tags/${{ steps.nightly-info.outputs.release_tag }}" | \
                   jq -r '.assets[].name' || echo "Could not fetch asset list"
                 exit 1
             fi
