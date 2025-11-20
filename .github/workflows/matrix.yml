@@ -44,6 +44,23 @@ jobs:
                     - {os: windows, arch: amd64}
                     - {os: windows, arch: amd64,    mode: mini}
                     - {os: web,     arch: js,       mode: mini}
+
+                    - {build: false,    os: linux,   arch: amd64}
+                    - {build: false,    os: linux,   arch: amd64,    support: legacy}
+                    - {build: false,    os: linux,   arch: amd64,    mode: safe}
+                    - {build: false,    os: linux,   arch: amd64,    mode: mini}
+                    - {build: false,    os: linux,   arch: arm64}
+                    - {build: false,    os: linux,   arch: arm64,    support: legacy}
+                    - {build: false,    os: linux,   arch: arm64,    mode: mini}
+                    - {build: false,    os: freebsd, arch: amd64}
+                    - {build: false,    os: freebsd, arch: amd64,    mode: mini}
+                    - {build: false,    os: macos,   arch: amd64}
+                    - {build: false,    os: macos,   arch: amd64,    mode: mini}
+                    - {build: false,    os: macos,   arch: arm64}
+                    - {build: false,    os: macos,   arch: arm64,    mode: mini}
+                    - {build: false,    os: windows, arch: amd64}
+                    - {build: false,    os: windows, arch: amd64,    mode: mini}
+                    - {build: false,    os: web,     arch: js,       mode: mini}
                     
         defaults:
             run:
@@ -62,7 +79,6 @@ jobs:
                 arch: ${{ matrix.arch }}
                 mode: ${{ matrix.mode }}
                 support: ${{ matrix.support }}
-                build: ${{ matrix.build }}
 
             - name: Verify installation
               run: |
