@@ -19,7 +19,7 @@
 ```
 
 > [!TIP]
-> If all you need is to have Arturo available as part of your workflow, chances are all you'll ever need in most cases is to include the step above (^), and the action will auto-detect your runner/OS, fetch the appropriate version, etc.  No configuration needed at all! 😉
+> If all you need is to have Arturo available as part of your workflow, chances are all you'll have to do in most cases is to include the step above (^), and the action will auto-detect your runner/OS, fetch the appropriate version, etc.  No configuration needed at all! 😉
 
 ## More Examples
 
