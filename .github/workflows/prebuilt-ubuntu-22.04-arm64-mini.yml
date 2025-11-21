@@ -14,8 +14,8 @@ on:
     workflow_dispatch:
 
 jobs:
-    macos-amd64-mini:
-        runs-on: macOS-15-intel
+    ubuntu-2204-arm64-mini:
+        runs-on: ubuntu-22.04-arm
         steps:
             - uses: actions/checkout@v4
             
@@ -34,13 +34,13 @@ jobs:
                 arturo -e "print [{arch:} sys\cpu\arch]"
                 
                 DETECTED_OS=$(arturo -e "print sys\os")
-                if [ "$DETECTED_OS" != "macos" ]; then
+                if [ "$DETECTED_OS" != "linux" ]; then
                     echo "UNEXPECTED OS: Got $DETECTED_OS"
                     exit 1
                 fi
 
                 DETECTED_ARCH=$(arturo -e "print sys\cpu\arch")
-                if [ "$DETECTED_ARCH" != "amd64" ]; then
+                if [ "$DETECTED_ARCH" != "arm64" ]; then
                     echo "UNEXPECTED ARCH: Got $DETECTED_ARCH"
                     exit 1
                 fi

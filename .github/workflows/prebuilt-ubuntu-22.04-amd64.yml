@@ -14,8 +14,8 @@ on:
     workflow_dispatch:
 
 jobs:
-    linux-arm64:
-        runs-on: ubuntu-24.04-arm
+    ubuntu-2204-amd64:
+        runs-on: ubuntu-22.04
         steps:
             - uses: actions/checkout@v4
             
@@ -39,7 +39,7 @@ jobs:
                 fi
 
                 DETECTED_ARCH=$(arturo -e "print sys\cpu\arch")
-                if [ "$DETECTED_ARCH" != "arm64" ]; then
+                if [ "$DETECTED_ARCH" != "amd64" ]; then
                     echo "UNEXPECTED ARCH: Got $DETECTED_ARCH"
                     exit 1
                 fi
