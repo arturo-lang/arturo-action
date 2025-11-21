@@ -77,7 +77,7 @@ jobs:
                 token: ${{ secrets.GITHUB_TOKEN }}
                 os: ${{ matrix.os }}
                 arch: ${{ matrix.arch }}
-                mode: ${{ matrix.mode }}
+                #mode: ${{ matrix.mode }}
                 support: ${{ matrix.support }}
 
             - name: Verify installation
@@ -87,7 +87,7 @@ jobs:
                 echo "======================================"
                 echo "Verifying Arturo Installation"
                 echo "======================================"
-                echo "OS: ${{ matrix.os }} | Arch: ${{ matrix.arch || 'amd64' }} | Mode: ${{ matrix.mode || 'mini' }}"
+                #echo "OS: ${{ matrix.os }} | Arch: ${{ matrix.arch || 'amd64' }} | Mode: ${{ matrix.mode || 'mini' }}"
                 echo "======================================"
                 
                 if [ "${{ env.arturoCanRun }}" == "true" ]; then
