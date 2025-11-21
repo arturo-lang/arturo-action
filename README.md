@@ -55,6 +55,9 @@ jobs:
         run: arturo script.art
 ```
 
+> [!CAUTION]
+> Right now, every possible combination of runner/mode will work natively, except for `ubuntu-22.04-arm` (ARM64) + MINI mode!
+
 ### Cross-platform matrix
 
 ```yaml
