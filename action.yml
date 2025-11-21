@@ -274,7 +274,7 @@ runs:
           shell: bash
 
         - name: Setup nightly binary (Linux/macOS)
-          if: inputs.do != 'compile' && (runner.os == 'Linux' || runner.os == 'macOS')
+          if: inputs.do != 'compile' && (env.os == 'Linux' || env.os == 'macOS')
           run: |
             cd arturo-download
             
