@@ -71,16 +71,23 @@ runs:
                 detected_arch="${{ inputs.arch }}"
             fi
 
-            # Determine support level
+            # Determine support level - preserve explicit input
             detected_support="${{ inputs.support }}"
-            if [ "${{ runner.os }}" = "Linux" ]; then
-                UBUNTU_VERSION=$(lsb_release -rs 2>/dev/null || echo "24.04")
-                if [[ "$UBUNTU_VERSION" < "24.04" ]]; then
-                    detected_support="legacy"
+            if [ -z "$detected_support" ] || [ "$detected_support" = "standard" ]; then
+                if [ "${{ runner.os }}" = "Linux" ]; then
+                    UBUNTU_VERSION=$(lsb_release -rs 2>/dev/null || echo "24.04")
+                    if [[ "$UBUNTU_VERSION" < "24.04" ]]; then
+                        detected_support="legacy"
+                    else
+                        detected_support="standard"
+                    fi
+                else
+                    detected_support="standard"
                 fi
             fi
 
-            if [ "${{ inputs.mode }}" != "full" ]; then
+            # Force standard for non-full builds
+            if [ "${{ inputs.mode }}" != "full" ] && [ "${{ inputs.mode }}" != "" ]; then
                 detected_support="standard"
             fi
 
