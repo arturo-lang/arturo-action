@@ -42,7 +42,7 @@ runs:
 
         ######################################
         ######################################
-        ## SETUP
+        ## INITIAL SETUP
         ######################################
         ######################################
 
@@ -85,7 +85,7 @@ runs:
                     detected_support="standard"
                 fi
             fi
- 
+
             # Force standard for non-full builds
             if [ "${{ inputs.mode }}" != "full" ] && [ "${{ inputs.mode }}" != "" ]; then
                 detected_support="standard"
@@ -114,6 +114,41 @@ runs:
             echo "metadata=${{ inputs.metadata }}" >> $GITHUB_ENV
           shell: bash
 
+        - name: Determine artifact name
+          run: |
+            # Base name depends on mode (fetch vs compile)
+            if [ "${{ inputs.do }}" = "compile" ]; then
+                artifact_base="arturo-${{ inputs.artifact_version }}"
+            else
+                # For fetch mode, we'll set this later after getting the release tag
+                artifact_base="arturo-nightly"
+            fi
+            
+            # Construct artifact name
+            artifact_name="${artifact_base}-${{ env.os }}-${{ env.artifact_arch }}"
+            
+            # Add mode suffix if not full and not web
+            if [ "${{ env.mode }}" != "full" ] && [ "${{ env.mode }}" != "web" ]; then
+                artifact_name="${artifact_name}-${{ env.mode }}"
+            fi
+            
+            # Add legacy suffix if applicable
+            if [ "${{ env.support }}" = "legacy" ]; then
+                artifact_name="${artifact_name}-legacy"
+            fi
+            
+            echo "artifact_name=$artifact_name" >> $GITHUB_ENV
+          shell: bash
+
+        - name: Export runtime flags
+          run: |
+            if [ "${{ env.os }}" = "web" ] || [ "${{ env.mode }}" = "safe" ]; then
+                echo "arturoCanRun=false" >> $GITHUB_ENV
+            else
+                echo "arturoCanRun=true" >> $GITHUB_ENV
+            fi
+          shell: bash
+
         - name: Debug build configuration
           run: |
             echo "======================================"
@@ -130,58 +165,78 @@ runs:
             echo "Support Level:    ${{ env.support }}"
             echo "Source Ref:       ${{ env.src != '' && env.src || '(latest)' }}"
             echo "Metadata:         ${{ env.metadata != '' && env.metadata || '(none)' }}"
+            echo "Artifact Name:    ${{ env.artifact_name }}"
             echo "======================================"
           shell: bash
 
-        - name: Export runtime flags
-          run: |
-            if [ "${{ env.os }}" = "web" ] || [ "${{ env.mode }}" = "safe" ]; then
-                echo "arturoCanRun=false" >> $GITHUB_ENV
-            else
-                echo "arturoCanRun=true" >> $GITHUB_ENV
-            fi
-          shell: bash
-
-        ##====================================
-        ## OS-specific environment setup
-        ##====================================
-
-        - name: Setup Msys (Windows)
-          if: runner.os == 'Windows'
-          uses: msys2/setup-msys2@v2
-          with:
-            update: true
-            cache: true
-            install: 'git base-devel p7zip mingw-w64-x86_64-toolchain'
-
         ######################################
         ######################################
-        ## DOWNLOAD
-        ## from nightly releases
+        ## DEPENDENCIES
         ######################################
         ######################################
 
-        - name: Install dependencies (Linux - Download Mode)
-          if: inputs.do != 'compile' && runner.os == 'Linux' && env.os == 'linux'
+        - name: Install dependencies (Linux)
+          if: env.os == 'linux'
           run: |
             sudo apt-get update
 
             if [ "${{ env.mode }}" != "mini" ]; then
                 sudo apt-get install libgtk-3-dev libmpfr-dev
-                UBUNTU_VERSION=$(lsb_release -rs)
                 if [ "${{ env.support }}" = "legacy" ]; then
                     sudo apt-get install -y libwebkit2gtk-4.0-dev
                 else
                     sudo apt-get install -y libwebkit2gtk-4.1-dev
                 fi
             fi
+
+            # Additional dependencies for compilation
+            if [ "${{ inputs.do }}" = "compile" ]; then
+                if [ "${{ env.mode }}" = "web" ]; then
+                    npm install -g uglify-js
+                fi
+            fi
           shell: bash
 
-        - name: Install dependencies (macOS - Download Mode)
-          if: inputs.do != 'compile' && runner.os == 'macOS'
+        - name: Install dependencies (FreeBSD)
+          if: env.os == 'freebsd'
+          uses: vmactions/freebsd-vm@v1
+          with:
+            usesh: true
+            sync: rsync
+            copyback: false
+            prepare: |
+              pkg update
+              pkg install -y wget curl bash ca_root_nss jq
+              if [ "${{ env.mode }}" = "full" ]; then
+                  pkg install -y gtk3 mpfr webkit2-gtk_41
+              fi
+            run: |
+              echo "FreeBSD dependencies installed"
+
+        - name: Install dependencies (macOS)
+          if: env.os == 'macOS'
           run: |
             brew update
           shell: bash
+
+        - name: Install dependencies (Windows)
+          if: env.os == 'Windows'
+          uses: msys2/setup-msys2@v2
+          with:
+            update: true
+            cache: true
+            install: >-
+              git
+              base-devel
+              p7zip
+              mingw-w64-x86_64-toolchain
+              ${{ inputs.do == 'compile' && env.mode == 'full' && 'mingw-w64-x86_64-mpfr' || '' }}
+
+        ######################################
+        ######################################
+        ## MODE: FETCH NIGHTLY
+        ######################################
+        ######################################
 
         - name: Determine latest nightly release
           if: inputs.do != 'compile'
@@ -190,7 +245,6 @@ runs:
             echo "Fetching latest nightly release..."
             
             # Get the latest release from arturo-lang/nightly
-            # Look for releases with tag_name matching YYYY-MM-DD format
             LATEST_RELEASE=$(curl -s -H "Authorization: token ${{ inputs.token }}" \
               "https://api.github.com/repos/arturo-lang/nightly/releases?per_page=10" | \
               jq -r '[.[] | select(.tag_name | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}$"))] | sort_by(.created_at) | reverse | .[0].tag_name')
@@ -211,21 +265,17 @@ runs:
             VERSION=$(echo $LATEST_RELEASE | tr -d '-')
             echo "version=nightly.$VERSION" >> $GITHUB_OUTPUT
             
-            # Construct artifact name matching the nightly workflow pattern
-            ARTIFACT_NAME="arturo-nightly.${VERSION}-${{ env.os }}-${{ env.artifact_arch }}"
-            
-            # Add mode suffix if not full and not web
+            # Update artifact name with version
+            FULL_ARTIFACT_NAME="arturo-nightly.${VERSION}-${{ env.os }}-${{ env.artifact_arch }}"
             if [ "${{ env.mode }}" != "full" ] && [ "${{ env.mode }}" != "web" ]; then
-                ARTIFACT_NAME="${ARTIFACT_NAME}-${{ env.mode }}"
+                FULL_ARTIFACT_NAME="${FULL_ARTIFACT_NAME}-${{ env.mode }}"
             fi
-            
-            # Add legacy suffix if applicable
             if [ "${{ env.support }}" = "legacy" ]; then
-                ARTIFACT_NAME="${ARTIFACT_NAME}-legacy"
+                FULL_ARTIFACT_NAME="${FULL_ARTIFACT_NAME}-legacy"
             fi
             
-            echo "artifact_name=$ARTIFACT_NAME" >> $GITHUB_OUTPUT
-            echo "Artifact to download: $ARTIFACT_NAME"
+            echo "artifact_name=$FULL_ARTIFACT_NAME" >> $GITHUB_OUTPUT
+            echo "Artifact to download: $FULL_ARTIFACT_NAME"
           shell: bash
 
         - name: Download nightly artifact (non-FreeBSD)
@@ -233,17 +283,14 @@ runs:
           run: |
             echo "Downloading artifact: ${{ steps.nightly-info.outputs.artifact_name }}.zip"
             
-            # Create download directory
             mkdir -p arturo-download
             cd arturo-download
             
-            # Construct download URL from arturo-lang/nightly
             DOWNLOAD_URL="https://github.com/arturo-lang/nightly/releases/download/${{ steps.nightly-info.outputs.release_tag }}/${{ steps.nightly-info.outputs.artifact_name }}.zip"
             
             echo "Download URL: $DOWNLOAD_URL"
             echo "Release tag: ${{ steps.nightly-info.outputs.release_tag }}"
             
-            # Download the artifact from the release
             HTTP_CODE=$(curl -L -w "%{http_code}" -H "Authorization: token ${{ inputs.token }}" \
               "$DOWNLOAD_URL" -o artifact.zip)
             
@@ -263,7 +310,6 @@ runs:
                 exit 1
             fi
             
-            # Check file size
             SIZE=$(stat -f%z artifact.zip 2>/dev/null || stat -c%s artifact.zip 2>/dev/null || echo "0")
             if [ "$SIZE" -lt 1000 ]; then
                 echo "ERROR: Downloaded file is too small ($SIZE bytes)"
@@ -272,56 +318,12 @@ runs:
             
             echo "Downloaded successfully ($SIZE bytes)"
             
-            # Extract artifact
             unzip -q artifact.zip
             rm artifact.zip
             
             echo "Artifact downloaded and extracted successfully"
             ls -lah
           shell: bash
-
-        - name: Setup nightly binary (Linux/macOS)
-          if: inputs.do != 'compile' && (env.os == 'Linux' || env.os == 'macOS')
-          run: |
-            cd arturo-download
-            
-            # Make binaries executable
-            chmod +x arturo*
-            
-            # Create installation directory
-            mkdir -p $HOME/.arturo/bin
-            
-            # Copy files
-            cp -r * $HOME/.arturo/bin/
-            
-            # Add to PATH
-            echo "$HOME/.arturo/bin" >> $GITHUB_PATH
-            
-            # Set environment variable for cleanup
-            echo "arturoDistPath=$HOME/.arturo/bin" >> $GITHUB_ENV
-            
-            echo "Arturo nightly installed successfully"
-          shell: bash
-
-        - name: Setup nightly binary (Windows)
-          if: inputs.do != 'compile' && runner.os == 'Windows'
-          run: |
-            cd arturo-download
-            
-            # Create installation directory
-            mkdir -p /usr/bin
-            
-            # Copy files
-            cp -r * /usr/bin/
-            
-            # Add to PATH
-            echo "/usr/bin" >> $GITHUB_PATH
-            
-            # Set environment variable
-            echo "arturoDistPath=/usr/bin" >> $GITHUB_ENV
-            
-            echo "Arturo nightly installed successfully"
-          shell: msys2 {0}
 
         - name: Download & setup nightly binary (FreeBSD)
           if: inputs.do != 'compile' && env.os == 'freebsd'
@@ -339,12 +341,10 @@ runs:
             run: |
               echo "Downloading artifact: ${{ steps.nightly-info.outputs.artifact_name }}.zip"
               
-              # Construct download URL
               DOWNLOAD_URL="https://github.com/arturo-lang/nightly/releases/download/${{ steps.nightly-info.outputs.release_tag }}/${{ steps.nightly-info.outputs.artifact_name }}.zip"
               
               echo "Download URL: $DOWNLOAD_URL"
               
-              # Download and extract
               mkdir -p arturo-download
               cd arturo-download
               
@@ -352,7 +352,6 @@ runs:
               unzip -q artifact.zip
               rm artifact.zip
               
-              # Make executable and install
               chmod +x arturo*
               mkdir -p /usr/local/bin
               cp -r * /usr/local/bin/
@@ -362,8 +361,7 @@ runs:
 
         ######################################
         ######################################
-        ## BUILD
-        ## from source
+        ## MODE: COMPILE FROM SOURCE
         ######################################
         ######################################
 
@@ -383,7 +381,7 @@ runs:
           shell: bash
 
         ##====================================
-        ## OS-specific preparations
+        ## Setup Nim environment
         ##====================================
 
         - name: Cache ChooseNim
@@ -402,29 +400,9 @@ runs:
             path: ~/.nimble
             key: ${{ runner.os }}-nimble-v2-${{ hashFiles('*.nimble') }}
 
-        ##====================================
-        ## Setup Nim & dependencies
-        ##====================================
-
-        - name: Install Nim & dependencies (Linux)
+        - name: Install Nim (Linux)
           if: inputs.do == 'compile' && runner.os == 'Linux' && env.os != 'freebsd'
           run: |
-            sudo apt-get update
-
-            if [ "${{ env.mode }}" != "mini" ]; then
-                sudo apt-get install libgtk-3-dev libmpfr-dev
-                UBUNTU_VERSION=$(lsb_release -rs)
-                if [ "${{ env.support }}" = "legacy" ]; then
-                    sudo apt-get install -y libwebkit2gtk-4.0-dev
-                else
-                    sudo apt-get install -y libwebkit2gtk-4.1-dev
-                fi
-            fi
-
-            if [ "${{ env.mode }}" = "web" ]; then
-                npm install -g uglify-js
-            fi
-
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
             echo >> /home/runner/.bashrc
             echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/runner/.bashrc
@@ -435,20 +413,15 @@ runs:
             echo "/home/linuxbrew/.linuxbrew/bin" >> $GITHUB_PATH
           shell: bash
 
-        - name: Install Nim & dependencies (macOS)
+        - name: Install Nim (macOS)
           if: inputs.do == 'compile' && runner.os == 'macOS'
           run: |
-            brew update
             brew install nim
           shell: bash
 
-        - name: Install Nim & dependencies (Windows)
+        - name: Install Nim (Windows)
           if: inputs.do == 'compile' && runner.os == 'Windows'
           run: |
-            if [ "${{ env.mode }}" = "full" ]; then
-                pacman --noconfirm -S mingw-w64-x86_64-mpfr
-            fi
-
             mkdir nim
             curl -L https://nim-lang.org/download/nim-2.2.6_x64.zip -o nim.zip
             7z x nim.zip -onim
@@ -459,7 +432,7 @@ runs:
         ## Compilation
         ##====================================
         
-        - name: Build Arturo (*)
+        - name: Build Arturo (Linux/macOS)
           if: inputs.do == 'compile' && env.os != 'freebsd' && runner.os != 'Windows'
           run: |
             cd arturo-src
@@ -470,6 +443,36 @@ runs:
             rm -rf arturo-src
             echo "arturoDistPath=$HOME/.arturo/bin" >> $GITHUB_ENV
           shell: bash
+
+        - name: Build Arturo (Windows)
+          if: inputs.do == 'compile' && runner.os == 'Windows'
+          run: |
+            export PATH="${{ github.workspace }}/nim/nim-2.2.6/bin":$PATH
+
+            cd arturo-src
+            ./build.nims --install --mode ${{ env.mode }} --log
+            cd ..
+            
+            mkdir bin
+            if [ "${{ env.mode }}" = "full" ]; then
+                cp arturo-src/src/extras/webview/deps/dlls/x64/webview.dll bin
+                cp arturo-src/src/extras/webview/deps/dlls/x64/WebView2Loader.dll bin
+                curl -L https://arturo-lang.s3.amazonaws.com/libgmp-10.dll -o bin/libgmp-10.dll
+                curl -L https://arturo-lang.s3.amazonaws.com/libmpfr-6.dll -o bin/libmpfr-6.dll
+                curl -L https://arturo-lang.s3.amazonaws.com/sqlite3_64.dll -o bin/sqlite3_64.dll
+                curl -L https://arturo-lang.s3.amazonaws.com/libgcc_s_seh-1.dll -o bin/libgcc_s_seh-1.dll
+            fi
+
+            curl -L https://curl.se/ca/cacert.pem -o bin/cacert.pem
+            cp /mingw64/bin/libwinpthread-1.dll bin
+
+            cp arturo-src/bin/arturo.exe bin
+
+            cp bin/* /usr/bin
+            
+            rm -rf arturo-src
+            echo "arturoDistPath=${{ github.workspace }}/bin" >> $GITHUB_ENV
+          shell: msys2 {0}
 
         - name: Build Arturo (FreeBSD)
           if: inputs.do == 'compile' && env.os == 'freebsd'
@@ -505,63 +508,53 @@ runs:
               cp -r /usr/local/bin/arturo* arturo-bin/
               echo "arturoDistPath=arturo-bin" >> $GITHUB_ENV
 
-        - name: Build Arturo (Windows)
-          if: inputs.do == 'compile' && runner.os == 'Windows'
+        ######################################
+        ######################################
+        ## FINALIZE INSTALLATION
+        ######################################
+        ######################################
+
+        - name: Setup binary in PATH (Linux/macOS - Fetch Mode)
+          if: inputs.do != 'compile' && (runner.os == 'Linux' || runner.os == 'macOS')
           run: |
-            export PATH="${{ github.workspace }}/nim/nim-2.2.6/bin":$PATH
-
-            cd arturo-src
-            ./build.nims --install --mode ${{ env.mode }} --log
-            cd ..
+            cd arturo-download
             
-            mkdir bin
-            if [ "${{ env.mode }}" = "full" ]; then
-                cp arturo-src/src/extras/webview/deps/dlls/x64/webview.dll bin
-                cp arturo-src/src/extras/webview/deps/dlls/x64/WebView2Loader.dll bin
-                curl -L https://arturo-lang.s3.amazonaws.com/libgmp-10.dll -o bin/libgmp-10.dll
-                curl -L https://arturo-lang.s3.amazonaws.com/libmpfr-6.dll -o bin/libmpfr-6.dll
-                curl -L https://arturo-lang.s3.amazonaws.com/sqlite3_64.dll -o bin/sqlite3_64.dll
-                curl -L https://arturo-lang.s3.amazonaws.com/libgcc_s_seh-1.dll -o bin/libgcc_s_seh-1.dll
-            fi
-
-            curl -L https://curl.se/ca/cacert.pem -o bin/cacert.pem
-            cp /mingw64/bin/libwinpthread-1.dll bin
-
-            cp arturo-src/bin/arturo.exe bin
-
-            cp bin/* /usr/bin
+            chmod +x arturo*
             
-            rm -rf arturo-src
-            echo "arturoDistPath=${{ github.workspace }}/bin" >> $GITHUB_ENV
+            mkdir -p $HOME/.arturo/bin
+            cp -r * $HOME/.arturo/bin/
+            
+            echo "$HOME/.arturo/bin" >> $GITHUB_PATH
+            echo "arturoDistPath=$HOME/.arturo/bin" >> $GITHUB_ENV
+            
+            echo "Arturo nightly installed successfully"
+          shell: bash
+
+        - name: Setup binary in PATH (Windows - Fetch Mode)
+          if: inputs.do != 'compile' && runner.os == 'Windows'
+          run: |
+            cd arturo-download
+            
+            mkdir -p /usr/bin
+            cp -r * /usr/bin/
+            
+            echo "/usr/bin" >> $GITHUB_PATH
+            echo "arturoDistPath=/usr/bin" >> $GITHUB_ENV
+            
+            echo "Arturo nightly installed successfully"
           shell: msys2 {0}
 
-        ##====================================
-        ## Artifact creation
-        ##====================================
-
-        - name: Create artifact
-          if: inputs.do == 'compile' && inputs.create_artifact == 'true'
-          id: artifact-prep
-          run: |
-            artifact_name="arturo-${{ inputs.artifact_version }}-${{ env.os }}-${{ env.artifact_arch }}"
-            
-            # Add mode suffix if not full and not web
-            if [ "${{ env.mode }}" != "full" ] && [ "${{ env.mode }}" != "web" ]; then
-                artifact_name="${artifact_name}-${{ env.mode }}"
-            fi
-            
-            # Add legacy suffix if applicable
-            if [ "${{ env.support }}" = "legacy" ]; then
-                artifact_name="${artifact_name}-legacy"
-            fi
-            
-            echo "ARTIFACT_NAME=$artifact_name" >> "$GITHUB_OUTPUT"
-          shell: bash
+        ######################################
+        ######################################
+        ## ARTIFACT CREATION
+        ## (compile mode only)
+        ######################################
+        ######################################
 
         - name: Upload artifact
           if: inputs.do == 'compile' && inputs.create_artifact == 'true'
           uses: actions/upload-artifact@v4
           with:
-            name: ${{ steps.artifact-prep.outputs.ARTIFACT_NAME }}
+            name: ${{ env.artifact_name }}
             path: ${{ env.arturoDistPath }}/*
             include-hidden-files: false
