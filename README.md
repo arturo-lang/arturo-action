@@ -11,8 +11,6 @@
 
 ## Quick Start
 
-Minimal setup:
-
 ```yaml
 - name: Install Arturo
   uses: arturo-lang/arturo-action@main
@@ -21,20 +19,9 @@ Minimal setup:
 ```
 
 > [!TIP]
-> What you'll need in most cases is to include the step above (^) as part of your flow, and the action will auto-detect your runner/OS, fetch or build the appropriate version, etc.  No configuration needed at all! 😉
+> If all you need is to have Arturo available as part of your workflow, chances are all you'll have to do in most cases is to include the step above (^), and the action will auto-detect your runner/OS, fetch the appropriate version, etc.  No configuration needed at all! 😉
 
-With specific options:
-
-```yaml
-- name: Install Arturo
-  uses: arturo-lang/arturo-action@main
-  with: 
-    token: ${{ secrets.GITHUB_TOKEN }}
-    mode: mini
-    arch: arm64
-```
-
-## Examples
+## More Examples
 
 ### "Native" build
 
