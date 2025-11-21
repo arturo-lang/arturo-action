@@ -1,0 +1,33 @@
+name: Fetch
+
+on:
+    push:
+        paths-ignore:
+            - 'LICENSE'
+            - '*.md'
+        branches:
+            - main
+    pull_request:
+        paths-ignore:
+            - 'LICENSE'
+            - '*.md'
+    workflow_dispatch:
+
+concurrency: 
+    group: ${{ github.workflow }}-ubuntu-2204-amd64-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    ubuntu-2204-amd64:
+        runs-on: ubuntu-22.04
+        steps:
+            - uses: actions/checkout@v4
+            
+            - name: Install Arturo
+              uses: ./
+              with: 
+                token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Test Arturo
+              run: |
+                tests/verify.sh linux amd64 full

@@ -1,0 +1,34 @@
+name: Fetch
+
+on:
+    push:
+        paths-ignore:
+            - 'LICENSE'
+            - '*.md'
+        branches:
+            - main
+    pull_request:
+        paths-ignore:
+            - 'LICENSE'
+            - '*.md'
+    workflow_dispatch:
+
+concurrency: 
+    group: ${{ github.workflow }}-macos-13-amd64-mini-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    macos-13-amd64-mini:
+        runs-on: macos-13
+        steps:
+            - uses: actions/checkout@v4
+            
+            - name: Install Arturo
+              uses: ./
+              with: 
+                mode: mini
+                token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Test Arturo
+              run: |
+                tests/verify.sh macos amd64 mini

@@ -14,7 +14,7 @@ on:
     workflow_dispatch:
 
 concurrency: 
-    group: ${{ github.workflow }}-${{ github.ref }}
+    group: ${{ github.workflow }}/${{ github.run_id }}-${{ github.ref }}
     cancel-in-progress: true
 
 jobs:
@@ -27,22 +27,38 @@ jobs:
         strategy:
             matrix:
                 include: 
-                    - {os: linux,   arch: amd64}
-                    - {os: linux,   arch: amd64,    support: legacy}
-                    - {os: linux,   arch: amd64,    mode: safe}
-                    - {os: linux,   arch: amd64,    mode: mini}
-                    - {os: linux,   arch: arm64}
-                    - {os: linux,   arch: arm64,    support: legacy}
-                    - {os: linux,   arch: arm64,    mode: mini}
-                    - {os: freebsd, arch: amd64}
-                    - {os: freebsd, arch: amd64,    mode: mini}
-                    - {os: macos,   arch: amd64}
-                    - {os: macos,   arch: amd64,    mode: mini}
-                    - {os: macos,   arch: arm64}
-                    - {os: macos,   arch: arm64,    mode: mini}
-                    - {os: windows, arch: amd64}
-                    - {os: windows, arch: amd64,    mode: mini}
-                    - {os: web,     arch: js,       mode: mini}
+                    - {os: linux,   arch: amd64,                        do: compile}
+                    - {os: linux,   arch: amd64,    support: legacy,    do: compile}
+                    - {os: linux,   arch: amd64,    mode: safe,         do: compile}
+                    - {os: linux,   arch: amd64,    mode: mini,         do: compile}
+                    - {os: linux,   arch: arm64,                        do: compile}
+                    - {os: linux,   arch: arm64,    support: legacy,    do: compile}
+                    - {os: linux,   arch: arm64,    mode: mini,         do: compile}
+                    - {os: freebsd, arch: amd64,                        do: compile}
+                    - {os: freebsd, arch: amd64,    mode: mini,         do: compile}
+                    - {os: macos,   arch: amd64,                        do: compile}
+                    - {os: macos,   arch: amd64,    mode: mini,         do: compile}
+                    - {os: macos,   arch: arm64,                        do: compile}
+                    - {os: macos,   arch: arm64,    mode: mini,         do: compile}
+                    - {os: windows, arch: amd64,                        do: compile}
+                    - {os: windows, arch: amd64,    mode: mini,         do: compile}
+                    - {os: web,     arch: js,       mode: mini,         do: compile}
+
+                    - {os: linux,   arch: amd64,                        do: fetch}
+                    - {os: linux,   arch: amd64,    support: legacy,    do: fetch}
+                    - {os: linux,   arch: amd64,    mode: mini,         do: fetch}
+                    - {os: linux,   arch: arm64,                        do: fetch}
+                    - {os: linux,   arch: arm64,    support: legacy,    do: fetch}
+                    - {os: linux,   arch: arm64,    mode: mini,         do: fetch}
+                    - {os: freebsd, arch: amd64,                        do: fetch}
+                    - {os: freebsd, arch: amd64,    mode: mini,         do: fetch}
+                    - {os: macos,   arch: amd64,                        do: fetch}
+                    - {os: macos,   arch: amd64,    mode: mini,         do: fetch}
+                    - {os: macos,   arch: arm64,                        do: fetch}
+                    - {os: macos,   arch: arm64,    mode: mini,         do: fetch}
+                    - {os: windows, arch: amd64,                        do: fetch}
+                    - {os: windows, arch: amd64,    mode: mini,         do: fetch}
+                    - {os: web,     arch: js,       mode: mini,         do: fetch}
                     
         defaults:
             run:
@@ -56,6 +72,7 @@ jobs:
             - name: Install Arturo
               uses: ./
               with: 
+                do: ${{ matrix.do }}
                 token: ${{ secrets.GITHUB_TOKEN }}
                 os: ${{ matrix.os }}
                 arch: ${{ matrix.arch }}
@@ -66,29 +83,24 @@ jobs:
               run: |
                 cd $GITHUB_WORKSPACE
                 
-                echo "======================================"
+                echo "============================================================================================"
                 echo "Verifying Arturo Installation"
-                echo "======================================"
-                echo "OS: ${{ matrix.os }} | Arch: ${{ matrix.arch || 'amd64' }} | Mode: ${{ matrix.mode || 'mini' }}"
-                echo "======================================"
+                echo "============================================================================================"
+                echo "OS: ${{ matrix.os }} | Arch: ${{ matrix.arch || 'amd64' }} | Mode: ${{ matrix.mode || 'full' }} | Support: ${{ matrix.support || 'standard' }} | Action: ${{ matrix.do }}"
+                echo "============================================================================================"
                 
                 if [ "${{ env.arturoCanRun }}" == "true" ]; then
-                    echo "✓ Checking arturo command..."
+                    echo "- Checking arturo command..."
                     if command -v arturo &> /dev/null; then
-                        echo "  ✓ arturo command found"
+                        echo "    🎉 All good! `arturo` is available."
                         arturo -v
                     else
-                        echo "  ✗ FAILED: arturo not found"
+                        echo "    ❌ Failed! `arturo` not found"
                         exit 1
                     fi
                 else
                     echo "⊘ Skipping arturo command check"
                 fi
-                
-                echo ""
-                echo "======================================"
-                echo "Installation verified!"
-                echo "======================================"
 
             - if: env.arturoCanRun == 'true'
               name: Run tests

@@ -1,0 +1,35 @@
+name: Compile
+
+on:
+    push:
+        paths-ignore:
+            - 'LICENSE'
+            - '*.md'
+        branches:
+            - main
+    pull_request:
+        paths-ignore:
+            - 'LICENSE'
+            - '*.md'
+    workflow_dispatch:
+
+concurrency: 
+    group: ${{ github.workflow }}-macos-14-arm64-mini-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    macos-14-arm64-mini:
+        runs-on: macos-14
+        steps:
+            - uses: actions/checkout@v4
+            
+            - name: Install Arturo
+              uses: ./
+              with: 
+                do: compile
+                mode: mini
+                token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Test Arturo
+              run: |
+                tests/verify.sh macos arm64 mini
