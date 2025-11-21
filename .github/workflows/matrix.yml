@@ -73,6 +73,7 @@ jobs:
             - name: Install Arturo
               uses: ./
               with: 
+                do: ${{ matrix.do }}
                 token: ${{ secrets.GITHUB_TOKEN }}
                 os: ${{ matrix.os }}
                 arch: ${{ matrix.arch }}
