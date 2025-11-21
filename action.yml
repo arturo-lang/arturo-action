@@ -352,6 +352,36 @@ runs:
             echo "Arturo nightly installed successfully on FreeBSD"
             ls -lah /usr/local/bin/arturo*
 
+        - name: Setup binary in PATH (Linux/macOS)
+          if: inputs.do == 'fetch' && (env.os == 'linux' || env.os == 'macos')
+          run: |
+            cd arturo-download
+            
+            chmod +x arturo*
+            
+            mkdir -p $HOME/.arturo/bin
+            cp -r * $HOME/.arturo/bin/
+            
+            echo "$HOME/.arturo/bin" >> $GITHUB_PATH
+            echo "arturoDistPath=$HOME/.arturo/bin" >> $GITHUB_ENV
+            
+            echo "Arturo nightly installed successfully"
+          shell: bash
+
+        - name: Setup binary in PATH (Windows)
+          if: inputs.do == 'fetch' && env.os == 'windows'
+          run: |
+            cd arturo-download
+            
+            mkdir -p /usr/bin
+            cp -r * /usr/bin/
+            
+            echo "/usr/bin" >> $GITHUB_PATH
+            echo "arturoDistPath=/usr/bin" >> $GITHUB_ENV
+            
+            echo "Arturo nightly installed successfully"
+          shell: msys2 {0}
+
         ######################################
         ######################################
         ## MODE: COMPILE FROM SOURCE
@@ -490,48 +520,6 @@ runs:
             rm -rf arturo-src
             echo "arturoDistPath=${{ github.workspace }}/bin" >> $GITHUB_ENV
           shell: msys2 {0}
-
-        ######################################
-        ######################################
-        ## FINALIZE INSTALLATION
-        ######################################
-        ######################################
-
-        - name: Setup binary in PATH (Linux/macOS)
-          if: inputs.do == 'fetch' && (env.os == 'linux' || env.os == 'macos')
-          run: |
-            cd arturo-download
-            
-            chmod +x arturo*
-            
-            mkdir -p $HOME/.arturo/bin
-            cp -r * $HOME/.arturo/bin/
-            
-            echo "$HOME/.arturo/bin" >> $GITHUB_PATH
-            echo "arturoDistPath=$HOME/.arturo/bin" >> $GITHUB_ENV
-            
-            echo "Arturo nightly installed successfully"
-          shell: bash
-
-        - name: Setup binary in PATH (Windows)
-          if: inputs.do == 'fetch' && env.os == 'windows'
-          run: |
-            cd arturo-download
-            
-            mkdir -p /usr/bin
-            cp -r * /usr/bin/
-            
-            echo "/usr/bin" >> $GITHUB_PATH
-            echo "arturoDistPath=/usr/bin" >> $GITHUB_ENV
-            
-            echo "Arturo nightly installed successfully"
-          shell: msys2 {0}
-
-        ######################################
-        ######################################
-        ## ARTIFACT CREATION
-        ######################################
-        ######################################
 
         - name: Upload artifact
           if: inputs.do == 'compile' && inputs.create_artifact == 'true'
