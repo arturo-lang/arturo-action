@@ -165,7 +165,6 @@ runs:
           if: inputs.build != 'true' && runner.os == 'Linux' && env.os == 'linux'
           run: |
             sudo apt-get update
-            sudo apt-get install libpcre3
 
             if [ "${{ env.mode }}" != "mini" ]; then
                 sudo apt-get install libgtk-3-dev libmpfr-dev
@@ -182,7 +181,6 @@ runs:
           if: inputs.build != 'true' && runner.os == 'macOS'
           run: |
             brew update
-            brew install pcre
           shell: bash
 
         - name: Determine latest nightly release
@@ -412,7 +410,6 @@ runs:
           if: inputs.build == 'true' && runner.os == 'Linux' && env.os != 'freebsd'
           run: |
             sudo apt-get update
-            sudo apt-get install libpcre3
 
             if [ "${{ env.mode }}" != "mini" ]; then
                 sudo apt-get install libgtk-3-dev libmpfr-dev
@@ -442,7 +439,7 @@ runs:
           if: inputs.build == 'true' && runner.os == 'macOS'
           run: |
             brew update
-            brew install pcre nim
+            brew install nim
           shell: bash
 
         - name: Install Nim & dependencies (Windows)
