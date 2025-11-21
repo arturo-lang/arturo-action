@@ -188,11 +188,8 @@ runs:
                 fi
             fi
 
-            # Additional dependencies for compilation
-            if [ "${{ inputs.do }}" = "compile" ]; then
-                if [ "${{ env.mode }}" = "web" ]; then
-                    npm install -g uglify-js
-                fi
+            if [ "${{ inputs.do }}" = "compile" ] && [ "${{ env.mode }}" = "web" ]; then
+                npm install -g uglify-js
             fi
           shell: bash
 
@@ -210,7 +207,6 @@ runs:
                   pkg install -y gtk3 mpfr webkit2-gtk_41
               fi
               
-              # Additional dependencies for compilation
               if [ "${{ inputs.do }}" = "compile" ]; then
                   pkg install -y nim git
                   if [ "${{ env.mode }}" = "full" ]; then
@@ -224,9 +220,12 @@ runs:
           if: env.os == 'macos'
           run: |
             brew update
+            if [ "${{ env.mode }}" = "full" ]; then
+                brew install mpfr gmp
+            fi
           shell: bash
 
-        - name: Install dependencies (Windows)
+        - name: Setup Msys & dependencies (Windows)
           if: env.os == 'windows'
           uses: msys2/setup-msys2@v2
           with:
@@ -246,12 +245,11 @@ runs:
         ######################################
 
         - name: Determine latest nightly release
-          if: inputs.do != 'compile'
+          if: inputs.do == 'fetch'
           id: nightly-info
           run: |
             echo "Fetching latest nightly release..."
             
-            # Get the latest release from arturo-lang/nightly
             LATEST_RELEASE=$(curl -s -H "Authorization: token ${{ inputs.token }}" \
               "https://api.github.com/repos/arturo-lang/nightly/releases?per_page=10" | \
               jq -r '[.[] | select(.tag_name | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}$"))] | sort_by(.created_at) | reverse | .[0].tag_name')
@@ -268,11 +266,9 @@ runs:
             echo "Latest nightly release: $LATEST_RELEASE"
             echo "release_tag=$LATEST_RELEASE" >> $GITHUB_OUTPUT
             
-            # Convert date format: YYYY-MM-DD -> YYYYMMDD for artifact naming
             VERSION=$(echo $LATEST_RELEASE | tr -d '-')
             echo "version=nightly.$VERSION" >> $GITHUB_OUTPUT
             
-            # Update artifact name with version
             FULL_ARTIFACT_NAME="arturo-nightly.${VERSION}-${{ env.os }}-${{ env.artifact_arch }}"
             if [ "${{ env.mode }}" != "full" ] && [ "${{ env.mode }}" != "web" ]; then
                 FULL_ARTIFACT_NAME="${FULL_ARTIFACT_NAME}-${{ env.mode }}"
@@ -285,8 +281,8 @@ runs:
             echo "Artifact to download: $FULL_ARTIFACT_NAME"
           shell: bash
 
-        - name: Download nightly artifact (Linux)
-          if: inputs.do != 'compile' && env.os == 'linux'
+        - name: Download nightly artifact (Linux/macOS/Windows)
+          if: inputs.do == 'fetch' && env.os != 'freebsd'
           run: |
             echo "Downloading artifact: ${{ steps.nightly-info.outputs.artifact_name }}.zip"
             
@@ -317,7 +313,7 @@ runs:
                 exit 1
             fi
             
-            SIZE=$(stat -c%s artifact.zip 2>/dev/null || echo "0")
+            SIZE=$(stat -f%z artifact.zip 2>/dev/null || stat -c%s artifact.zip 2>/dev/null || echo "0")
             if [ "$SIZE" -lt 1000 ]; then
                 echo "ERROR: Downloaded file is too small ($SIZE bytes)"
                 exit 1
@@ -333,7 +329,7 @@ runs:
           shell: bash
 
         - name: Download nightly artifact (FreeBSD)
-          if: inputs.do != 'compile' && env.os == 'freebsd'
+          if: inputs.do == 'fetch' && env.os == 'freebsd'
           shell: freebsd {0}
           run: |
             echo "Downloading artifact: ${{ steps.nightly-info.outputs.artifact_name }}.zip"
@@ -349,102 +345,12 @@ runs:
             unzip -q artifact.zip
             rm artifact.zip
             
-            echo "Artifact downloaded and extracted successfully"
-            ls -lah
-
-        - name: Download nightly artifact (macOS)
-          if: inputs.do != 'compile' && env.os == 'macos'
-          run: |
-            echo "Downloading artifact: ${{ steps.nightly-info.outputs.artifact_name }}.zip"
+            chmod +x arturo*
+            mkdir -p /usr/local/bin
+            cp -r * /usr/local/bin/
             
-            mkdir -p arturo-download
-            cd arturo-download
-            
-            DOWNLOAD_URL="https://github.com/arturo-lang/nightly/releases/download/${{ steps.nightly-info.outputs.release_tag }}/${{ steps.nightly-info.outputs.artifact_name }}.zip"
-            
-            echo "Download URL: $DOWNLOAD_URL"
-            echo "Release tag: ${{ steps.nightly-info.outputs.release_tag }}"
-            
-            HTTP_CODE=$(curl -L -w "%{http_code}" -H "Authorization: token ${{ inputs.token }}" \
-              "$DOWNLOAD_URL" -o artifact.zip)
-            
-            if [ "$HTTP_CODE" != "200" ]; then
-                echo "ERROR: Failed to download artifact (HTTP $HTTP_CODE)"
-                echo "URL was: $DOWNLOAD_URL"
-                echo ""
-                echo "Available assets for release ${{ steps.nightly-info.outputs.release_tag }}:"
-                curl -s -H "Authorization: token ${{ inputs.token }}" \
-                  "https://api.github.com/repos/arturo-lang/nightly/releases/tags/${{ steps.nightly-info.outputs.release_tag }}" | \
-                  jq -r '.assets[].name' || echo "Could not fetch asset list"
-                exit 1
-            fi
-            
-            if [ ! -f artifact.zip ]; then
-                echo "ERROR: Failed to download artifact (file not created)"
-                exit 1
-            fi
-            
-            SIZE=$(stat -f%z artifact.zip 2>/dev/null || echo "0")
-            if [ "$SIZE" -lt 1000 ]; then
-                echo "ERROR: Downloaded file is too small ($SIZE bytes)"
-                exit 1
-            fi
-            
-            echo "Downloaded successfully ($SIZE bytes)"
-            
-            unzip -q artifact.zip
-            rm artifact.zip
-            
-            echo "Artifact downloaded and extracted successfully"
-            ls -lah
-          shell: bash
-
-        - name: Download nightly artifact (Windows)
-          if: inputs.do != 'compile' && env.os == 'windows'
-          run: |
-            echo "Downloading artifact: ${{ steps.nightly-info.outputs.artifact_name }}.zip"
-            
-            mkdir -p arturo-download
-            cd arturo-download
-            
-            DOWNLOAD_URL="https://github.com/arturo-lang/nightly/releases/download/${{ steps.nightly-info.outputs.release_tag }}/${{ steps.nightly-info.outputs.artifact_name }}.zip"
-            
-            echo "Download URL: $DOWNLOAD_URL"
-            echo "Release tag: ${{ steps.nightly-info.outputs.release_tag }}"
-            
-            HTTP_CODE=$(curl -L -w "%{http_code}" -H "Authorization: token ${{ inputs.token }}" \
-              "$DOWNLOAD_URL" -o artifact.zip)
-            
-            if [ "$HTTP_CODE" != "200" ]; then
-                echo "ERROR: Failed to download artifact (HTTP $HTTP_CODE)"
-                echo "URL was: $DOWNLOAD_URL"
-                echo ""
-                echo "Available assets for release ${{ steps.nightly-info.outputs.release_tag }}:"
-                curl -s -H "Authorization: token ${{ inputs.token }}" \
-                  "https://api.github.com/repos/arturo-lang/nightly/releases/tags/${{ steps.nightly-info.outputs.release_tag }}" | \
-                  jq -r '.assets[].name' || echo "Could not fetch asset list"
-                exit 1
-            fi
-            
-            if [ ! -f artifact.zip ]; then
-                echo "ERROR: Failed to download artifact (file not created)"
-                exit 1
-            fi
-            
-            SIZE=$(stat -c%s artifact.zip 2>/dev/null || echo "0")
-            if [ "$SIZE" -lt 1000 ]; then
-                echo "ERROR: Downloaded file is too small ($SIZE bytes)"
-                exit 1
-            fi
-            
-            echo "Downloaded successfully ($SIZE bytes)"
-            
-            unzip -q artifact.zip
-            rm artifact.zip
-            
-            echo "Artifact downloaded and extracted successfully"
-            ls -lah
-          shell: msys2 {0}
+            echo "Arturo nightly installed successfully on FreeBSD"
+            ls -lah /usr/local/bin/arturo*
 
         ######################################
         ######################################
@@ -452,8 +358,8 @@ runs:
         ######################################
         ######################################
 
-        - name: Checkout Arturo repo (Linux)
-          if: inputs.do == 'compile' && env.os == 'linux'
+        - name: Checkout Arturo repo (Linux/macOS/Windows)
+          if: inputs.do == 'compile' && env.os != 'freebsd'
           uses: actions/checkout@v4
           with:
             repository: arturo-lang/arturo
@@ -461,73 +367,27 @@ runs:
             path: arturo-src
             ref: ${{ env.src }}
 
-        - name: Checkout Arturo repo (macOS)
-          if: inputs.do == 'compile' && env.os == 'macos'
-          uses: actions/checkout@v4
-          with:
-            repository: arturo-lang/arturo
-            submodules: recursive
-            path: arturo-src
-            ref: ${{ env.src }}
-
-        - name: Checkout Arturo repo (Windows)
-          if: inputs.do == 'compile' && env.os == 'windows'
-          uses: actions/checkout@v4
-          with:
-            repository: arturo-lang/arturo
-            submodules: recursive
-            path: arturo-src
-            ref: ${{ env.src }}
-
-        - name: Set build metadata (Linux)
-          if: inputs.do == 'compile' && env.os == 'linux' && env.metadata != ''
+        - name: Set build metadata (Linux/macOS/Windows)
+          if: inputs.do == 'compile' && env.os != 'freebsd' && env.metadata != ''
           run: |
             echo "${{ env.metadata }}" > arturo-src/version/metadata
           shell: bash
 
-        - name: Set build metadata (macOS)
-          if: inputs.do == 'compile' && env.os == 'macos' && env.metadata != ''
-          run: |
-            echo "${{ env.metadata }}" > arturo-src/version/metadata
-          shell: bash
-
-        - name: Set build metadata (Windows)
-          if: inputs.do == 'compile' && env.os == 'windows' && env.metadata != ''
-          run: |
-            echo "${{ env.metadata }}" > arturo-src/version/metadata
-          shell: msys2 {0}
-
         ##====================================
-        ## Setup Nim environment
+        ## Nim installation
         ##====================================
 
-        - name: Cache ChooseNim (Linux)
-          if: inputs.do == 'compile' && env.os == 'linux'
-          id: cache-choosenim-linux
-          uses: actions/cache@v4
-          with:
-            path: ~/.choosenim
-            key: ${{ runner.os }}-choosenim-${{ steps.get-date.outputs.date }}
-
-        - name: Cache ChooseNim (macOS)
-          if: inputs.do == 'compile' && env.os == 'macos'
-          id: cache-choosenim-macos
+        - name: Cache ChooseNim
+          if: inputs.do == 'compile' && (env.os == 'linux' || env.os == 'macos')
+          id: cache-choosenim
           uses: actions/cache@v4
           with:
             path: ~/.choosenim
             key: ${{ runner.os }}-choosenim-${{ steps.get-date.outputs.date }}
   
-        - name: Cache Nimble (Linux)
-          if: inputs.do == 'compile' && env.os == 'linux'
-          id: cache-nimble-linux
-          uses: actions/cache@v4
-          with:
-            path: ~/.nimble
-            key: ${{ runner.os }}-nimble-v2-${{ hashFiles('*.nimble') }}
-
-        - name: Cache Nimble (macOS)
-          if: inputs.do == 'compile' && env.os == 'macos'
-          id: cache-nimble-macos
+        - name: Cache Nimble
+          if: inputs.do == 'compile' && (env.os == 'linux' || env.os == 'macos')
+          id: cache-nimble
           uses: actions/cache@v4
           with:
             path: ~/.nimble
@@ -565,8 +425,8 @@ runs:
         ## Compilation
         ##====================================
         
-        - name: Build Arturo (Linux)
-          if: inputs.do == 'compile' && env.os == 'linux'
+        - name: Build Arturo (Linux/macOS)
+          if: inputs.do == 'compile' && (env.os == 'linux' || env.os == 'macos')
           run: |
             cd arturo-src
             ./build.nims --install --mode ${{ env.mode }} --arch ${{ env.arch }} --log
@@ -600,18 +460,6 @@ runs:
             mkdir -p arturo-bin
             cp -r /usr/local/bin/arturo* arturo-bin/
             echo "arturoDistPath=arturo-bin" >> $GITHUB_ENV
-
-        - name: Build Arturo (macOS)
-          if: inputs.do == 'compile' && env.os == 'macos'
-          run: |
-            cd arturo-src
-            ./build.nims --install --mode ${{ env.mode }} --arch ${{ env.arch }} --log
-            echo "$HOME/.arturo/bin" >> $GITHUB_PATH
-            cd ..
-            
-            rm -rf arturo-src
-            echo "arturoDistPath=$HOME/.arturo/bin" >> $GITHUB_ENV
-          shell: bash
 
         - name: Build Arturo (Windows)
           if: inputs.do == 'compile' && env.os == 'windows'
@@ -649,37 +497,8 @@ runs:
         ######################################
         ######################################
 
-        - name: Setup binary in PATH (Linux)
-          if: inputs.do != 'compile' && env.os == 'linux'
-          run: |
-            cd arturo-download
-            
-            chmod +x arturo*
-            
-            mkdir -p $HOME/.arturo/bin
-            cp -r * $HOME/.arturo/bin/
-            
-            echo "$HOME/.arturo/bin" >> $GITHUB_PATH
-            echo "arturoDistPath=$HOME/.arturo/bin" >> $GITHUB_ENV
-            
-            echo "Arturo nightly installed successfully"
-          shell: bash
-
-        - name: Setup binary in PATH (FreeBSD)
-          if: inputs.do != 'compile' && env.os == 'freebsd'
-          shell: freebsd {0}
-          run: |
-            cd arturo-download
-            
-            chmod +x arturo*
-            mkdir -p /usr/local/bin
-            cp -r * /usr/local/bin/
-            
-            echo "Arturo nightly installed successfully on FreeBSD"
-            ls -lah /usr/local/bin/arturo*
-
-        - name: Setup binary in PATH (macOS)
-          if: inputs.do != 'compile' && env.os == 'macos'
+        - name: Setup binary in PATH (Linux/macOS)
+          if: inputs.do == 'fetch' && (env.os == 'linux' || env.os == 'macos')
           run: |
             cd arturo-download
             
@@ -695,7 +514,7 @@ runs:
           shell: bash
 
         - name: Setup binary in PATH (Windows)
-          if: inputs.do != 'compile' && env.os == 'windows'
+          if: inputs.do == 'fetch' && env.os == 'windows'
           run: |
             cd arturo-download
             
@@ -711,7 +530,6 @@ runs:
         ######################################
         ######################################
         ## ARTIFACT CREATION
-        ## (compile mode only)
         ######################################
         ######################################
 
