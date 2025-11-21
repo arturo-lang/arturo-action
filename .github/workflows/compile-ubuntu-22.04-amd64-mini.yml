@@ -13,6 +13,10 @@ on:
             - '*.md'
     workflow_dispatch:
 
+concurrency: 
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
 jobs:
     ubuntu-2204-amd64-mini:
         runs-on: ubuntu-22.04

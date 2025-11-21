@@ -13,6 +13,10 @@ on:
             - '*.md'
     workflow_dispatch:
 
+concurrency: 
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
 jobs:
     macos-13-amd64:
         runs-on: macos-13
