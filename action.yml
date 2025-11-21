@@ -89,6 +89,10 @@ runs:
                 fi
             fi
 
+            if [ "${{ inputs.mode }}" != "full" ]; then
+                detected_support=""
+            fi
+
             # Handle web/js builds
             if [ "$detected_os" = "web" ] || [ "$detected_arch" = "js" ]; then
                 detected_os="web"
