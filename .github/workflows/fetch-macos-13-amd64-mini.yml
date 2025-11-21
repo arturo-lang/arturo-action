@@ -14,7 +14,7 @@ on:
     workflow_dispatch:
 
 concurrency: 
-    group: ${{ github.workflow }}/${{ github.run_id }}-${{ github.ref }}
+    group: ${{ github.workflow }}-macos-13-amd64-mini-${{ github.ref }}
     cancel-in-progress: true
 
 jobs:
