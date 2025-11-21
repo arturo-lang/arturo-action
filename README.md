@@ -19,7 +19,7 @@
 ```
 
 > [!TIP]
-> If all you need is to have Arturo available as part of your workflow, chances are all you'll have to do in most cases is to include the step above (^), and the action will auto-detect your runner/OS, fetch the appropriate version, etc.  No configuration needed at all! 😉
+> If all you need is to have Arturo available as part of your workflow, chances are all you'll have to do in most cases is to include the step above (^), and the action will auto-detect your runner/OS, fetch the appropriate version, etc. No configuration needed at all! 😉
 
 ## More Examples
 
@@ -67,8 +67,10 @@ jobs:
 
     defaults:
       run:
-      shell: ${{ (matrix.os == 'windows') && 'msys2 {0}' || 
-                                             'bash'      }}
+        shell: ${{ 
+          (matrix.os == 'freebsd') && 'freebsd {0}' ||
+          (matrix.os == 'windows') && 'msys2 {0}'   || 
+                                      'bash'        }}
 
     steps:
       - uses: actions/checkout@v4
@@ -85,27 +87,48 @@ jobs:
         run: arturo tests/test.art
 ```
 
+### Compile from source
+
+```yaml
+- name: Build Arturo from source
+  uses: arturo-lang/arturo-action@main
+  with: 
+    token: ${{ secrets.GITHUB_TOKEN }}
+    do: compile
+    src: main              # or specific branch/tag/commit
+    mode: full
+    create_artifact: true
+    artifact_version: "0.9.85"
+```
+
 ## Options
 
 | Option | Values | Default | Notes |
 |--------|--------|---------|-------|
 | `token` | GitHub token | *required* | Use `${{ secrets.GITHUB_TOKEN }}` |
+| `do` | `fetch`, `compile` | `fetch` | Fetch nightly or compile from source |
 | `mode` | `mini`, `full`, `safe`, `docgen` | `full` | Build configuration |
 | `os` | `linux`, `windows`, `macos`, `freebsd`, `web` | auto-detect | Target platform |
-| `arch` | `amd64`, `arm64` | auto-detect | Target architecture |
-| `webkit` | `40`, `41` | `41` | WebKit version (Linux/FreeBSD full builds) |
-| `src` | branch/tag/commit | latest | Specific Arturo version |
-| `metadata` | string | - | Build metadata |
+| `arch` | `amd64`, `arm64`, `js` | auto-detect | Target architecture |
+| `support` | `standard`, `legacy` | auto-detect | For older Ubuntu systems (webkit 4.0 vs 4.1) |
+| `src` | branch/tag/commit | latest | Specific Arturo version (compile mode) |
+| `metadata` | string | - | Build metadata (compile mode) |
+| `create_artifact` | `true`, `false` | `false` | Upload build artifact (compile mode) |
+| `artifact_version` | string | - | Version string for artifact naming (compile mode) |
 
 ## Supported Platforms
 
 | OS | Architecture | Mode | Runner |
 |----|--------------|------|--------|
-| Linux | amd64, arm64 | mini, full | ubuntu-latest, ubuntu-22.04 |
+| Linux | amd64, arm64 | mini, full, safe | ubuntu-latest, ubuntu-22.04, ubuntu-24.04 |
 | Windows | amd64 | mini, full | windows-latest |
 | macOS | amd64, arm64 | mini, full | macOS-15-intel, macos-latest |
 | FreeBSD | amd64 | mini, full | ubuntu-latest (VM) |
-| Web | - | - | ubuntu-latest |
+| Web | js | mini | ubuntu-latest |
+
+### Legacy Support
+
+For older Ubuntu runners (< 24.04), the action automatically detects and uses WebKit 4.0 instead of 4.1. You can also explicitly set `support: legacy` to force this behavior.
 
 ---
 
