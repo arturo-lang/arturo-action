@@ -32,9 +32,9 @@ inputs:
     artifact_version:
         description: 'Version string for artifact naming'
         default: ''
-    build:
-        description: 'Build from source (true) or download nightly (false)'
-        default: 'true'
+    do:
+        description: 'Action to perform (fetch, compile)'
+        default: 'fetch'
  
 runs:
     using: "composite"
@@ -122,7 +122,7 @@ runs:
             echo "======================================"
             echo "Arturo Builder Configuration"
             echo "======================================"
-            echo "Mode:             ${{ inputs.build == 'true' && 'BUILD FROM SOURCE' || 'DOWNLOAD NIGHTLY' }}"
+            echo "Mode:             ${{ inputs.do == 'compile' && 'COMPILE FROM SOURCE' || 'FETCH NIGHTLY' }}"
             echo "Runner OS:        ${{ runner.os }}"
             echo "Runner Arch:      ${{ runner.arch }}"
             echo "======================================"
@@ -166,7 +166,7 @@ runs:
         ######################################
 
         - name: Install dependencies (Linux - Download Mode)
-          if: inputs.build != 'true' && runner.os == 'Linux' && env.os == 'linux'
+          if: inputs.do != 'compile' && runner.os == 'Linux' && env.os == 'linux'
           run: |
             sudo apt-get update
 
@@ -182,13 +182,13 @@ runs:
           shell: bash
 
         - name: Install dependencies (macOS - Download Mode)
-          if: inputs.build != 'true' && runner.os == 'macOS'
+          if: inputs.do != 'compile' && runner.os == 'macOS'
           run: |
             brew update
           shell: bash
 
         - name: Determine latest nightly release
-          if: inputs.build != 'true'
+          if: inputs.do != 'compile'
           id: nightly-info
           run: |
             echo "Fetching latest nightly release..."
@@ -233,7 +233,7 @@ runs:
           shell: bash
 
         - name: Download nightly artifact (non-FreeBSD)
-          if: inputs.build != 'true' && env.os != 'freebsd'
+          if: inputs.do != 'compile' && env.os != 'freebsd'
           run: |
             echo "Downloading artifact: ${{ steps.nightly-info.outputs.artifact_name }}.zip"
             
@@ -285,7 +285,7 @@ runs:
           shell: bash
 
         - name: Setup nightly binary (Linux/macOS)
-          if: inputs.build != 'true' && (runner.os == 'Linux' || runner.os == 'macOS')
+          if: inputs.do != 'compile' && (runner.os == 'Linux' || runner.os == 'macOS')
           run: |
             cd arturo-download
             
@@ -308,7 +308,7 @@ runs:
           shell: bash
 
         - name: Setup nightly binary (Windows)
-          if: inputs.build != 'true' && runner.os == 'Windows'
+          if: inputs.do != 'compile' && runner.os == 'Windows'
           run: |
             cd arturo-download
             
@@ -328,7 +328,7 @@ runs:
           shell: msys2 {0}
 
         - name: Download & setup nightly binary (FreeBSD)
-          if: inputs.build != 'true' && env.os == 'freebsd'
+          if: inputs.do != 'compile' && env.os == 'freebsd'
           uses: vmactions/freebsd-vm@v1
           with:
             usesh: true
@@ -372,7 +372,7 @@ runs:
         ######################################
 
         - name: Checkout Arturo repo
-          if: inputs.build == 'true' && env.os != 'freebsd'
+          if: inputs.do == 'compile' && env.os != 'freebsd'
           uses: actions/checkout@v4
           with:
             repository: arturo-lang/arturo
@@ -381,7 +381,7 @@ runs:
             ref: ${{ env.src }}
 
         - name: Set build metadata
-          if: inputs.build == 'true' && env.os != 'freebsd' && env.metadata != ''
+          if: inputs.do == 'compile' && env.os != 'freebsd' && env.metadata != ''
           run: |
             echo "${{ env.metadata }}" > arturo-src/version/metadata
           shell: bash
@@ -391,7 +391,7 @@ runs:
         ##====================================
 
         - name: Cache ChooseNim
-          if: inputs.build == 'true' && (runner.os == 'Linux' || runner.os == 'macOS')
+          if: inputs.do == 'compile' && (runner.os == 'Linux' || runner.os == 'macOS')
           id: cache-choosenim
           uses: actions/cache@v4
           with:
@@ -399,7 +399,7 @@ runs:
             key: ${{ runner.os }}-choosenim-${{ steps.get-date.outputs.date }}
   
         - name: Cache Nimble
-          if: inputs.build == 'true' && (runner.os == 'Linux' || runner.os == 'macOS')
+          if: inputs.do == 'compile' && (runner.os == 'Linux' || runner.os == 'macOS')
           id: cache-nimble
           uses: actions/cache@v4
           with:
@@ -411,7 +411,7 @@ runs:
         ##====================================
 
         - name: Install Nim & dependencies (Linux)
-          if: inputs.build == 'true' && runner.os == 'Linux' && env.os != 'freebsd'
+          if: inputs.do == 'compile' && runner.os == 'Linux' && env.os != 'freebsd'
           run: |
             sudo apt-get update
 
@@ -440,14 +440,14 @@ runs:
           shell: bash
 
         - name: Install Nim & dependencies (macOS)
-          if: inputs.build == 'true' && runner.os == 'macOS'
+          if: inputs.do == 'compile' && runner.os == 'macOS'
           run: |
             brew update
             brew install nim
           shell: bash
 
         - name: Install Nim & dependencies (Windows)
-          if: inputs.build == 'true' && runner.os == 'Windows'
+          if: inputs.do == 'compile' && runner.os == 'Windows'
           run: |
             if [ "${{ env.mode }}" = "full" ]; then
                 pacman --noconfirm -S mingw-w64-x86_64-mpfr
@@ -464,7 +464,7 @@ runs:
         ##====================================
         
         - name: Build Arturo (*)
-          if: inputs.build == 'true' && env.os != 'freebsd' && runner.os != 'Windows'
+          if: inputs.do == 'compile' && env.os != 'freebsd' && runner.os != 'Windows'
           run: |
             cd arturo-src
             ./build.nims --install --mode ${{ env.mode }} --arch ${{ env.arch }} --log
@@ -476,7 +476,7 @@ runs:
           shell: bash
 
         - name: Build Arturo (FreeBSD)
-          if: inputs.build == 'true' && env.os == 'freebsd'
+          if: inputs.do == 'compile' && env.os == 'freebsd'
           uses: vmactions/freebsd-vm@v1
           with:
             usesh: true
@@ -510,7 +510,7 @@ runs:
               echo "arturoDistPath=arturo-bin" >> $GITHUB_ENV
 
         - name: Build Arturo (Windows)
-          if: inputs.build == 'true' && runner.os == 'Windows'
+          if: inputs.do == 'compile' && runner.os == 'Windows'
           run: |
             export PATH="${{ github.workspace }}/nim/nim-2.2.6/bin":$PATH
 
@@ -544,7 +544,7 @@ runs:
         ##====================================
 
         - name: Create artifact
-          if: inputs.build == 'true' && inputs.create_artifact == 'true'
+          if: inputs.do == 'compile' && inputs.create_artifact == 'true'
           id: artifact-prep
           run: |
             artifact_name="arturo-${{ inputs.artifact_version }}-${{ env.os }}-${{ env.artifact_arch }}"
@@ -563,7 +563,7 @@ runs:
           shell: bash
 
         - name: Upload artifact
-          if: inputs.build == 'true' && inputs.create_artifact == 'true'
+          if: inputs.do == 'compile' && inputs.create_artifact == 'true'
           uses: actions/upload-artifact@v4
           with:
             name: ${{ steps.artifact-prep.outputs.ARTIFACT_NAME }}
