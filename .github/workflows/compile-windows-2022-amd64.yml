@@ -1,0 +1,31 @@
+name: Compile
+
+on:
+    push:
+        paths-ignore:
+            - 'LICENSE'
+            - '*.md'
+        branches:
+            - main
+    pull_request:
+        paths-ignore:
+            - 'LICENSE'
+            - '*.md'
+    workflow_dispatch:
+
+jobs:
+    windows-2022-amd64:
+        runs-on: windows-2022
+        steps:
+            - uses: actions/checkout@v4
+            
+            - name: Install Arturo
+              uses: ./
+              with: 
+                do: compile
+                token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Test Arturo
+              run: |
+                tests/verify.sh windows amd64 full
+              shell: "msys2 {0}"

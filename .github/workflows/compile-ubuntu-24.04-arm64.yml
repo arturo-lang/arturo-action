@@ -1,0 +1,30 @@
+name: Compile
+
+on:
+    push:
+        paths-ignore:
+            - 'LICENSE'
+            - '*.md'
+        branches:
+            - main
+    pull_request:
+        paths-ignore:
+            - 'LICENSE'
+            - '*.md'
+    workflow_dispatch:
+
+jobs:
+    ubuntu-2404-arm64:
+        runs-on: ubuntu-24.04-arm
+        steps:
+            - uses: actions/checkout@v4
+            
+            - name: Install Arturo
+              uses: ./
+              with: 
+                do: compile
+                token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Test Arturo
+              run: |
+                tests/verify.sh linux arm64 full
