@@ -175,7 +175,7 @@ runs:
         ######################################
 
         - name: Install dependencies (Linux)
-          if: env.os == 'linux'
+          if: env.os == 'linux' || env.os == 'web'
           run: |
             sudo apt-get update
 
@@ -188,7 +188,7 @@ runs:
                 fi
             fi
 
-            if [ "${{ inputs.do }}" = "compile" ] && [ "${{ env.mode }}" = "web" ]; then
+            if [ "${{ inputs.do }}" = "compile" ] && [ "${{ env.os }}" = "web" ]; then
                 npm install -g uglify-js
             fi
           shell: bash
@@ -408,7 +408,7 @@ runs:
         ##====================================
 
         - name: Cache ChooseNim
-          if: inputs.do == 'compile' && (env.os == 'linux' || env.os == 'macos')
+          if: inputs.do == 'compile' && (env.os == 'linux' || env.os == 'macos' || env.os == 'web')
           id: cache-choosenim
           uses: actions/cache@v4
           with:
@@ -416,15 +416,15 @@ runs:
             key: ${{ runner.os }}-choosenim-${{ steps.get-date.outputs.date }}
   
         - name: Cache Nimble
-          if: inputs.do == 'compile' && (env.os == 'linux' || env.os == 'macos')
+          if: inputs.do == 'compile' && (env.os == 'linux' || env.os == 'macos' || env.os == 'web')
           id: cache-nimble
           uses: actions/cache@v4
           with:
             path: ~/.nimble
             key: ${{ runner.os }}-nimble-v2-${{ hashFiles('*.nimble') }}
 
-        - name: Install Nim (Linux)
-          if: inputs.do == 'compile' && env.os == 'linux'
+        - name: Install Nim (Linux/Web)
+          if: inputs.do == 'compile' && (env.os == 'linux' || env.os == 'web')
           run: |
             /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
             echo >> /home/runner/.bashrc
@@ -455,16 +455,27 @@ runs:
         ## Compilation
         ##====================================
         
-        - name: Build Arturo (Linux/macOS)
+        - name: Build Arturo (Linux/macOS/Web)
           if: inputs.do == 'compile' && (env.os == 'linux' || env.os == 'macos' || env.os == 'web')
           run: |
             cd arturo-src
             ./build.nims --install --mode ${{ env.mode }} --arch ${{ env.arch }} --log
-            echo "$HOME/.arturo/bin" >> $GITHUB_PATH
+            
+            if [ "${{ env.os }}" = "web" ]; then
+                # Web builds output to bin/ directory with .js files
+                echo "${{ github.workspace }}/arturo-src/bin" >> $GITHUB_PATH
+                echo "arturoDistPath=${{ github.workspace }}/arturo-src/bin" >> $GITHUB_ENV
+            else
+                echo "$HOME/.arturo/bin" >> $GITHUB_PATH
+                echo "arturoDistPath=$HOME/.arturo/bin" >> $GITHUB_ENV
+            fi
+            
             cd ..
             
-            rm -rf arturo-src
-            echo "arturoDistPath=$HOME/.arturo/bin" >> $GITHUB_ENV
+            # Clean up source for non-web builds
+            if [ "${{ env.os }}" != "web" ]; then
+                rm -rf arturo-src
+            fi
           shell: bash
 
         - name: Build Arturo (FreeBSD)
