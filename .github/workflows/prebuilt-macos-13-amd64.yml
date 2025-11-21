@@ -1,4 +1,4 @@
-name: Pre-built
+name: Fetch
 
 on:
     push:
@@ -22,7 +22,6 @@ jobs:
             - name: Install Arturo
               uses: ./
               with: 
-                build: false
                 token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Test Arturo
