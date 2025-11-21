@@ -25,7 +25,7 @@ inputs:
         default: 'linux'
     support:
         description: 'Build support level (empty=standard, legacy=older systems)'
-        default: ''
+        default: 'standard'
     create_artifact:
         description: 'Whether to create and upload artifact'
         default: 'false'
@@ -81,7 +81,7 @@ runs:
             fi
 
             if [ "${{ inputs.mode }}" != "full" ]; then
-                detected_support=""
+                detected_support="standard"
             fi
 
             # Handle web/js builds
@@ -120,7 +120,7 @@ runs:
             echo "Target Arch:      ${{ env.arch }}"
             echo "Artifact Arch:    ${{ env.artifact_arch }}"
             echo "Build Mode:       ${{ env.mode }}"
-            echo "Support Level:    ${{ env.support != '' && env.support || '(standard)' }}"
+            echo "Support Level:    ${{ env.support }}"
             echo "Source Ref:       ${{ env.src != '' && env.src || '(latest)' }}"
             echo "Metadata:         ${{ env.metadata != '' && env.metadata || '(none)' }}"
             echo "======================================"

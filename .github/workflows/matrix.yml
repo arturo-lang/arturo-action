@@ -84,11 +84,11 @@ jobs:
               run: |
                 cd $GITHUB_WORKSPACE
                 
-                echo "======================================"
+                echo "============================================================================================"
                 echo "Verifying Arturo Installation"
-                echo "======================================"
-                echo "OS: ${{ matrix.os }} | Arch: ${{ matrix.arch || 'amd64' }} | Mode: ${{ matrix.mode || 'full' }}"
-                echo "======================================"
+                echo "============================================================================================"
+                echo "OS: ${{ matrix.os }} | Arch: ${{ matrix.arch || 'amd64' }} | Mode: ${{ matrix.mode || 'full' }} | Support: ${{ matrix.support || 'standard' }} | Action: ${{ matrix.do }}"
+                echo "============================================================================================"
                 
                 if [ "${{ env.arturoCanRun }}" == "true" ]; then
                     echo "- Checking arturo command..."
