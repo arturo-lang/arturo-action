@@ -85,7 +85,7 @@ runs:
                     detected_support="standard"
                 fi
             fi
-
+ 
             # Force standard for non-full builds
             if [ "${{ inputs.mode }}" != "full" ] && [ "${{ inputs.mode }}" != "" ]; then
                 detected_support="standard"
