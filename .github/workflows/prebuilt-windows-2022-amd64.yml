@@ -14,15 +14,14 @@ on:
     workflow_dispatch:
 
 jobs:
-    windows-amd64-mini:
-        runs-on: windows-latest
+    windows-2022-amd64:
+        runs-on: windows-2022
         steps:
             - uses: actions/checkout@v4
             
             - name: Install Arturo
               uses: ./
               with: 
-                mode: mini
                 build: false
                 token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -46,7 +45,7 @@ jobs:
                 fi
 
                 DETECTED_RELEASE=$(arturo -e "print sys\release")
-                if [ "$DETECTED_RELEASE" != "mini" ]; then
+                if [ "$DETECTED_RELEASE" != "full" ]; then
                     echo "UNEXPECTED RELEASE: Got $DETECTED_RELEASE"
                     exit 1
                 fi
