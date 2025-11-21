@@ -9,6 +9,19 @@
 
 ---
 
+<!--ts-->
+   * [Quick Start](#quick-start)
+   * [More Examples](#more-examples)
+      * [Native builds](#native-builds)
+      * [Cross-platform matrix](#cross-platform-matrix)
+      * [Compilation from source](#compilation-from-source)
+   * [Options](#options)
+   * [Supported Platforms](#supported-platforms)
+   * [License](#license)
+<!--te-->
+
+---
+
 ## Quick Start
 
 ```yaml
@@ -23,7 +36,7 @@
 
 ## More Examples
 
-### "Native" build
+### Native builds
 
 ```yaml
 jobs:
@@ -42,7 +55,12 @@ jobs:
 ```
 
 > [!CAUTION]
-> Right now, every possible combination of runner/mode will work natively, except for `ubuntu-22.04-arm` (ARM64) + MINI mode!
+> A few runner/mode combinations have known issues:
+>
+> - Pre-built MINI binaries on `ubuntu-22.04-arm` (ARM64) don't work well
+> - Compilation on `macos-13` can be problematic
+>
+> In general, it's recommended to use the latest runners (ubuntu-latest, macos-latest, windows-latest) for best compatibility.
 
 ### Cross-platform matrix
 
@@ -87,7 +105,7 @@ jobs:
         run: arturo tests/test.art
 ```
 
-### Compile from source
+### Compilation from source
 
 ```yaml
 - name: Build Arturo from source
@@ -120,19 +138,19 @@ jobs:
 
 | OS | Architecture | Mode | Runner |
 |----|--------------|------|--------|
-| Linux | amd64, arm64 | mini, full, safe | ubuntu-latest, ubuntu-22.04, ubuntu-24.04 |
+| Linux | amd64, arm64 | mini, full, safe | ubuntu-latest, ubuntu-22.04, ubuntu-24.04-arm, ubuntu-24.04 |
 | Windows | amd64 | mini, full | windows-latest |
 | macOS | amd64, arm64 | mini, full | macOS-15-intel, macos-latest |
-| FreeBSD | amd64 | mini, full | ubuntu-latest (VM) |
+| FreeBSD | amd64 | mini, full | ubuntu-latest (via VM) |
 | Web | js | mini | ubuntu-latest |
 
-### Legacy Support
-
-For older Ubuntu runners (< 24.04), the action automatically detects and uses WebKit 4.0 instead of 4.1. You can also explicitly set `support: legacy` to force this behavior.
+> [!NOTE] 
+> ### Legacy Support
+> For older Ubuntu runners (< 24.04), the action automatically detects and uses WebKit 4.0 instead of 4.1. You can also explicitly set `support: legacy` to force this behavior.
 
 ---
 
-### License
+## License
 
 MIT License
 
