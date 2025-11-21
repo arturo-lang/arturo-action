@@ -20,6 +20,9 @@ Minimal setup:
     token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
+> [!TIP]
+> What you'll need in most cases is to include the step above (^) as part of your flow, and the action will auto-detect your runner/OS, fetch or build the appropriate version, etc.  No configuration needed at all! 😉
+
 With specific options:
 
 ```yaml
@@ -34,10 +37,6 @@ With specific options:
 ## Examples
 
 ### "Native" build
-
-> [!TIP]
-> The action auto-detects your runner and builds the appropriate (full) version.  
-> No configuration needed for basic usage! 😉
 
 ```yaml
 jobs:
