@@ -456,7 +456,7 @@ runs:
         ##====================================
         
         - name: Build Arturo (Linux/macOS)
-          if: inputs.do == 'compile' && (env.os == 'linux' || env.os == 'macos')
+          if: inputs.do == 'compile' && (env.os == 'linux' || env.os == 'macos' || env.os == 'web')
           run: |
             cd arturo-src
             ./build.nims --install --mode ${{ env.mode }} --arch ${{ env.arch }} --log
@@ -489,7 +489,12 @@ runs:
             
             mkdir -p arturo-bin
             cp -r /usr/local/bin/arturo* arturo-bin/
+
+        - name: Set artifact path (FreeBSD)
+          if: inputs.do == 'compile' && env.os == 'freebsd'
+          run: |
             echo "arturoDistPath=arturo-bin" >> $GITHUB_ENV
+          shell: bash
 
         - name: Build Arturo (Windows)
           if: inputs.do == 'compile' && env.os == 'windows'
