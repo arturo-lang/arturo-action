@@ -23,7 +23,6 @@ jobs:
               uses: ./
               with: 
                 mode: mini
-                build: false
                 token: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Test Arturo
