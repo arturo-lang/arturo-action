@@ -46,7 +46,6 @@ jobs:
 
                     - {os: linux,   arch: amd64,                        do: fetch}
                     - {os: linux,   arch: amd64,    support: legacy,    do: fetch}
-                    - {os: linux,   arch: amd64,    mode: safe,         do: fetch}
                     - {os: linux,   arch: amd64,    mode: mini,         do: fetch}
                     - {os: linux,   arch: arm64,                        do: fetch}
                     - {os: linux,   arch: arm64,    support: legacy,    do: fetch}
