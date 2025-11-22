@@ -26,7 +26,7 @@
 
 ```yaml
 - name: Install Arturo
-  uses: arturo-lang/arturo-action@main
+  uses: arturo-lang/arturo-action@v2
   with: 
     token: ${{ secrets.GITHUB_TOKEN }}
 ```
