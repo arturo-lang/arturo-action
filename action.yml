@@ -491,6 +491,8 @@ runs:
             
             rm -rf arturo-src
             
+            # Create in workspace root so copyback finds it
+            cd $GITHUB_WORKSPACE
             mkdir -p arturo-bin
             cp -r /usr/local/bin/arturo* arturo-bin/
 
