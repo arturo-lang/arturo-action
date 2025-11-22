@@ -220,9 +220,6 @@ runs:
           if: env.os == 'macos'
           run: |
             brew update
-            if [ "${{ env.mode }}" = "full" ]; then
-                brew install mpfr gmp
-            fi
           shell: bash
 
         - name: Setup Msys & dependencies (Windows)
