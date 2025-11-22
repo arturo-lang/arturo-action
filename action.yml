@@ -313,7 +313,7 @@ runs:
           run: |
             DOWNLOAD_URL="https://github.com/arturo-lang/nightly/releases/download/${{ steps.nightly-info.outputs.release_tag }}/${{ steps.nightly-info.outputs.artifact_name }}.zip"
             
-            curl -fsSL "$DOWNLOAD_URL" -o /tmp/arturo.zip
+            curl -fsSL -H "Authorization: token ${{ inputs.token }}" "$DOWNLOAD_URL" -o /tmp/arturo.zip
             
             mkdir -p /usr/local/bin
             unzip -q /tmp/arturo.zip -d /usr/local/bin
