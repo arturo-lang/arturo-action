@@ -199,7 +199,7 @@ runs:
           with:
             usesh: true
             sync: rsync
-            copyback: ${{ inputs.do == 'compile' }}
+            copyback: true
             prepare: |
               pkg update
               pkg install -y wget curl bash ca_root_nss jq
@@ -462,6 +462,7 @@ runs:
             ./build.nims --install --mode ${{ env.mode }} --arch ${{ env.arch }} --log
             
             if [ "${{ env.os }}" = "web" ]; then
+                # Web builds output .js/.min.js files to ~/.arturo/bin
                 echo "$HOME/.arturo/bin" >> $GITHUB_PATH
                 echo "arturoDistPath=$HOME/.arturo/bin" >> $GITHUB_ENV
             else
@@ -475,26 +476,30 @@ runs:
 
         - name: Build Arturo (FreeBSD)
           if: inputs.do == 'compile' && env.os == 'freebsd'
-          shell: freebsd {0}
-          run: |
-            git clone --recursive https://github.com/arturo-lang/arturo.git arturo-src
-            cd arturo-src
-            git config --global --add safe.directory '*'
-            if [ -n "${{ env.src }}" ]; then
-                git fetch origin ${{ env.src }}
-                git checkout FETCH_HEAD
-            fi
-            ${{ env.metadata != '' && format('echo "{0}" > version/metadata', env.metadata) || '' }}
-            export PATH="/usr/local/nim/bin/:$PATH"
-            ./build.nims --install --mode ${{ env.mode }} --log
-            cd ..
+          uses: vmactions/freebsd-vm@v1
+          with:
+            usesh: true
+            sync: rsync
+            copyback: true
+            run: |
+              git clone --recursive https://github.com/arturo-lang/arturo.git arturo-src
+              cd arturo-src
+              git config --global --add safe.directory '*'
+              if [ -n "${{ env.src }}" ]; then
+                  git fetch origin ${{ env.src }}
+                  git checkout FETCH_HEAD
+              fi
+              ${{ env.metadata != '' && format('echo "{0}" > version/metadata', env.metadata) || '' }}
+              export PATH="/usr/local/nim/bin/:$PATH"
+              ./build.nims --install --mode ${{ env.mode }} --log
+              cd ..
 
-            cp -r $HOME/.arturo/bin/* /usr/local/bin/
-            
-            rm -rf arturo-src
-            
-            mkdir -p arturo-bin
-            cp -r /usr/local/bin/arturo* arturo-bin/
+              cp -r $HOME/.arturo/bin/* /usr/local/bin/
+              
+              rm -rf arturo-src
+              
+              mkdir -p arturo-bin
+              cp -r /usr/local/bin/arturo* arturo-bin/
 
         - name: Set artifact path (FreeBSD)
           if: inputs.do == 'compile' && env.os == 'freebsd'
