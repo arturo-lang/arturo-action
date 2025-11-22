@@ -218,6 +218,35 @@ runs:
               fi
             run: |
               echo "FreeBSD dependencies installed"
+              
+              # Build Arturo if in compile mode
+              if [ "${{ inputs.do }}" = "compile" ]; then
+                  echo "=========================================="
+                  echo "Building Arturo on FreeBSD..."
+                  echo "=========================================="
+                  
+                  git clone --recursive https://github.com/arturo-lang/arturo.git arturo-src
+                  cd arturo-src
+                  git config --global --add safe.directory '*'
+                  if [ -n "${{ env.src }}" ]; then
+                      git fetch origin ${{ env.src }}
+                      git checkout FETCH_HEAD
+                  fi
+                  ${{ env.metadata != '' && format('echo "{0}" > version/metadata', env.metadata) || '' }}
+                  export PATH="/usr/local/nim/bin/:$PATH"
+                  ./build.nims --install --mode ${{ env.build_mode }} --log
+                  cd ..
+
+                  cp -r $HOME/.arturo/bin/* /usr/local/bin/
+                  rm -rf arturo-src
+                  
+                  cd $GITHUB_WORKSPACE
+                  mkdir -p arturo-bin
+                  cp -r /usr/local/bin/arturo* arturo-bin/
+                  
+                  echo "Build complete. Files in arturo-bin:"
+                  ls -lah arturo-bin/
+              fi
 
         - name: Install dependencies (macOS)
           if: env.os == 'macos'
@@ -474,96 +503,9 @@ runs:
             rm -rf arturo-src
           shell: bash
 
-        - name: Build Arturo (FreeBSD)
-          if: inputs.do == 'compile' && env.os == 'freebsd'
-          shell: freebsd {0}
-          run: |
-            echo "=========================================="
-            echo "FREEBSD BUILD DEBUG - START"
-            echo "=========================================="
-            echo "PWD: $(pwd)"
-            echo "HOME: $HOME"
-            echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
-            echo "USER: $(whoami)"
-            echo ""
-            
-            git clone --recursive https://github.com/arturo-lang/arturo.git arturo-src
-            cd arturo-src
-            git config --global --add safe.directory '*'
-            if [ -n "${{ env.src }}" ]; then
-                git fetch origin ${{ env.src }}
-                git checkout FETCH_HEAD
-            fi
-            ${{ env.metadata != '' && format('echo "{0}" > version/metadata', env.metadata) || '' }}
-            export PATH="/usr/local/nim/bin/:$PATH"
-            ./build.nims --install --mode ${{ env.mode }} --log
-            cd ..
-
-            echo ""
-            echo "Build completed. Checking installed files:"
-            ls -lah $HOME/.arturo/bin/
-            echo ""
-            
-            cp -r $HOME/.arturo/bin/* /usr/local/bin/
-            
-            echo "Copied to /usr/local/bin:"
-            ls -lah /usr/local/bin/arturo*
-            echo ""
-            
-            rm -rf arturo-src
-            
-            # Create in workspace root so copyback finds it
-            echo "Creating arturo-bin in workspace..."
-            echo "Workspace location: $GITHUB_WORKSPACE"
-            cd $GITHUB_WORKSPACE
-            echo "Current dir after cd: $(pwd)"
-            mkdir -p arturo-bin
-            cp -rv /usr/local/bin/arturo* arturo-bin/
-            
-            echo ""
-            echo "Contents of arturo-bin:"
-            ls -lah arturo-bin/
-            echo ""
-            echo "Full path of arturo-bin:"
-            realpath arturo-bin
-            echo ""
-            echo "Directory structure:"
-            find $GITHUB_WORKSPACE -name "arturo*" -type f -o -name "arturo-bin" -type d
-            echo "=========================================="
-            echo "FREEBSD BUILD DEBUG - END"
-            echo "=========================================="
-
         - name: Set artifact path (FreeBSD)
           if: inputs.do == 'compile' && env.os == 'freebsd'
           run: |
-            echo "=========================================="
-            echo "FREEBSD HOST-SIDE DEBUG"
-            echo "=========================================="
-            echo "PWD: $(pwd)"
-            echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
-            echo ""
-            echo "Looking for arturo-bin..."
-            if [ -d "arturo-bin" ]; then
-                echo "✓ arturo-bin exists in current directory"
-                ls -lah arturo-bin/
-            else
-                echo "✗ arturo-bin NOT FOUND in current directory"
-            fi
-            echo ""
-            if [ -d "$GITHUB_WORKSPACE/arturo-bin" ]; then
-                echo "✓ arturo-bin exists in GITHUB_WORKSPACE"
-                ls -lah $GITHUB_WORKSPACE/arturo-bin/
-            else
-                echo "✗ arturo-bin NOT FOUND in GITHUB_WORKSPACE"
-            fi
-            echo ""
-            echo "Searching for arturo-bin in entire workspace..."
-            find $GITHUB_WORKSPACE -name "arturo-bin" -type d 2>/dev/null || echo "No arturo-bin found"
-            echo ""
-            echo "All arturo* files in workspace:"
-            find $GITHUB_WORKSPACE -name "arturo*" 2>/dev/null | head -20 || echo "No arturo files found"
-            echo "=========================================="
-            
             echo "arturoDistPath=arturo-bin" >> $GITHUB_ENV
           shell: bash
 
