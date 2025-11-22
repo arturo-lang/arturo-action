@@ -290,52 +290,32 @@ runs:
             echo "Artifact to download: $FULL_ARTIFACT_NAME"
           shell: bash
 
-        - name: Fetch & setup nightly (Linux/macOS)
-          if: inputs.do == 'fetch' && (env.os == 'linux' || env.os == 'macos')
+        - name: Fetch & setup nightly
+          if: inputs.do == 'fetch'
+          shell: ${{ env.os == 'freebsd' && 'freebsd {0}' || env.os == 'windows' && 'msys2 {0}' || 'bash' }}
           run: |
             DOWNLOAD_URL="https://github.com/arturo-lang/nightly/releases/download/${{ steps.nightly-info.outputs.release_tag }}/${{ steps.nightly-info.outputs.artifact_name }}.zip"
             
             curl -fsSL -H "Authorization: token ${{ inputs.token }}" "$DOWNLOAD_URL" -o /tmp/arturo.zip
             
-            mkdir -p $HOME/.arturo/bin
-            unzip -q /tmp/arturo.zip -d $HOME/.arturo/bin
-            chmod +x $HOME/.arturo/bin/arturo*
+            if [ "${{ env.os }}" = "freebsd" ]; then
+                INSTALL_DIR="/usr/local/bin"
+            elif [ "${{ env.os }}" = "windows" ]; then
+                INSTALL_DIR="/usr/bin"
+            else
+                INSTALL_DIR="$HOME/.arturo/bin"
+            fi
             
-            echo "$HOME/.arturo/bin" >> $GITHUB_PATH
-            echo "arturoDistPath=$HOME/.arturo/bin" >> $GITHUB_ENV
+            mkdir -p "$INSTALL_DIR"
+            unzip -q /tmp/arturo.zip -d "$INSTALL_DIR"
+            chmod +x "$INSTALL_DIR"/arturo*
             
-            echo "Arturo nightly installed successfully"
-          shell: bash
-
-        - name: Fetch & setup nightly (FreeBSD)
-          if: inputs.do == 'fetch' && env.os == 'freebsd'
-          shell: freebsd {0}
-          run: |
-            DOWNLOAD_URL="https://github.com/arturo-lang/nightly/releases/download/${{ steps.nightly-info.outputs.release_tag }}/${{ steps.nightly-info.outputs.artifact_name }}.zip"
-            
-            curl -fsSL -H "Authorization: token ${{ inputs.token }}" "$DOWNLOAD_URL" -o /tmp/arturo.zip
-            
-            mkdir -p /usr/local/bin
-            unzip -q /tmp/arturo.zip -d /usr/local/bin
-            chmod +x /usr/local/bin/arturo*
+            if [ "${{ env.os }}" != "freebsd" ]; then
+                echo "$INSTALL_DIR" >> $GITHUB_PATH
+                echo "arturoDistPath=$INSTALL_DIR" >> $GITHUB_ENV
+            fi
             
             echo "Arturo nightly installed successfully"
-
-        - name: Fetch & setup nightly (Windows)
-          if: inputs.do == 'fetch' && env.os == 'windows'
-          run: |
-            DOWNLOAD_URL="https://github.com/arturo-lang/nightly/releases/download/${{ steps.nightly-info.outputs.release_tag }}/${{ steps.nightly-info.outputs.artifact_name }}.zip"
-            
-            curl -fsSL -H "Authorization: token ${{ inputs.token }}" "$DOWNLOAD_URL" -o /tmp/arturo.zip
-            
-            mkdir -p /usr/bin
-            unzip -q /tmp/arturo.zip -d /usr/bin
-            
-            echo "/usr/bin" >> $GITHUB_PATH
-            echo "arturoDistPath=/usr/bin" >> $GITHUB_ENV
-            
-            echo "Arturo nightly installed successfully"
-          shell: msys2 {0}
 
         ######################################
         ######################################
