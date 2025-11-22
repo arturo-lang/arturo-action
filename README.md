@@ -46,7 +46,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Install Arturo
-        uses: arturo-lang/arturo-action@main
+        uses: arturo-lang/arturo-action@v2
         with: 
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -94,7 +94,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Install Arturo
-        uses: arturo-lang/arturo-action@main
+        uses: arturo-lang/arturo-action@v2
         with: 
           token: ${{ secrets.GITHUB_TOKEN }}
           os: ${{ matrix.os }}
@@ -109,7 +109,7 @@ jobs:
 
 ```yaml
 - name: Build Arturo from source
-  uses: arturo-lang/arturo-action@main
+  uses: arturo-lang/arturo-action@v2
   with: 
     token: ${{ secrets.GITHUB_TOKEN }}
     do: compile
