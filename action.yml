@@ -462,20 +462,15 @@ runs:
             ./build.nims --install --mode ${{ env.mode }} --arch ${{ env.arch }} --log
             
             if [ "${{ env.os }}" = "web" ]; then
-                # Web builds output to bin/ directory with .js files
-                echo "${{ github.workspace }}/arturo-src/bin" >> $GITHUB_PATH
-                echo "arturoDistPath=${{ github.workspace }}/arturo-src/bin" >> $GITHUB_ENV
+                echo "$HOME/.arturo/bin" >> $GITHUB_PATH
+                echo "arturoDistPath=$HOME/.arturo/bin" >> $GITHUB_ENV
             else
                 echo "$HOME/.arturo/bin" >> $GITHUB_PATH
                 echo "arturoDistPath=$HOME/.arturo/bin" >> $GITHUB_ENV
             fi
             
             cd ..
-            
-            # Clean up source for non-web builds
-            if [ "${{ env.os }}" != "web" ]; then
-                rm -rf arturo-src
-            fi
+            rm -rf arturo-src
           shell: bash
 
         - name: Build Arturo (FreeBSD)
