@@ -212,9 +212,6 @@ runs:
                   fi
               fi
             run: |
-              echo "FreeBSD dependencies installed"
-              
-              # Build Arturo if in compile mode
               if [ "${{ inputs.do }}" = "compile" ]; then
                   echo "=========================================="
                   echo "Building Arturo on FreeBSD..."
