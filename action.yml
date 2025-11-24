@@ -348,14 +348,6 @@ runs:
             path: ~/.choosenim
             key: ${{ runner.os }}-choosenim-${{ steps.get-date.outputs.date }}
   
-        # - name: Cache Nimble
-        #   if: inputs.do == 'compile' && (env.os == 'linux' || env.os == 'macos' || env.os == 'web')
-        #   id: cache-nimble
-        #   uses: actions/cache@v4
-        #   with:
-        #     path: ~/.nimble
-        #     key: ${{ runner.os }}-nimble-v2-${{ hashFiles('*.nimble') }}
-
         - name: Install Nim (Linux/Web)
           if: inputs.do == 'compile' && (env.os == 'linux' || env.os == 'web')
           run: |
