@@ -341,7 +341,7 @@ runs:
         ##====================================
 
         - uses: jiro4989/setup-nim-action@v2
-          if: inputs.do == 'compile' && (env.os == 'linux' || env.os == 'web' || env.os == "macos")
+          if: inputs.do == 'compile' && (env.os == 'linux' || env.os == 'web' || env.os == 'macos')
           with:
             repo-token: ${{ inputs.token }}
 
