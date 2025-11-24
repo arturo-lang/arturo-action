@@ -340,33 +340,30 @@ runs:
         ## Nim installation
         ##====================================
 
-        - name: Cache ChooseNim
-          if: inputs.do == 'compile' && (env.os == 'linux' || env.os == 'macos' || env.os == 'web')
-          id: cache-choosenim
-          uses: actions/cache@v4
+        - uses: jiro4989/setup-nim-action@v2
+          if: inputs.do == 'compile' && (env.os == 'linux' || env.os == 'web' || env.os == "macos")
           with:
-            path: ~/.choosenim
-            key: ${{ runner.os }}-choosenim-${{ steps.get-date.outputs.date }}
-  
-        - name: Install Nim (Linux/Web)
-          if: inputs.do == 'compile' && (env.os == 'linux' || env.os == 'web')
-          run: |
-            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-            echo >> /home/runner/.bashrc
-            echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/runner/.bashrc
-            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+            repo-token: ${{ inputs.token }}
 
-            brew install nim
+        # - name: Install Nim (Linux/Web)
+        #   if: inputs.do == 'compile' && (env.os == 'linux' || env.os == 'web')
+        #   run: |
+        #     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        #     echo >> /home/runner/.bashrc
+        #     echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/runner/.bashrc
+        #     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
-            echo "/home/linuxbrew/.linuxbrew/bin" >> $GITHUB_PATH
-          shell: bash
+        #     brew install nim
 
-        - name: Install Nim (macOS)
-          if: inputs.do == 'compile' && env.os == 'macos'
-          run: |
-            brew update
-            brew install nim
-          shell: bash
+        #     echo "/home/linuxbrew/.linuxbrew/bin" >> $GITHUB_PATH
+        #   shell: bash
+
+        # - name: Install Nim (macOS)
+        #   if: inputs.do == 'compile' && env.os == 'macos'
+        #   run: |
+        #     brew update
+        #     brew install nim
+        #   shell: bash
 
         - name: Install Nim (Windows)
           if: inputs.do == 'compile' && env.os == 'windows'
