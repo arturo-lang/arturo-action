@@ -35,7 +35,7 @@ inputs:
     do:
         description: 'Action to perform (fetch, compile)'
         default: 'fetch'
-    artifacts_only:
+    artifacts-only:
         description: 'Skip environment setup, just download and upload artifacts (only works with do=fetch)'
         default: 'false'
  
@@ -194,8 +194,14 @@ runs:
             
             echo "Latest nightly: $LATEST_RELEASE"
             
+            # Build full artifact name (same logic as nightly-info step)
+            VERSION=$(echo $LATEST_RELEASE | tr -d '-')
+            FULL_ARTIFACT_NAME="arturo-nightly.${VERSION}-${{ env.os }}-${{ env.artifact_arch }}"
+            [ "${{ env.mode }}" != "full" ] && [ "${{ env.mode }}" != "web" ] && FULL_ARTIFACT_NAME="${FULL_ARTIFACT_NAME}-${{ env.mode }}"
+            [ "${{ env.support }}" = "legacy" ] && FULL_ARTIFACT_NAME="${FULL_ARTIFACT_NAME}-legacy"
+            
             # Download artifact
-            DOWNLOAD_URL="https://github.com/arturo-lang/nightly/releases/download/${LATEST_RELEASE}/${{ env.artifact_name }}.zip"
+            DOWNLOAD_URL="https://github.com/arturo-lang/nightly/releases/download/${LATEST_RELEASE}/${FULL_ARTIFACT_NAME}.zip"
             echo "Downloading: $DOWNLOAD_URL"
             
             curl -fsSL -H "Authorization: token ${{ inputs.token }}" "$DOWNLOAD_URL" -o arturo-artifact.zip
