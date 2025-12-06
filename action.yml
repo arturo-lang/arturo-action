@@ -172,6 +172,42 @@ runs:
         ######################################
         ######################################
 
+        - name: Determine latest nightly release
+          if: inputs.do == 'fetch'
+          id: nightly-info
+          run: |
+            echo "Fetching latest nightly release..."
+            
+            LATEST_RELEASE=$(curl -s -H "Authorization: token ${{ inputs.token }}" \
+              "https://api.github.com/repos/arturo-lang/nightly/releases?per_page=10" | \
+              jq -r '[.[] | select(.tag_name | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}$"))] | sort_by(.created_at) | reverse | .[0].tag_name')
+            
+            if [ -z "$LATEST_RELEASE" ] || [ "$LATEST_RELEASE" = "null" ]; then
+                echo "ERROR: Could not find latest nightly release"
+                exit 1
+            fi
+            
+            echo "Latest nightly release: $LATEST_RELEASE"
+            echo "release_tag=$LATEST_RELEASE" >> $GITHUB_OUTPUT
+            
+            VERSION=$(echo $LATEST_RELEASE | tr -d '-')
+            
+            FULL_ARTIFACT_NAME="arturo-nightly.${VERSION}-${{ env.os }}-${{ env.artifact_arch }}"
+            [ "${{ env.mode }}" != "full" ] && [ "${{ env.mode }}" != "web" ] && FULL_ARTIFACT_NAME="${FULL_ARTIFACT_NAME}-${{ env.mode }}"
+            [ "${{ env.support }}" = "legacy" ] && FULL_ARTIFACT_NAME="${FULL_ARTIFACT_NAME}-legacy"
+            
+            echo "artifact_name=$FULL_ARTIFACT_NAME" >> $GITHUB_OUTPUT
+            echo "Artifact to download: $FULL_ARTIFACT_NAME"
+          shell: bash
+
+        - name: Set nightly info for FreeBSD VM
+          if: inputs.do == 'fetch' && env.os == 'freebsd'
+          run: |
+            echo "NIGHTLY_RELEASE_TAG=${{ steps.nightly-info.outputs.release_tag }}" >> $GITHUB_ENV
+            echo "NIGHTLY_ARTIFACT_NAME=${{ steps.nightly-info.outputs.artifact_name }}" >> $GITHUB_ENV
+            echo "GITHUB_TOKEN=${{ inputs.token }}" >> $GITHUB_ENV
+          shell: bash
+
         - name: Install dependencies (Linux)
           if: env.os == 'linux' || env.os == 'web'
           run: |
@@ -189,14 +225,6 @@ runs:
             if [ "${{ inputs.do }}" = "compile" ] && [ "${{ env.os }}" = "web" ]; then
                 npm install -g uglify-js
             fi
-          shell: bash
-
-        - name: Set nightly info for FreeBSD VM
-          if: inputs.do == 'fetch' && env.os == 'freebsd'
-          run: |
-            echo "NIGHTLY_RELEASE_TAG=${{ steps.nightly-info.outputs.release_tag }}" >> $GITHUB_ENV
-            echo "NIGHTLY_ARTIFACT_NAME=${{ steps.nightly-info.outputs.artifact_name }}" >> $GITHUB_ENV
-            echo "GITHUB_TOKEN=${{ inputs.token }}" >> $GITHUB_ENV
           shell: bash
 
         - name: Install dependencies + Build (FreeBSD)
@@ -288,42 +316,6 @@ runs:
         ## > FETCH
         ######################################
         ######################################
-
-        - name: Determine latest nightly release
-          if: inputs.do == 'fetch'
-          id: nightly-info
-          run: |
-            echo "Fetching latest nightly release..."
-            
-            LATEST_RELEASE=$(curl -s -H "Authorization: token ${{ inputs.token }}" \
-              "https://api.github.com/repos/arturo-lang/nightly/releases?per_page=10" | \
-              jq -r '[.[] | select(.tag_name | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}$"))] | sort_by(.created_at) | reverse | .[0].tag_name')
-            
-            if [ -z "$LATEST_RELEASE" ] || [ "$LATEST_RELEASE" = "null" ]; then
-                echo "ERROR: Could not find latest nightly release"
-                exit 1
-            fi
-            
-            echo "Latest nightly release: $LATEST_RELEASE"
-            echo "release_tag=$LATEST_RELEASE" >> $GITHUB_OUTPUT
-            
-            VERSION=$(echo $LATEST_RELEASE | tr -d '-')
-            
-            FULL_ARTIFACT_NAME="arturo-nightly.${VERSION}-${{ env.os }}-${{ env.artifact_arch }}"
-            [ "${{ env.mode }}" != "full" ] && [ "${{ env.mode }}" != "web" ] && FULL_ARTIFACT_NAME="${FULL_ARTIFACT_NAME}-${{ env.mode }}"
-            [ "${{ env.support }}" = "legacy" ] && FULL_ARTIFACT_NAME="${FULL_ARTIFACT_NAME}-legacy"
-            
-            echo "artifact_name=$FULL_ARTIFACT_NAME" >> $GITHUB_OUTPUT
-            echo "Artifact to download: $FULL_ARTIFACT_NAME"
-          shell: bash
-
-        - name: Set nightly info for FreeBSD VM
-          if: inputs.do == 'fetch' && env.os == 'freebsd'
-          run: |
-            echo "NIGHTLY_RELEASE_TAG=${{ steps.nightly-info.outputs.release_tag }}" >> $GITHUB_ENV
-            echo "NIGHTLY_ARTIFACT_NAME=${{ steps.nightly-info.outputs.artifact_name }}" >> $GITHUB_ENV
-            echo "GITHUB_TOKEN=${{ inputs.token }}" >> $GITHUB_ENV
-          shell: bash
 
         - name: Fetch & setup nightly
           if: inputs.do == 'fetch' && env.os != 'freebsd'
