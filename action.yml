@@ -155,6 +155,7 @@ runs:
             echo "Arturo Builder Configuration"
             echo "======================================"
             echo "Mode:             ${{ inputs.do == 'compile' && 'COMPILE FROM SOURCE' || 'FETCH NIGHTLY' }}"
+            echo "Artifacts Only:   ${{ inputs.artifacts_only }}"
             echo "Runner OS:        ${{ runner.os }}"
             echo "Runner Arch:      ${{ runner.arch }}"
             echo "======================================"
@@ -171,58 +172,12 @@ runs:
 
         ######################################
         ######################################
-        ## ARTIFACTS-ONLY FAST PATH
+        ## FETCH NIGHTLY & ARTIFACTS-ONLY
         ######################################
         ######################################
 
-        - name: Fast path - Download and re-upload artifacts
-          if: inputs.artifacts_only == 'true' && inputs.do == 'fetch'
-          run: |
-            echo "=========================================="
-            echo "ARTIFACTS-ONLY MODE - Skipping environment setup"
-            echo "=========================================="
-            
-            # Get latest nightly info
-            LATEST_RELEASE=$(curl -s -H "Authorization: token ${{ inputs.token }}" \
-              "https://api.github.com/repos/arturo-lang/nightly/releases?per_page=10" | \
-              jq -r '[.[] | select(.tag_name | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}$"))] | sort_by(.created_at) | reverse | .[0].tag_name')
-            
-            if [ -z "$LATEST_RELEASE" ] || [ "$LATEST_RELEASE" = "null" ]; then
-                echo "ERROR: Could not find latest nightly release"
-                exit 1
-            fi
-            
-            echo "Latest nightly: $LATEST_RELEASE"
-            
-            # Build full artifact name (same logic as nightly-info step)
-            VERSION=$(echo $LATEST_RELEASE | tr -d '-')
-            FULL_ARTIFACT_NAME="arturo-nightly.${VERSION}-${{ env.os }}-${{ env.artifact_arch }}"
-            [ "${{ env.mode }}" != "full" ] && [ "${{ env.mode }}" != "web" ] && FULL_ARTIFACT_NAME="${FULL_ARTIFACT_NAME}-${{ env.mode }}"
-            [ "${{ env.support }}" = "legacy" ] && FULL_ARTIFACT_NAME="${FULL_ARTIFACT_NAME}-legacy"
-            
-            # Download artifact
-            DOWNLOAD_URL="https://github.com/arturo-lang/nightly/releases/download/${LATEST_RELEASE}/${FULL_ARTIFACT_NAME}.zip"
-            echo "Downloading: $DOWNLOAD_URL"
-            
-            curl -fsSL -H "Authorization: token ${{ inputs.token }}" "$DOWNLOAD_URL" -o arturo-artifact.zip
-            
-            # Extract to standard location for upload
-            mkdir -p arturo-bin
-            unzip -q arturo-artifact.zip -d arturo-bin
-            
-            echo "arturoDistPath=arturo-bin" >> $GITHUB_ENV
-            echo "Artifact ready for upload"
-            ls -lah arturo-bin/
-          shell: bash
-
-        ######################################
-        ######################################
-        ## DEPENDENCIES
-        ######################################
-        ######################################
-
-        - name: Determine latest nightly release
-          if: inputs.do == 'fetch' && inputs.artifacts_only != 'true'
+        - name: Determine latest nightly release and fetch artifact
+          if: inputs.do == 'fetch'
           id: nightly-info
           run: |
             echo "Fetching latest nightly release..."
@@ -247,7 +202,33 @@ runs:
             
             echo "artifact_name=$FULL_ARTIFACT_NAME" >> $GITHUB_OUTPUT
             echo "Artifact to download: $FULL_ARTIFACT_NAME"
+            
+            # If artifacts-only mode, download and extract immediately
+            if [ "${{ inputs.artifacts_only }}" = "true" ]; then
+                echo "=========================================="
+                echo "ARTIFACTS-ONLY MODE - Skipping environment setup"
+                echo "=========================================="
+                
+                DOWNLOAD_URL="https://github.com/arturo-lang/nightly/releases/download/${LATEST_RELEASE}/${FULL_ARTIFACT_NAME}.zip"
+                echo "Downloading: $DOWNLOAD_URL"
+                
+                curl -fsSL -H "Authorization: token ${{ inputs.token }}" "$DOWNLOAD_URL" -o arturo-artifact.zip
+                
+                # Extract to standard location for upload
+                mkdir -p arturo-bin
+                unzip -q arturo-artifact.zip -d arturo-bin
+                
+                echo "arturoDistPath=arturo-bin" >> $GITHUB_ENV
+                echo "Artifact ready for upload"
+                ls -lah arturo-bin/
+            fi
           shell: bash
+
+        ######################################
+        ######################################
+        ## DEPENDENCIES
+        ######################################
+        ######################################
 
         - name: Install dependencies (Linux)
           if: (env.os == 'linux' || env.os == 'web') && inputs.artifacts_only != 'true'
@@ -342,7 +323,7 @@ runs:
 
         ######################################
         ######################################
-        ## > FETCH
+        ## > FETCH (non-artifacts-only mode)
         ######################################
         ######################################
 
@@ -441,7 +422,7 @@ runs:
           shell: bash
 
         - name: Set artifact path (Windows - fetch mode)
-          if: inputs.do == 'fetch' && env.os == 'windows'
+          if: inputs.do == 'fetch' && env.os == 'windows' && inputs.artifacts_only != 'true'
           run: |
             echo "arturoDistPath=D:/a/_temp/msys64/usr/bin" >> $GITHUB_ENV
           shell: bash
