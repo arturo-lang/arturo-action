@@ -198,13 +198,6 @@ runs:
             
             echo "artifact_name=$FULL_ARTIFACT_NAME" >> $GITHUB_OUTPUT
             echo "Artifact to download: $FULL_ARTIFACT_NAME"
-            
-            # Set env vars for FreeBSD VM (must be in same step to execute before VM)
-            if [ "${{ env.os }}" = "freebsd" ]; then
-                echo "NIGHTLY_RELEASE_TAG=$LATEST_RELEASE" >> $GITHUB_ENV
-                echo "NIGHTLY_ARTIFACT_NAME=$FULL_ARTIFACT_NAME" >> $GITHUB_ENV
-                echo "GITHUB_TOKEN=${{ inputs.token }}" >> $GITHUB_ENV
-            fi
           shell: bash
 
         - name: Install dependencies (Linux)
@@ -233,7 +226,6 @@ runs:
             usesh: true
             sync: rsync
             copyback: true
-            envs: 'NIGHTLY_RELEASE_TAG NIGHTLY_ARTIFACT_NAME GITHUB_TOKEN'
             prepare: |
               pkg update
               pkg install -y wget curl bash ca_root_nss jq
@@ -271,8 +263,8 @@ runs:
                   echo "Fetching Arturo nightly on FreeBSD..."
                   echo "=========================================="
                   
-                  curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" \
-                    "https://github.com/arturo-lang/nightly/releases/download/${NIGHTLY_RELEASE_TAG}/${NIGHTLY_ARTIFACT_NAME}.zip" \
+                  curl -fsSL -H "Authorization: token ${{ inputs.token }}" \
+                    "https://github.com/arturo-lang/nightly/releases/download/${{ steps.nightly-info.outputs.release_tag }}/${{ steps.nightly-info.outputs.artifact_name }}.zip" \
                     -o /tmp/arturo.zip
                   
                   unzip -q /tmp/arturo.zip -d /usr/local/bin
