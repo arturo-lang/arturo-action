@@ -427,9 +427,9 @@ runs:
         ##====================================
 
         - name: Upload artifact
-          if: inputs.do == 'compile' && inputs.create_artifact == 'true'
+          if: inputs.create_artifact == 'true'
           uses: actions/upload-artifact@v4
           with:
-            name: ${{ env.artifact_name }}
+            name: ${{ steps.nightly-info.outputs.artifact_name || env.artifact_name }}
             path: ${{ env.arturoDistPath }}/*
             include-hidden-files: false
