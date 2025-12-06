@@ -35,7 +35,7 @@ inputs:
     do:
         description: 'Action to perform (fetch, compile)'
         default: 'fetch'
-    artifacts-only:
+    artifacts_only:
         description: 'Skip environment setup, just download and upload artifacts (only works with do=fetch)'
         default: 'false'
  
