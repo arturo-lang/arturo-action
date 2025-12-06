@@ -317,6 +317,14 @@ runs:
             echo "Artifact to download: $FULL_ARTIFACT_NAME"
           shell: bash
 
+        - name: Set nightly info for FreeBSD VM
+          if: inputs.do == 'fetch' && env.os == 'freebsd'
+          run: |
+            echo "NIGHTLY_RELEASE_TAG=${{ steps.nightly-info.outputs.release_tag }}" >> $GITHUB_ENV
+            echo "NIGHTLY_ARTIFACT_NAME=${{ steps.nightly-info.outputs.artifact_name }}" >> $GITHUB_ENV
+            echo "GITHUB_TOKEN=${{ inputs.token }}" >> $GITHUB_ENV
+          shell: bash
+
         - name: Fetch & setup nightly
           if: inputs.do == 'fetch' && env.os != 'freebsd'
           shell: ${{ env.os == 'windows' && 'msys2 {0}' || 'bash' }}
