@@ -304,6 +304,7 @@ runs:
               cd $GITHUB_WORKSPACE
               mkdir -p arturo-bin
               cp -r /usr/local/bin/arturo* arturo-bin/
+              echo "arturoDistPath=arturo-bin" >> $GITHUB_ENV
               echo "Complete. Files in arturo-bin:"
               ls -lah arturo-bin/
 
@@ -413,18 +414,6 @@ runs:
             
             cd ..
             rm -rf arturo-src
-          shell: bash
-
-        - name: Set artifact path (FreeBSD)
-          if: env.os == 'freebsd'
-          run: |
-            echo "arturoDistPath=arturo-bin" >> $GITHUB_ENV
-          shell: bash
-
-        - name: Set artifact path (Windows - fetch mode)
-          if: inputs.do == 'fetch' && env.os == 'windows' && inputs.artifacts_only != 'true'
-          run: |
-            echo "arturoDistPath=D:/a/_temp/msys64/usr/bin" >> $GITHUB_ENV
           shell: bash
 
         - name: Build Arturo (Windows)
