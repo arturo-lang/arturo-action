@@ -197,7 +197,7 @@ runs:
           with:
             usesh: true
             sync: rsync
-            copyback: ${{ inputs.do == 'compile' }}
+            copyback: true
             prepare: |
               pkg update
               pkg install -y wget curl bash ca_root_nss jq
@@ -308,7 +308,13 @@ runs:
             unzip -q /tmp/arturo.zip -d "$INSTALL_DIR"
             chmod +x "$INSTALL_DIR"/arturo*
             
-            if [ "${{ env.os }}" != "freebsd" ]; then
+            if [ "${{ env.os }}" = "freebsd" ]; then
+                cd $GITHUB_WORKSPACE
+                mkdir -p arturo-bin
+                cp -r /usr/local/bin/arturo* arturo-bin/
+                echo "Fetch complete. Files in arturo-bin:"
+                ls -lah arturo-bin/
+            else
                 echo "$INSTALL_DIR" >> $GITHUB_PATH
                 echo "arturoDistPath=$INSTALL_DIR" >> $GITHUB_ENV
             fi
@@ -387,9 +393,15 @@ runs:
           shell: bash
 
         - name: Set artifact path (FreeBSD)
-          if: inputs.do == 'compile' && env.os == 'freebsd'
+          if: env.os == 'freebsd'
           run: |
             echo "arturoDistPath=arturo-bin" >> $GITHUB_ENV
+          shell: bash
+
+        - name: Set artifact path (Windows - fetch mode)
+          if: inputs.do == 'fetch' && env.os == 'windows'
+          run: |
+            echo "arturoDistPath=D:/a/_temp/msys64/usr/bin" >> $GITHUB_ENV
           shell: bash
 
         - name: Build Arturo (Windows)
