@@ -131,8 +131,9 @@ jobs:
 | `support` | `standard`, `legacy` | auto-detect | For older Ubuntu systems (webkit 4.0 vs 4.1) |
 | `src` | branch/tag/commit | latest | Specific Arturo version (compile mode) |
 | `metadata` | string | - | Build metadata (compile mode) |
-| `create_artifact` | `true`, `false` | `false` | Upload build artifact (compile mode) |
+| `create_artifact` | `true`, `false` | `false` | Upload build artifact |
 | `artifact_version` | string | - | Version string for artifact naming (compile mode) |
+| `artifacts_only` | `true`, `false` | `false` | Skip setup, download & re-upload artifacts only (fetch mode) |
 
 ## Supported Platforms
 
