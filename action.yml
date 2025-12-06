@@ -191,6 +191,14 @@ runs:
             fi
           shell: bash
 
+        - name: Set nightly info for FreeBSD VM
+          if: inputs.do == 'fetch' && env.os == 'freebsd'
+          run: |
+            echo "NIGHTLY_RELEASE_TAG=${{ steps.nightly-info.outputs.release_tag }}" >> $GITHUB_ENV
+            echo "NIGHTLY_ARTIFACT_NAME=${{ steps.nightly-info.outputs.artifact_name }}" >> $GITHUB_ENV
+            echo "GITHUB_TOKEN=${{ inputs.token }}" >> $GITHUB_ENV
+          shell: bash
+
         - name: Install dependencies + Build (FreeBSD)
           if: env.os == 'freebsd'
           uses: vmactions/freebsd-vm@v1
@@ -274,14 +282,6 @@ runs:
               unzip
               mingw-w64-x86_64-toolchain
               ${{ inputs.do == 'compile' && env.mode == 'full' && 'mingw-w64-x86_64-mpfr' || '' }}
-
-        - name: Set nightly info for FreeBSD VM
-          if: inputs.do == 'fetch' && env.os == 'freebsd'
-          run: |
-            echo "NIGHTLY_RELEASE_TAG=${{ steps.nightly-info.outputs.release_tag }}" >> $GITHUB_ENV
-            echo "NIGHTLY_ARTIFACT_NAME=${{ steps.nightly-info.outputs.artifact_name }}" >> $GITHUB_ENV
-            echo "GITHUB_TOKEN=${{ inputs.token }}" >> $GITHUB_ENV
-          shell: bash
 
         ######################################
         ######################################
