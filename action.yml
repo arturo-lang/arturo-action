@@ -188,8 +188,8 @@ runs:
             echo "Fetching latest release from $REPO..."
             
             LATEST_RELEASE=$(curl -s -H "Authorization: token ${{ inputs.token }}" \
-              "https://api.github.com/repos/${REPO}/releases?per_page=10" | \
-              jq -r '[.[] | select(.tag_name | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}$"))] | sort_by(.created_at) | reverse | .[0].tag_name')
+              "https://api.github.com/repos/${REPO}/releases/latest" | \
+              jq -r '.tag_name')
             
             if [ -z "$LATEST_RELEASE" ] || [ "$LATEST_RELEASE" = "null" ]; then
                 echo "ERROR: Could not find latest release in $REPO"
