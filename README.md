@@ -55,9 +55,7 @@ jobs:
 ```
 
 > [!CAUTION]
-> A few runner/mode combinations have known issues:
->
-> - Pre-built MINI binaries on `ubuntu-22.04-arm` (ARM64) don't work well
+> Pre-built MINI binaries on `ubuntu-22.04-arm` (ARM64) don't work well
 >
 > In general, it's recommended to use the latest runners (ubuntu-latest, macos-latest, windows-latest) for best compatibility.
 
