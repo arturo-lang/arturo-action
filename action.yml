@@ -320,13 +320,15 @@ runs:
           with:
             update: true
             cache: true
+            msystem: ${{ env.arch == 'arm64' && 'CLANGARM64' || 'MINGW64' }}
             install: >-
               git
               base-devel
               p7zip
               unzip
-              mingw-w64-x86_64-toolchain
-              ${{ inputs.do == 'compile' && env.mode == 'full' && 'mingw-w64-x86_64-mpfr' || '' }}
+              ${{ env.arch == 'arm64' && 'mingw-w64-clang-aarch64-toolchain' || 'mingw-w64-x86_64-toolchain' }}
+              ${{ inputs.do == 'compile' && env.mode == 'full' && env.arch == 'arm64' && 'mingw-w64-clang-aarch64-mpfr' || '' }}
+              ${{ inputs.do == 'compile' && env.mode == 'full' && env.arch != 'arm64' && 'mingw-w64-x86_64-mpfr' || '' }}
 
         ######################################
         ######################################
