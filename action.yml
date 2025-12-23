@@ -263,7 +263,7 @@ runs:
             copyback: true
             prepare: |
               pkg update
-              pkg install -y wget curl bash ca_root_nss jq libiconv
+              pkg install -y wget curl bash ca_root_nss jq
               if [ "${{ env.mode }}" = "full" ]; then
                   pkg install -y gtk3 mpfr webkit2-gtk_41
               fi
