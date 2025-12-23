@@ -429,6 +429,11 @@ runs:
           run: |
             export PATH="${{ github.workspace }}/nim/nim-2.2.6/bin":$PATH
 
+            if [ "${{ env.arch }}" = "arm64" ]; then
+              export CC=clang
+              export CXX=clang++
+            fi
+
             cd arturo-src
             ./build.nims --install --mode ${{ env.mode }} --log
             cd ..
