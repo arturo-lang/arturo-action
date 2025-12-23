@@ -22,7 +22,7 @@ jobs:
         runs-on: ${{ 
             (matrix.os == 'linux')   && (matrix.support == 'legacy' && (matrix.arch == 'arm64' && 'ubuntu-22.04-arm' || 'ubuntu-22.04') || matrix.arch == 'arm64' && 'ubuntu-24.04-arm' || 'ubuntu-latest') ||
             (matrix.os == 'macos')   && (matrix.arch == 'arm64' && 'macos-latest' || 'macOS-15-intel') ||
-            (matrix.os == 'windows') && 'windows-latest' || 
+            (matrix.os == 'windows') && (matrix.arch == 'arm64' && 'windows-11-arm' || 'windows-latest') || 
                                         'ubuntu-latest'  }}
         strategy:
             matrix:
@@ -42,6 +42,8 @@ jobs:
                     - {os: macos,   arch: arm64,    mode: mini,         do: compile}
                     - {os: windows, arch: amd64,                        do: compile}
                     - {os: windows, arch: amd64,    mode: mini,         do: compile}
+                    - {os: windows, arch: arm64,                        do: compile}
+                    - {os: windows, arch: arm64,    mode: mini,         do: compile}
                     - {os: web,     arch: js,       mode: mini,         do: compile}
 
                     - {os: linux,   arch: amd64,                        do: fetch}
