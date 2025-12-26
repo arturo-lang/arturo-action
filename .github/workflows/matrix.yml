@@ -107,4 +107,6 @@ jobs:
               run: |
                 cd $GITHUB_WORKSPACE
                 arturo -v
-                arturo tests/test.art
+                if ! arturo tests/test.art; then
+                    exit 1
+                fi
