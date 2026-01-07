@@ -263,7 +263,7 @@ runs:
             copyback: true
             prepare: |
               mkdir -p /usr/local/etc/pkg/repos
-              echo 'FreeBSD: { url: "pkg+http://pkg.FreeBSD.org/${ABI}/latest" }' > /usr/local/etc/pkg/repos/FreeBSD.conf
+              echo 'FreeBSD: { url: "http://pkg.FreeBSD.org/${ABI}/latest" }' > /usr/local/etc/pkg/repos/FreeBSD.conf
               pkg update -f
 
               pkg install -y wget curl bash ca_root_nss jq
