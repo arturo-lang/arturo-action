@@ -1,10 +1,10 @@
 <div align="center">
 
-<h1>Arturo @ction</h1> 
+<h1>Setup Arturo</h1> 
 
 ### Install & use Arturo on any GitHub runner
 
-![License](https://img.shields.io/github/license/arturo-lang/arturo-action?style=for-the-badge) [![Build Status](https://img.shields.io/github/actions/workflow/status/arturo-lang/arturo-action/matrix.yml?branch=main&style=for-the-badge)](https://github.com/arturo-lang/arturo-action/actions) 
+![License](https://img.shields.io/github/license/arturo-lang/setup-arturo?style=for-the-badge) [![Build Status](https://img.shields.io/github/actions/workflow/status/arturo-lang/setup-arturo/matrix.yml?branch=main&style=for-the-badge)](https://github.com/arturo-lang/setup-arturo/actions) 
 </div>
 
 ---
@@ -26,7 +26,7 @@
 
 ```yaml
 - name: Install Arturo
-  uses: arturo-lang/arturo-action@v2
+  uses: arturo-lang/setup-arturo@v2
   with: 
     token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -46,7 +46,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Install Arturo
-        uses: arturo-lang/arturo-action@v2
+        uses: arturo-lang/setup-arturo@v2
         with: 
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -91,7 +91,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Install Arturo
-        uses: arturo-lang/arturo-action@v2
+        uses: arturo-lang/setup-arturo@v2
         with: 
           token: ${{ secrets.GITHUB_TOKEN }}
           os: ${{ matrix.os }}
@@ -106,7 +106,7 @@ jobs:
 
 ```yaml
 - name: Build Arturo from source
-  uses: arturo-lang/arturo-action@v2
+  uses: arturo-lang/setup-arturo@v2
   with: 
     token: ${{ secrets.GITHUB_TOKEN }}
     do: compile
