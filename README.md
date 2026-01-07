@@ -123,7 +123,7 @@ jobs:
 | `token` | GitHub token | *required* | Use `${{ secrets.GITHUB_TOKEN }}` |
 | `do` | `fetch`, `compile` | `fetch` | Fetch nightly or compile from source |
 | `from` | `nightly`, `release` | `nightly` | Source repository for fetch mode |
-| `mode` | `mini`, `full`, `safe`, `docgen` | `full` | Build configuration |
+| `mode` | `mini`, `full` | `full` | Build configuration |
 | `os` | `linux`, `windows`, `macos`, `freebsd`, `web` | auto-detect | Target platform |
 | `arch` | `amd64`, `arm64`, `js` | auto-detect | Target architecture |
 | `support` | `standard`, `legacy` | auto-detect | For older Ubuntu systems (webkit 4.0 vs 4.1) |
@@ -137,7 +137,7 @@ jobs:
 
 | OS | Architecture | Mode | Runner |
 |----|--------------|------|--------|
-| Linux | amd64, arm64 | mini, full, safe | ubuntu-latest, ubuntu-22.04, ubuntu-24.04-arm, ubuntu-24.04 |
+| Linux | amd64, arm64 | mini, full | ubuntu-latest, ubuntu-22.04, ubuntu-24.04-arm, ubuntu-24.04 |
 | Windows | amd64 | mini, full | windows-latest |
 | macOS | amd64, arm64 | mini, full | macOS-15-intel, macos-latest |
 | FreeBSD | amd64 | mini, full | ubuntu-latest (via VM) |
