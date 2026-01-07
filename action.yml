@@ -243,9 +243,9 @@ runs:
             if [ "${{ env.mode }}" != "mini" ]; then
                 sudo apt-get install libgtk-3-dev libmpfr-dev
                 if [ "${{ env.support }}" = "legacy" ]; then
-                    sudo apt-get install -y libwebkit2gtk-4.0-dev
+                    sudo apt-get install -y --allow-downgrades libwebkit2gtk-4.0-dev
                 else
-                    sudo apt-get install -y libwebkit2gtk-4.1-dev
+                    sudo apt-get install -y --allow-downgrades libwebkit2gtk-4.1-dev
                 fi
             fi
 
