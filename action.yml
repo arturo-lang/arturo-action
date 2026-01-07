@@ -290,7 +290,8 @@ runs:
               fi
               
               if [ "${{ inputs.do }}" = "compile" ]; then
-                  pkg install -y pcre2 nim git
+                  pkg install -y pcre2
+                  pkg install -y nim git
                   if [ "${{ env.mode }}" = "full" ]; then
                       pkg install -y pkgconf openssl
                   fi
