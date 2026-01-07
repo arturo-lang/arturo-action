@@ -262,7 +262,10 @@ runs:
             sync: rsync
             copyback: true
             prepare: |
-              pkg update
+              mkdir -p /usr/local/etc/pkg/repos
+              echo 'FreeBSD: { url: "pkg+http://pkg.FreeBSD.org/${ABI}/latest" }' > /usr/local/etc/pkg/repos/FreeBSD.conf
+              pkg update -f
+
               pkg install -y wget curl bash ca_root_nss jq
               if [ "${{ env.mode }}" = "full" ]; then
                   pkg install -y gtk3 mpfr webkit2-gtk_41
