@@ -280,8 +280,6 @@ runs:
             sync: rsync
             copyback: true
             prepare: |
-              mkdir -p /usr/local/etc/pkg/repos
-              echo 'FreeBSD: { url: "http://pkg.FreeBSD.org/${ABI}/latest" }' > /usr/local/etc/pkg/repos/FreeBSD.conf
               pkg update -f
 
               pkg install -y wget curl bash ca_root_nss jq
@@ -290,7 +288,6 @@ runs:
               fi
               
               if [ "${{ inputs.do }}" = "compile" ]; then
-                  pkg install -y pcre2
                   pkg install -y nim git
                   if [ "${{ env.mode }}" = "full" ]; then
                       pkg install -y pkgconf openssl
