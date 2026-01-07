@@ -238,14 +238,32 @@ runs:
         - name: Install dependencies (Linux)
           if: (env.os == 'linux' || env.os == 'web') && inputs.artifacts_only != 'true'
           run: |
-            sudo apt-get update
-
+            # Multiple update attempts to handle mirror sync issues
+            for i in 1 2 3; do
+                sudo apt-get update && break
+                echo "Update attempt $i failed, retrying..."
+                sleep 5
+            done
+            
             if [ "${{ env.mode }}" != "mini" ]; then
-                sudo apt-get install libgtk-3-dev libmpfr-dev
+                sudo apt-get install -y libgtk-3-dev libmpfr-dev
+                
                 if [ "${{ env.support }}" = "legacy" ]; then
-                    sudo apt-get install -y libwebkit2gtk-4.0-dev
+                    for i in 1 2 3; do
+                        sudo apt-get install -y --allow-downgrades libwebkit2gtk-4.0-dev && break || \
+                        sudo apt-get install -y libwebkit2gtk-4.0-dev && break
+                        echo "Webkit install attempt $i failed, retrying..."
+                        sudo apt-get update
+                        sleep 10
+                    done
                 else
-                    sudo apt-get install -y libwebkit2gtk-4.1-dev
+                    for i in 1 2 3; do
+                        sudo apt-get install -y --allow-downgrades libwebkit2gtk-4.1-dev && break || \
+                        sudo apt-get install -y libwebkit2gtk-4.1-dev && break
+                        echo "Webkit install attempt $i failed, retrying..."
+                        sudo apt-get update
+                        sleep 10
+                    done
                 fi
             fi
 
@@ -262,7 +280,8 @@ runs:
             sync: rsync
             copyback: true
             prepare: |
-              pkg update
+              pkg update -f
+
               pkg install -y wget curl bash ca_root_nss jq
               if [ "${{ env.mode }}" = "full" ]; then
                   pkg install -y gtk3 mpfr webkit2-gtk_41
@@ -327,7 +346,7 @@ runs:
               unzip
               mingw-w64-x86_64-toolchain
               ${{ inputs.do == 'compile' && env.mode == 'full' && 'mingw-w64-x86_64-mpfr' || '' }}
-
+ 
         ######################################
         ######################################
         ## > FETCH (non-artifacts-only mode)
