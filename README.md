@@ -31,8 +31,11 @@
     token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-> [!TIP]
+> [!NOTE]
 > If all you need is to have Arturo available as part of your workflow, chances are all you'll have to do in most cases is to include the step above (^), and the action will auto-detect your runner/OS, fetch the appropriate version, etc. No configuration needed at all! 😉
+
+> [!TIP]
+> Want the single fastest runner there is, *with* Arturo enabled? Use macOS on arm64 (basically: `macos-latest`). The whole environment setup easily averages 20 seconds!
 
 ## More Examples
 
