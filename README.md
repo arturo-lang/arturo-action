@@ -15,6 +15,7 @@
       * [Native builds](#native-builds)
       * [Cross-platform matrix](#cross-platform-matrix)
       * [Compilation from source](#compilation-from-source)
+      * [Using nightly builds](#using-nightly-builds)
    * [Options](#options)
    * [Supported Platforms](#supported-platforms)
    * [License](#license)
@@ -119,13 +120,23 @@ jobs:
     artifact_version: "0.9.85"
 ```
 
+### Using nightly builds
+
+```yaml
+- name: Install Arturo (nightly)
+  uses: arturo-lang/setup-arturo@v2
+  with: 
+    token: ${{ secrets.GITHUB_TOKEN }}
+    from: latest           # Use nightly builds instead of stable
+```
+
 ## Options
 
 | Option | Values | Default | Notes |
 |--------|--------|---------|-------|
 | `token` | GitHub token | *required* | Use `${{ secrets.GITHUB_TOKEN }}` |
-| `do` | `fetch`, `compile` | `fetch` | Fetch nightly or compile from source |
-| `from` | `latest`, `stable` | `latest` | Source repository for fetch mode |
+| `do` | `fetch`, `compile` | `fetch` | Fetch release or compile from source |
+| `from` | `latest`, `stable` | `stable` | Source repository for fetch mode (`latest` = nightly builds) |
 | `mode` | `mini`, `full` | `full` | Build configuration |
 | `os` | `linux`, `windows`, `macos`, `freebsd`, `web` | auto-detect | Target platform |
 | `arch` | `amd64`, `arm64`, `js` | auto-detect | Target architecture |
