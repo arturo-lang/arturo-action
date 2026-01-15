@@ -58,6 +58,22 @@ jobs:
                     - {os: windows, arch: amd64,                        do: fetch}
                     - {os: windows, arch: amd64,    mode: mini,         do: fetch}
                     - {os: web,     arch: js,       mode: mini,         do: fetch}
+
+                    - {os: linux,   arch: amd64,                        do: fetch,      from: stable}
+                    - {os: linux,   arch: amd64,    support: legacy,    do: fetch,      from: stable}
+                    - {os: linux,   arch: amd64,    mode: mini,         do: fetch,      from: stable}
+                    - {os: linux,   arch: arm64,                        do: fetch,      from: stable}
+                    - {os: linux,   arch: arm64,    support: legacy,    do: fetch,      from: stable}
+                    - {os: linux,   arch: arm64,    mode: mini,         do: fetch,      from: stable}
+                    - {os: freebsd, arch: amd64,                        do: fetch,      from: stable}
+                    - {os: freebsd, arch: amd64,    mode: mini,         do: fetch,      from: stable}
+                    - {os: macos,   arch: amd64,                        do: fetch,      from: stable}
+                    - {os: macos,   arch: amd64,    mode: mini,         do: fetch,      from: stable}
+                    - {os: macos,   arch: arm64,                        do: fetch,      from: stable}
+                    - {os: macos,   arch: arm64,    mode: mini,         do: fetch,      from: stable}
+                    - {os: windows, arch: amd64,                        do: fetch,      from: stable}
+                    - {os: windows, arch: amd64,    mode: mini,         do: fetch,      from: stable}
+                    - {os: web,     arch: js,       mode: mini,         do: fetch,      from: stable}
                     
         defaults:
             run:
