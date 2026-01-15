@@ -199,9 +199,16 @@ runs:
             echo "Latest release: $LATEST_RELEASE"
             echo "release_tag=$LATEST_RELEASE" >> $GITHUB_OUTPUT
             
-            VERSION=$(echo $LATEST_RELEASE | tr -d '-')
+            # Handle version formatting based on release type
+            if [ "${{ inputs.from }}" = "stable" ]; then
+                VERSION=$(echo $LATEST_RELEASE | sed 's/^v//')
+                ARTIFACT_PREFIX="arturo"
+            else
+                VERSION=$(echo $LATEST_RELEASE | tr -d '-')
+                ARTIFACT_PREFIX="arturo-nightly"
+            fi
             
-            FULL_ARTIFACT_NAME="arturo-nightly.${VERSION}-${{ env.os }}-${{ env.artifact_arch }}"
+            FULL_ARTIFACT_NAME="${ARTIFACT_PREFIX}-${VERSION}-${{ env.os }}-${{ env.artifact_arch }}"
             [ "${{ env.mode }}" != "full" ] && [ "${{ env.mode }}" != "web" ] && FULL_ARTIFACT_NAME="${FULL_ARTIFACT_NAME}-${{ env.mode }}"
             [ "${{ env.support }}" = "legacy" ] && FULL_ARTIFACT_NAME="${FULL_ARTIFACT_NAME}-legacy"
             
@@ -209,6 +216,7 @@ runs:
             echo "Artifact to download: $FULL_ARTIFACT_NAME"
             
             # If artifacts-only mode, download and extract immediately
+            if [ "${{ inputs.artifacts_only }}" = "true" ]; then
             if [ "${{ inputs.artifacts_only }}" = "true" ]; then
                 echo "=========================================="
                 echo "ARTIFACTS-ONLY MODE - Skipping environment setup"
