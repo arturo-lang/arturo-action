@@ -184,7 +184,7 @@ runs:
           if: inputs.do == 'fetch'
           id: nightly-info
           run: |
-            REPO="${{ inputs.from == 'release' && 'arturo-lang/arturo' || 'arturo-lang/nightly' }}"
+            REPO="${{ inputs.from == 'stable' && 'arturo-lang/arturo' || 'arturo-lang/nightly' }}"
             echo "Fetching latest release from $REPO..."
             
             LATEST_RELEASE=$(curl -s -H "Authorization: token ${{ inputs.token }}" \
@@ -317,7 +317,7 @@ runs:
                   echo "Fetching Arturo nightly on FreeBSD..."
                   echo "=========================================="
                   
-                  REPO="${{ inputs.from == 'release' && 'arturo-lang/arturo' || 'arturo-lang/nightly' }}"
+                  REPO="${{ inputs.from == 'stable' && 'arturo-lang/arturo' || 'arturo-lang/nightly' }}"
                   curl -fsSL -H "Authorization: token ${{ inputs.token }}" \
                     "https://github.com/${REPO}/releases/download/${{ steps.nightly-info.outputs.release_tag }}/${{ steps.nightly-info.outputs.artifact_name }}.zip" \
                     -o /tmp/arturo.zip
