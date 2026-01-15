@@ -176,11 +176,11 @@ runs:
 
         ######################################
         ######################################
-        ## FETCH NIGHTLY & ARTIFACTS-ONLY
+        ## FETCH RELEASE & ARTIFACTS-ONLY
         ######################################
         ######################################
 
-        - name: Determine latest nightly release and fetch artifact
+        - name: Determine latest release and fetch artifact
           if: inputs.do == 'fetch'
           id: nightly-info
           run: |
