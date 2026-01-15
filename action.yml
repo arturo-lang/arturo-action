@@ -207,7 +207,7 @@ runs:
                 VERSION=$(echo $LATEST_RELEASE | tr -d '-')
                 FULL_ARTIFACT_NAME="arturo-nightly.${VERSION}-${{ env.os }}-${{ env.artifact_arch }}"
             fi
-
+            
             [ "${{ env.mode }}" != "full" ] && [ "${{ env.mode }}" != "web" ] && FULL_ARTIFACT_NAME="${FULL_ARTIFACT_NAME}-${{ env.mode }}"
             [ "${{ env.support }}" = "legacy" ] && FULL_ARTIFACT_NAME="${FULL_ARTIFACT_NAME}-legacy"
             
@@ -215,7 +215,6 @@ runs:
             echo "Artifact to download: $FULL_ARTIFACT_NAME"
             
             # If artifacts-only mode, download and extract immediately
-            if [ "${{ inputs.artifacts_only }}" = "true" ]; then
             if [ "${{ inputs.artifacts_only }}" = "true" ]; then
                 echo "=========================================="
                 echo "ARTIFACTS-ONLY MODE - Skipping environment setup"
