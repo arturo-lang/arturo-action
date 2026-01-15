@@ -359,12 +359,14 @@ runs:
         ######################################
         ######################################
 
-        - name: Fetch & setup nightly
+        - name: Fetch & setup release
           if: inputs.do == 'fetch' && env.os != 'freebsd' && inputs.artifacts_only != 'true'
           shell: ${{ env.os == 'windows' && 'msys2 {0}' || 'bash' }}
           run: |
+            REPO="${{ inputs.from == 'stable' && 'arturo-lang/arturo' || 'arturo-lang/nightly' }}"
+    
             curl -fsSL -H "Authorization: token ${{ inputs.token }}" \
-              "https://github.com/arturo-lang/nightly/releases/download/${{ steps.nightly-info.outputs.release_tag }}/${{ steps.nightly-info.outputs.artifact_name }}.zip" \
+              "https://github.com/${REPO}/releases/download/${{ steps.nightly-info.outputs.release_tag }}/${{ steps.nightly-info.outputs.artifact_name }}.zip" \
               -o /tmp/arturo.zip
             
             INSTALL_DIR="${{ env.os == 'windows' && '/usr/bin' || '$HOME/.arturo/bin' }}"
