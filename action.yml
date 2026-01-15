@@ -157,7 +157,7 @@ runs:
             echo "======================================"
             echo "Arturo Builder Configuration"
             echo "======================================"
-            echo "Mode:             ${{ inputs.do == 'compile' && 'COMPILE FROM SOURCE' || 'FETCH NIGHTLY' }}"
+            echo "Mode:             ${{ inputs.do == 'compile' && 'COMPILE FROM SOURCE' || 'FETCH RELEASE' }}"
             echo "From:             ${{ inputs.from }}"
             echo "Artifacts Only:   ${{ inputs.artifacts_only }}"
             echo "Runner OS:        ${{ runner.os }}"
@@ -320,7 +320,7 @@ runs:
                   rm -rf arturo-src
               else
                   echo "=========================================="
-                  echo "Fetching Arturo nightly on FreeBSD..."
+                  echo "Fetching Arturo on FreeBSD..."
                   echo "=========================================="
                   
                   REPO="${{ inputs.from == 'stable' && 'arturo-lang/arturo' || 'arturo-lang/nightly' }}"
@@ -376,7 +376,7 @@ runs:
             
             echo "$INSTALL_DIR" >> $GITHUB_PATH
             echo "arturoDistPath=$INSTALL_DIR" >> $GITHUB_ENV
-            echo "Arturo nightly installed successfully"
+            echo "Arturo installed successfully"
 
         ######################################
         ######################################
