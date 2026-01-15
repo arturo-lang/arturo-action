@@ -43,21 +43,37 @@ jobs:
                     - {os: windows, arch: amd64,    mode: mini,         do: compile}
                     - {os: web,     arch: js,       mode: mini,         do: compile}
 
-                    - {os: linux,   arch: amd64,                        do: fetch}
-                    - {os: linux,   arch: amd64,    support: legacy,    do: fetch}
-                    - {os: linux,   arch: amd64,    mode: mini,         do: fetch}
-                    - {os: linux,   arch: arm64,                        do: fetch}
-                    - {os: linux,   arch: arm64,    support: legacy,    do: fetch}
-                    - {os: linux,   arch: arm64,    mode: mini,         do: fetch}
-                    - {os: freebsd, arch: amd64,                        do: fetch}
-                    - {os: freebsd, arch: amd64,    mode: mini,         do: fetch}
-                    - {os: macos,   arch: amd64,                        do: fetch}
-                    - {os: macos,   arch: amd64,    mode: mini,         do: fetch}
-                    - {os: macos,   arch: arm64,                        do: fetch}
-                    - {os: macos,   arch: arm64,    mode: mini,         do: fetch}
-                    - {os: windows, arch: amd64,                        do: fetch}
-                    - {os: windows, arch: amd64,    mode: mini,         do: fetch}
-                    - {os: web,     arch: js,       mode: mini,         do: fetch}
+                    - {os: linux,   arch: amd64,                        do: fetch,      from: latest}
+                    - {os: linux,   arch: amd64,    support: legacy,    do: fetch,      from: latest}
+                    - {os: linux,   arch: amd64,    mode: mini,         do: fetch,      from: latest}
+                    - {os: linux,   arch: arm64,                        do: fetch,      from: latest}
+                    - {os: linux,   arch: arm64,    support: legacy,    do: fetch,      from: latest}
+                    - {os: linux,   arch: arm64,    mode: mini,         do: fetch,      from: latest}
+                    - {os: freebsd, arch: amd64,                        do: fetch,      from: latest}
+                    - {os: freebsd, arch: amd64,    mode: mini,         do: fetch,      from: latest}
+                    - {os: macos,   arch: amd64,                        do: fetch,      from: latest}
+                    - {os: macos,   arch: amd64,    mode: mini,         do: fetch,      from: latest}
+                    - {os: macos,   arch: arm64,                        do: fetch,      from: latest}
+                    - {os: macos,   arch: arm64,    mode: mini,         do: fetch,      from: latest}
+                    - {os: windows, arch: amd64,                        do: fetch,      from: latest}
+                    - {os: windows, arch: amd64,    mode: mini,         do: fetch,      from: latest}
+                    - {os: web,     arch: js,       mode: mini,         do: fetch,      from: latest}
+
+                    - {os: linux,   arch: amd64,                        do: fetch,      from: stable}
+                    - {os: linux,   arch: amd64,    support: legacy,    do: fetch,      from: stable}
+                    - {os: linux,   arch: amd64,    mode: mini,         do: fetch,      from: stable}
+                    - {os: linux,   arch: arm64,                        do: fetch,      from: stable}
+                    - {os: linux,   arch: arm64,    support: legacy,    do: fetch,      from: stable}
+                    - {os: linux,   arch: arm64,    mode: mini,         do: fetch,      from: stable}
+                    - {os: freebsd, arch: amd64,                        do: fetch,      from: stable}
+                    - {os: freebsd, arch: amd64,    mode: mini,         do: fetch,      from: stable}
+                    - {os: macos,   arch: amd64,                        do: fetch,      from: stable}
+                    - {os: macos,   arch: amd64,    mode: mini,         do: fetch,      from: stable}
+                    - {os: macos,   arch: arm64,                        do: fetch,      from: stable}
+                    - {os: macos,   arch: arm64,    mode: mini,         do: fetch,      from: stable}
+                    - {os: windows, arch: amd64,                        do: fetch,      from: stable}
+                    - {os: windows, arch: amd64,    mode: mini,         do: fetch,      from: stable}
+                    - {os: web,     arch: js,       mode: mini,         do: fetch,      from: stable}
                     
         defaults:
             run:
@@ -72,6 +88,7 @@ jobs:
               uses: ./
               with: 
                 do: ${{ matrix.do }}
+                from: ${{ matrix.from }}
                 token: ${{ secrets.GITHUB_TOKEN }}
                 os: ${{ matrix.os }}
                 arch: ${{ matrix.arch }}

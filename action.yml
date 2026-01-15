@@ -176,11 +176,11 @@ runs:
 
         ######################################
         ######################################
-        ## FETCH NIGHTLY & ARTIFACTS-ONLY
+        ## FETCH RELEASE & ARTIFACTS-ONLY
         ######################################
         ######################################
 
-        - name: Determine latest nightly release and fetch artifact
+        - name: Determine latest release and fetch artifact
           if: inputs.do == 'fetch'
           id: nightly-info
           run: |
@@ -199,9 +199,15 @@ runs:
             echo "Latest release: $LATEST_RELEASE"
             echo "release_tag=$LATEST_RELEASE" >> $GITHUB_OUTPUT
             
-            VERSION=$(echo $LATEST_RELEASE | tr -d '-')
+            # Handle version formatting based on release type
+            if [ "${{ inputs.from }}" = "stable" ]; then
+                VERSION=$(echo $LATEST_RELEASE | sed 's/^v//')
+                FULL_ARTIFACT_NAME="arturo-${VERSION}-${{ env.os }}-${{ env.artifact_arch }}"
+            else
+                VERSION=$(echo $LATEST_RELEASE | tr -d '-')
+                FULL_ARTIFACT_NAME="arturo-nightly.${VERSION}-${{ env.os }}-${{ env.artifact_arch }}"
+            fi
             
-            FULL_ARTIFACT_NAME="arturo-nightly.${VERSION}-${{ env.os }}-${{ env.artifact_arch }}"
             [ "${{ env.mode }}" != "full" ] && [ "${{ env.mode }}" != "web" ] && FULL_ARTIFACT_NAME="${FULL_ARTIFACT_NAME}-${{ env.mode }}"
             [ "${{ env.support }}" = "legacy" ] && FULL_ARTIFACT_NAME="${FULL_ARTIFACT_NAME}-legacy"
             
@@ -353,12 +359,14 @@ runs:
         ######################################
         ######################################
 
-        - name: Fetch & setup nightly
+        - name: Fetch & setup release
           if: inputs.do == 'fetch' && env.os != 'freebsd' && inputs.artifacts_only != 'true'
           shell: ${{ env.os == 'windows' && 'msys2 {0}' || 'bash' }}
           run: |
+            REPO="${{ inputs.from == 'stable' && 'arturo-lang/arturo' || 'arturo-lang/nightly' }}"
+    
             curl -fsSL -H "Authorization: token ${{ inputs.token }}" \
-              "https://github.com/arturo-lang/nightly/releases/download/${{ steps.nightly-info.outputs.release_tag }}/${{ steps.nightly-info.outputs.artifact_name }}.zip" \
+              "https://github.com/${REPO}/releases/download/${{ steps.nightly-info.outputs.release_tag }}/${{ steps.nightly-info.outputs.artifact_name }}.zip" \
               -o /tmp/arturo.zip
             
             INSTALL_DIR="${{ env.os == 'windows' && '/usr/bin' || '$HOME/.arturo/bin' }}"
