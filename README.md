@@ -125,7 +125,7 @@ jobs:
 |--------|--------|---------|-------|
 | `token` | GitHub token | *required* | Use `${{ secrets.GITHUB_TOKEN }}` |
 | `do` | `fetch`, `compile` | `fetch` | Fetch nightly or compile from source |
-| `from` | `nightly`, `release` | `nightly` | Source repository for fetch mode |
+| `from` | `latest`, `stable` | `latest` | Source repository for fetch mode |
 | `mode` | `mini`, `full` | `full` | Build configuration |
 | `os` | `linux`, `windows`, `macos`, `freebsd`, `web` | auto-detect | Target platform |
 | `arch` | `amd64`, `arm64`, `js` | auto-detect | Target architecture |
