@@ -36,8 +36,8 @@ inputs:
         description: 'Action to perform (fetch, compile)'
         default: 'fetch'
     from:
-        description: 'Source repository for fetch (nightly, release)'
-        default: 'nightly'
+        description: 'Source repository for fetch (latest, stable)'
+        default: 'latest'
     artifacts_only:
         description: 'Skip environment setup, just download and upload artifacts (only works with do=fetch)'
         default: 'false'
