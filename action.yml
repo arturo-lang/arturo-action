@@ -182,7 +182,7 @@ runs:
 
         - name: Determine latest release and fetch artifact
           if: inputs.do == 'fetch'
-          id: nightly-info
+          id: release-info
           run: |
             REPO="${{ inputs.from == 'stable' && 'arturo-lang/arturo' || 'arturo-lang/nightly' }}"
             echo "Fetching latest release from $REPO..."
@@ -325,7 +325,7 @@ runs:
                   
                   REPO="${{ inputs.from == 'stable' && 'arturo-lang/arturo' || 'arturo-lang/nightly' }}"
                   curl -fsSL -H "Authorization: token ${{ inputs.token }}" \
-                    "https://github.com/${REPO}/releases/download/${{ steps.nightly-info.outputs.release_tag }}/${{ steps.nightly-info.outputs.artifact_name }}.zip" \
+                    "https://github.com/${REPO}/releases/download/${{ steps.release-info.outputs.release_tag }}/${{ steps.release-info.outputs.artifact_name }}.zip" \
                     -o /tmp/arturo.zip
                   
                   unzip -q /tmp/arturo.zip -d /usr/local/bin
@@ -366,7 +366,7 @@ runs:
             REPO="${{ inputs.from == 'stable' && 'arturo-lang/arturo' || 'arturo-lang/nightly' }}"
     
             curl -fsSL -H "Authorization: token ${{ inputs.token }}" \
-              "https://github.com/${REPO}/releases/download/${{ steps.nightly-info.outputs.release_tag }}/${{ steps.nightly-info.outputs.artifact_name }}.zip" \
+              "https://github.com/${REPO}/releases/download/${{ steps.release-info.outputs.release_tag }}/${{ steps.release-info.outputs.artifact_name }}.zip" \
               -o /tmp/arturo.zip
             
             INSTALL_DIR="${{ env.os == 'windows' && '/usr/bin' || '$HOME/.arturo/bin' }}"
@@ -487,6 +487,6 @@ runs:
           if: inputs.create_artifact == 'true'
           uses: actions/upload-artifact@v4
           with:
-            name: ${{ steps.nightly-info.outputs.artifact_name || env.artifact_name }}
+            name: ${{ steps.release-info.outputs.artifact_name || env.artifact_name }}
             path: ${{ env.arturoDistPath }}/*
             include-hidden-files: false
